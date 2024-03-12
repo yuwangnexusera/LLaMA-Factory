@@ -374,5 +374,8 @@
       "prompt": "content"
     },
     "folder": "python"
-  }
+  },
+    "medical_report_category": {
+      "file_name": "category_en.json"
+    }
 }
