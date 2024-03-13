@@ -97,6 +97,14 @@ class ModelArguments:
         default=False,
         metadata={"help": "Whether or not to disable CUDA graph in the vLLM engine."},
     )
+    offload_folder: str = field(
+        default="offload",
+        metadata={"help": "Path to offload model weights."},
+    )
+    use_cache: bool = field(
+        default=True,
+        metadata={"help": "Whether or not to use KV cache in generation."},
+    )
     hf_hub_token: Optional[str] = field(
         default=None,
         metadata={"help": "Auth token to log in with Hugging Face Hub."},
