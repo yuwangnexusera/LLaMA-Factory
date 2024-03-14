@@ -5,7 +5,7 @@ from peft import LoraConfig, LoraModel, PeftModel, TaskType, get_peft_model
 from transformers.integrations import is_deepspeed_zero3_enabled
 
 from ..extras.logging import get_logger
-from .utils import find_all_linear_modules, find_expanded_modules
+from .utils import QuantizationMethod, find_all_linear_modules, find_expanded_modules
 
 
 if TYPE_CHECKING:
@@ -107,14 +107,18 @@ def init_adapter(
                 adapter_to_merge = model_args.adapter_name_or_path
 
             for adapter in adapter_to_merge:
-                model: "LoraModel" = PeftModel.from_pretrained(model, adapter)
+                model: "LoraModel" = PeftModel.from_pretrained(
+                    model, adapter, offload_folder=model_args.offload_folder
+                )
                 model = model.merge_and_unload()
 
             if len(adapter_to_merge) > 0:
                 logger.info("Merged {} adapter(s).".format(len(adapter_to_merge)))
 
             if adapter_to_resume is not None:  # resume lora training
-                model = PeftModel.from_pretrained(model, adapter_to_resume, is_trainable=is_trainable)
+                model = PeftModel.from_pretrained(
+                    model, adapter_to_resume, is_trainable=is_trainable, offload_folder=model_args.offload_folder
+                )
 
         if is_trainable and adapter_to_resume is None:  # create new lora weights while training
             if len(finetuning_args.lora_target) == 1 and finetuning_args.lora_target[0] == "all":
@@ -125,9 +129,9 @@ def init_adapter(
             if finetuning_args.use_llama_pro:
                 target_modules = find_expanded_modules(model, target_modules, finetuning_args.num_layer_trainable)
 
-            if finetuning_args.use_dora:
-                if getattr(model, "quantization_method", None):
-                    raise ValueError("DoRA is currently not compatible with quantized models.")
+            if finetuning_args.use_dora and getattr(model, "quantization_method", None) is not None:
+                if getattr(model, "quantization_method", None) != QuantizationMethod.BITS_AND_BYTES:
+                    raise ValueError("DoRA is not compatible with PTQ-quantized models.")
 
             peft_kwargs = {
                 "r": finetuning_args.lora_rank,
