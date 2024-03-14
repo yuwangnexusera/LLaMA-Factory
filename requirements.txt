@@ -15,3 +15,8 @@ fastapi
 sse-starlette
 matplotlib
 fire
+
+
+
+
+bitsandbytes>=0.37.0
