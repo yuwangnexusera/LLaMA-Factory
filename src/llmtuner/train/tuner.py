@@ -43,8 +43,6 @@ def run_exp(args: Optional[Dict[str, Any]] = None, callbacks: Optional[List["Tra
 def export_model(args: Optional[Dict[str, Any]] = None):
     model_args, data_args, finetuning_args, _ = get_infer_args(args)
 
-    model_args.device_map = {"": "cpu"}
-
     if model_args.export_dir is None:
         raise ValueError("Please specify `export_dir` to save model.")
 
