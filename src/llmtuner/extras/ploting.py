@@ -36,18 +36,29 @@ def plot_loss(save_dictionary: os.PathLike, keys: List[str] = ["loss"]) -> None:
 
     for key in keys:
         steps, metrics = [], []
+
         for i in range(len(data["log_history"])):
-            if key in data["log_history"][i]:
-                steps.append(data["log_history"][i]["step"])
-                metrics.append(data["log_history"][i][key])
+            if key=="error curve":
+                try:
+                    steps.append(data["log_history"][i]["step"])
+                    metrics.append(
+                        data["log_history"][i]["loss"] - data["log_history"][i]["eval_loss"]
+                    )
+                except:
+                    print("error curve errored")
+                    break
+            else:
+                if key in data["log_history"][i]:
+                    steps.append(data["log_history"][i]["step"])
+                    metrics.append(data["log_history"][i][key])
 
         if len(metrics) == 0:
             logger.warning(f"No metric {key} to plot.")
             continue
 
         plt.figure()
-        plt.plot(steps, metrics, color="#1f77b4", alpha=0.4, label="original")
-        plt.plot(steps, smooth(metrics), color="#1f77b4", label="smoothed")
+        plt.plot(steps, metrics, color="#FFDAB9", alpha=0.4, label="original")
+        plt.plot(steps, smooth(metrics), color="#FFD700", label="smoothed")
         plt.title("training {} of {}".format(key, save_dictionary))
         plt.xlabel("step")
         plt.ylabel(key)

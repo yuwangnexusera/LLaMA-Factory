@@ -85,7 +85,7 @@ def run_sft(
             trainer.save_metrics("eval", metrics)
         trainer.save_state()
         if trainer.is_world_process_zero() and finetuning_args.plot_loss:
-            plot_loss(training_args.output_dir, keys=["loss", "eval_loss"])
+            plot_loss(training_args.output_dir, keys=["loss", "eval_loss","error curve"])
 
     # Predict
     if training_args.do_predict:
