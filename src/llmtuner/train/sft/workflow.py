@@ -7,7 +7,7 @@ from transformers import DataCollatorForSeq2Seq
 from ...data import get_dataset, split_dataset
 from ...extras.constants import IGNORE_INDEX
 from ...extras.misc import get_logits_processor
-from ...extras.ploting import plot_loss
+from ...extras.ploting import plot_loss, plot_loss_error_curve
 from ...model import load_model, load_tokenizer
 from ...train.sft.metric import ComputeMetrics
 from ...train.sft.trainer import CustomSeq2SeqTrainer
@@ -86,6 +86,7 @@ def run_sft(
         trainer.save_state()
         if trainer.is_world_process_zero() and finetuning_args.plot_loss:
             plot_loss(training_args.output_dir, keys=["loss", "eval_loss","error curve"])
+            plot_loss_error_curve(training_args.output_dir, ["error_curve"])
 
     # Predict
     if training_args.do_predict:
