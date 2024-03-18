@@ -40,13 +40,21 @@ def plot_loss(save_dictionary: os.PathLike, keys: List[str] = ["loss"]) -> None:
         for i in range(len(data["log_history"])):
             if key=="error curve":
                 try:
-                    steps.append(data["log_history"][i]["step"])
-                    metrics.append(
-                        data["log_history"][i]["loss"] - data["log_history"][i]["eval_loss"]
-                    )
-                except:
-                    print("error curve errored")
-                    break
+                    for j in range(i,len(data["log_history"]),1):
+                        if (
+                            data["log_history"][i]["step"]
+                            == data["log_history"][j]["step"]
+                            and data["log_history"][i]["epoch"]
+                            == data["log_history"][j]["epoch"]
+                        ):
+                            steps.append(data["log_history"][i]["step"])
+                            metrics.append(
+                                data["log_history"][i]["loss"]
+                                - data["log_history"][j]["eval_loss"]
+                            )
+                except Exception as e:
+                    print(f"error curve errored{e}")
+                    continue 
             else:
                 if key in data["log_history"][i]:
                     steps.append(data["log_history"][i]["step"])
