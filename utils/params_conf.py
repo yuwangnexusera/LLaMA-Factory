@@ -3,6 +3,7 @@ config_dict = {
         "run_exp_config": {
             "stage": "sft",
             "do_train": True,
+            "do_eval": True,
             "model_name_or_path": "meta-llama/Llama-2-7b-chat-hf",
             "dataset": "medical_report_category",
             "template": "llama2",
@@ -12,6 +13,7 @@ config_dict = {
             "lora_target": "all",
             "output_dir": "/content/drive/MyDrive/models/llama2_7b_8batch",
             "per_device_train_batch_size": 8,
+            "per_device_eval_batch_size":1,
             "gradient_accumulation_steps": 8,
             "lr_scheduler_type": "cosine",
             "logging_steps": 10,
@@ -24,6 +26,8 @@ config_dict = {
             "cutoff_len": 2048,
             "hf_hub_token": "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",
             "fp16": True,
+            "plot_loss":True,
+            "evaluation_strategy":"steps",
         },
         "export_model_config": {
             "model_name_or_path": "meta-llama/Llama-2-7b-chat-hf",
@@ -45,6 +49,7 @@ config_dict = {
         "run_exp_config": {
             "stage": "sft",
             "do_train": True,
+            "do_eval": True,
             "model_name_or_path": "bigscience/bloom-560m",
             "dataset": "medical_report_category",
             "template": "alpaca",
@@ -59,8 +64,8 @@ config_dict = {
             "logging_steps": 10,
             "save_steps": 100,
             "learning_rate": 1e-4,
-            "num_train_epochs": 6.0,
-            "max_samples": 2000,
+            "num_train_epochs": 2.0,
+            "max_samples": 200,
             "max_grad_norm": 1.0,
             "val_size": 0.2,
             "cutoff_len": 2048,
@@ -77,7 +82,7 @@ config_dict = {
         },
         "chat_model_config": {
             "model_name_or_path": "/content/drive/MyDrive/models/ft_bloom",
-            "template": "alpaca"
+            "template": "alpaca",
         },
         "input_file": "nex_dataset/test/category_test_en.json",
         "output_file": "/content/drive/MyDrive/models/bloom560m.json",
