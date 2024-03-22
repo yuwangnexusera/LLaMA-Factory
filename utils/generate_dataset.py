@@ -98,49 +98,77 @@ def write_records_to_jsonl(records, jsonl_path):
     print("success")
 
 
+def convert_35_lf(source_path, target_path):
+    # 打开源jsonl文件和目标jsonl文件
+    with open(source_path, 'r', encoding='utf-8') as source_file, \
+         open(target_path, 'w', encoding='utf-8') as target_file:
+        # 逐行读取源jsonl文件
+        converted_data = []
+        for line in source_file:
+            # 解析JSON内容
+            data = json.loads(line)
+            # 提取相关内容
+            instruction = ' '.join([msg['content'] for msg in data['messages'] if msg['role'] == 'system'])
+            user_input = ' '.join([msg['content'] for msg in data['messages'] if msg['role'] == 'user'])
+            output = ' '.join([msg['content'] for msg in data['messages'] if msg['role'] == 'assistant'])
+
+            # 组合成新的格式
+            converted_data.append({
+                "instruction": instruction,
+                "input": user_input,
+                "output": output
+            })
+            # 将新的JSON对象转换为字符串并写入目标jsonl文件
+        target_file.write(json.dumps(converted_data,ensure_ascii=False) + "\n")
+
+        target_file.flush()
+
+
 if __name__ == "__main__":
-    query_dataset = ss_unit_dataset.select(
-        ss_unit_dataset.url, ss_unit_dataset.content, ss_unit_dataset.report_id
-    ).group_by(ss_unit_dataset.url)
-    dataset_list = list(query_dataset.execute())
-    records_train, records_validation, records_test = split_dataset(
-        dataset_list, [0.6, 0.2, 0.2]
-    )
-    test_record_for_gpt = []
-    test_record_for_gpt_url = []
-    for test_record in records_test:
-        test_record_for_gpt_url.append(test_record.url)
-        report_type_query = ss_report_type.select(ss_report_type.report_type).where(
-            ss_report_type.id == test_record.report_id
-        )[0]
-        if not test_record.content:
-            content_obj = hx_ocr_result.select().where(
-                hx_ocr_result.url == test_record.url
-            )[0]
-            test_record.content = content_obj.ocr_result["data"]["ocr_align"]
-        test_record_for_gpt.append(
-            {
-                "url": test_record.url,
-                "content": google_translate.translate_text(test_record.content),
-                "report_type": google_translate.translate_text(
-                    report_type_query.report_type
-                ),
-                "before_ft": "",
-                "after_ft": "",
-            }
-        )
-    train_list = [
-        pic for pic in records_train if pic.url not in test_record_for_gpt_url
-    ]
-    validation_list = [
-        pic for pic in records_validation if pic.url not in test_record_for_gpt_url
-    ]
-    write_records_to_json(test_record_for_gpt, "nex_dataset/test/category_test_en.json")
-    write_records_to_jsonl(
-        train_list,
-        "nex_dataset/train/category_train_en.jsonl",
-    )
-    write_records_to_jsonl(
-        validation_list,
-        "nex_dataset/validation/category_validation_en.jsonl",
-    )
+
+    convert_35_lf('nex_dataset/train/category_train_3_5.jsonl','data/category_zh.json')
+    # query_dataset = ss_unit_dataset.select(
+    #     ss_unit_dataset.url, ss_unit_dataset.content, ss_unit_dataset.report_id
+    # ).group_by(ss_unit_dataset.url)
+    # dataset_list = list(query_dataset.execute())
+    # records_train, records_validation, records_test = split_dataset(
+    #     dataset_list, [0.6, 0.2, 0.2]
+    # )
+    # test_record_for_gpt = []
+    # test_record_for_gpt_url = []
+    # for test_record in records_test:
+    #     test_record_for_gpt_url.append(test_record.url)
+    #     report_type_query = ss_report_type.select(ss_report_type.report_type).where(
+    #         ss_report_type.id == test_record.report_id
+    #     )[0]
+    #     if not test_record.content:
+    #         content_obj = hx_ocr_result.select().where(
+    #             hx_ocr_result.url == test_record.url
+    #         )[0]
+    #         test_record.content = content_obj.ocr_result["data"]["ocr_align"]
+    #     test_record_for_gpt.append(
+    #         {
+    #             "url": test_record.url,
+    #             "content": google_translate.translate_text(test_record.content),
+    #             "report_type": google_translate.translate_text(
+    #                 report_type_query.report_type
+    #             ),
+    #             "before_ft": "",
+    #             "after_ft": "",
+    #         }
+    #     )
+    # train_list = [
+    #     pic for pic in records_train if pic.url not in test_record_for_gpt_url
+    # ]
+    # validation_list = [
+    #     pic for pic in records_validation if pic.url not in test_record_for_gpt_url
+    # ]
+    # write_records_to_json(test_record_for_gpt, "nex_dataset/test/category_test_en.json")
+    # write_records_to_jsonl(
+    #     train_list,
+    #     "nex_dataset/train/category_train_en.jsonl",
+    # )
+    # write_records_to_jsonl(
+    #     validation_list,
+    #     "nex_dataset/validation/category_validation_en.jsonl",
+    # )
