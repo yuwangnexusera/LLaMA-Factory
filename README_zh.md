@@ -72,9 +72,9 @@ https://github.com/hiyouga/LLaMA-Factory/assets/16256802/ec36a9dd-37f4-4f72-81bd
 
 [24/03/20] 我们支持了能在 2x24GB GPU 上微调 70B 模型的 **FSDP+QLoRA**。详细用法请参照 `examples/fsdp_qlora`。
 
-[24/03/13] 我们支持了 **[LoRA+](https://arxiv.org/abs/2402.12354)**。请使用 `loraplus_lr_ratio=16.0` 参数开启 LoRA+ 方法。
+[24/03/13] 我们支持了 **[LoRA+](https://arxiv.org/abs/2402.12354)**。详细用法请参照 `examples/extras/loraplus`。
 
-[24/03/07] 我们支持了梯度低秩投影（**[GaLore](https://arxiv.org/abs/2403.03507)**）算法。请使用 `--use_galore` 参数切换显存高效的优化器。
+[24/03/07] 我们支持了梯度低秩投影（**[GaLore](https://arxiv.org/abs/2403.03507)**）算法。详细用法请参照 `examples/extras/galore`。
 
 [24/03/07] 我们集成了 **[vLLM](https://github.com/vllm-project/vllm)** 以实现极速并发推理。请使用 `--infer_backend vllm` 来获得 **270%** 的推理速度。（尚不支持 LoRA，请先合并权重。）
 
@@ -450,7 +450,7 @@ CUDA_VISIBLE_DEVICES=0 python src/train_bash.py \
 ```
 
 > [!TIP]
-> 使用 `--adapter_name_or_path path_to_sft_checkpoint,path_to_ppo_checkpoint` 来进行微调模型的推理。
+> 如果开启了 `--create_new_adapter`，则使用 `--adapter_name_or_path path_to_sft_checkpoint,path_to_ppo_checkpoint` 来进行微调模型的推理。
 
 > [!WARNING]
 > 如果使用 fp16 精度进行 LLaMA-2 模型的 PPO 训练，请使用 `--per_device_train_batch_size=1`。
@@ -481,7 +481,7 @@ CUDA_VISIBLE_DEVICES=0 python src/train_bash.py \
 ```
 
 > [!TIP]
-> 使用 `--adapter_name_or_path path_to_sft_checkpoint,path_to_dpo_checkpoint` 来进行微调模型的推理。
+> 如果开启了 `--create_new_adapter`，则使用 `--adapter_name_or_path path_to_sft_checkpoint,path_to_dpo_checkpoint` 来进行微调模型的推理。
 
 ### 多 GPU 分布式训练
 
@@ -569,7 +569,7 @@ deepspeed --num_gpus 8 src/train_bash.py \
 ### 合并 LoRA 权重并导出模型
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 python src/export_model.py \
+CUDA_VISIBLE_DEVICES= python src/export_model.py \
     --model_name_or_path path_to_llama_model \
     --adapter_name_or_path path_to_checkpoint \
     --template default \
