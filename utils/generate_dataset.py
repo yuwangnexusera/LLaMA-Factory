@@ -54,6 +54,25 @@ def generate_other(jsonl_path, records_80_percent):
 
     print(jsonl_path)
 
+# 从增强数据到训练数据
+def generate_extract_dataset(aug_data_path,train_data_path):
+    with open(aug_data_path, "r", encoding="utf-8") as file , open(train_data_path, "a", encoding="utf-8") as train_file:
+        datasets_json = json.load(file)
+        converted_data = []
+        for category, datasets in datasets_json.items():
+            for dataset in datasets:
+                input_val = dataset.get("report","")
+                if not input_val:
+                    continue
+                dataset.pop("report",None)
+                converted_data.append(
+                    {"instruction": "你的任务是从输入报告中提取医学信息，并以json格式输出，输入报告：", "input": input_val+"json结果：", "output": dataset}
+                )
+            # 将新的JSON对象转换为字符串并写入目标jsonl文件
+        train_file.write(json.dumps(converted_data,ensure_ascii=False) + "\n")
+
+        train_file.flush()
+
 
 def write_records_to_json(records, file_name):
     with open(file_name, "w", encoding="utf-8") as file:
@@ -125,8 +144,9 @@ def convert_35_lf(source_path, target_path):
 
 
 if __name__ == "__main__":
-
-    convert_35_lf('nex_dataset/train/category_train_3_5.jsonl','data/category_zh.json')
+    # 从增强的数据文件生成数据集文件。
+    generate_extract_dataset('../lc-medical-record-recognition/data/dataset_augmentation.json','data/extract100_zh.json')
+    # convert_35_lf('nex_dataset/train/category_train_3_5.jsonl','data/category_zh.json')
     # query_dataset = ss_unit_dataset.select(
     #     ss_unit_dataset.url, ss_unit_dataset.content, ss_unit_dataset.report_id
     # ).group_by(ss_unit_dataset.url)
