@@ -15,7 +15,7 @@ from ..extras.constants import TRAINING_STAGES
 from ..extras.logging import LoggerHandler
 from ..extras.misc import get_device_count, torch_gc
 from ..train import run_exp
-from .common import get_module, get_save_dir, load_config
+from .common import get_module, get_save_dir, load_args, load_config, save_args
 from .locales import ALERTS
 from .utils import gen_cmd, get_eval_results, update_process_bar
 
@@ -48,8 +48,8 @@ class Runner:
     def set_abort(self) -> None:
         self.aborted = True
 
-    def _initialize(self, data: Dict[Component, Any], do_train: bool, from_preview: bool) -> str:
-        get = lambda name: data[self.manager.get_elem_by_name(name)]
+    def _initialize(self, data: Dict["Component", Any], do_train: bool, from_preview: bool) -> str:
+        get = lambda elem_id: data[self.manager.get_elem_by_id(elem_id)]
         lang, model_name, model_path = get("top.lang"), get("top.model_name"), get("top.model_path")
         dataset = get("train.dataset") if do_train else get("eval.dataset")
 
@@ -95,8 +95,8 @@ class Runner:
         else:
             return finish_info
 
-    def _parse_train_args(self, data: Dict[Component, Any]) -> Dict[str, Any]:
-        get = lambda name: data[self.manager.get_elem_by_name(name)]
+    def _parse_train_args(self, data: Dict["Component", Any]) -> Dict[str, Any]:
+        get = lambda elem_id: data[self.manager.get_elem_by_id(elem_id)]
         user_config = load_config()
 
         if get("top.adapter_path"):
@@ -150,23 +150,21 @@ class Runner:
         args["disable_tqdm"] = True
 
         if args["finetuning_type"] == "freeze":
-            args["num_layer_trainable"] = int(get("train.num_layer_trainable"))
+            args["num_layer_trainable"] = get("train.num_layer_trainable")
             args["name_module_trainable"] = get("train.name_module_trainable")
         elif args["finetuning_type"] == "lora":
-            args["lora_rank"] = int(get("train.lora_rank"))
-            args["lora_alpha"] = int(get("train.lora_alpha"))
-            args["lora_dropout"] = float(get("train.lora_dropout"))
-            args["lora_target"] = get("train.lora_target") or get_module(get("top.model_name"))
+            args["lora_rank"] = get("train.lora_rank")
+            args["lora_alpha"] = get("train.lora_alpha")
+            args["lora_dropout"] = get("train.lora_dropout")
+            args["loraplus_lr_ratio"] = get("train.loraplus_lr_ratio") or None
+            args["create_new_adapter"] = get("train.create_new_adapter")
             args["use_rslora"] = get("train.use_rslora")
             args["use_dora"] = get("train.use_dora")
+            args["lora_target"] = get("train.lora_target") or get_module(get("top.model_name"))
             args["additional_target"] = get("train.additional_target") or None
-            if args["stage"] in ["rm", "ppo", "dpo"]:
-                args["create_new_adapter"] = args["quantization_bit"] is None
-            else:
-                args["create_new_adapter"] = get("train.create_new_adapter")
 
             if args["use_llama_pro"]:
-                args["num_layer_trainable"] = int(get("train.num_layer_trainable"))
+                args["num_layer_trainable"] = get("train.num_layer_trainable")
 
         if args["stage"] == "ppo":
             args["reward_model"] = ",".join(
@@ -196,8 +194,8 @@ class Runner:
 
         return args
 
-    def _parse_eval_args(self, data: Dict[Component, Any]) -> Dict[str, Any]:
-        get = lambda name: data[self.manager.get_elem_by_name(name)]
+    def _parse_eval_args(self, data: Dict["Component", Any]) -> Dict[str, Any]:
+        get = lambda elem_id: data[self.manager.get_elem_by_id(elem_id)]
         user_config = load_config()
 
         if get("top.adapter_path"):
@@ -232,6 +230,7 @@ class Runner:
             temperature=get("eval.temperature"),
             output_dir=get_save_dir(get("top.model_name"), get("top.finetuning_type"), get("eval.output_dir")),
         )
+        args["disable_tqdm"] = True
 
         if get("eval.predict"):
             args["do_predict"] = True
@@ -240,22 +239,20 @@ class Runner:
 
         return args
 
-    def _preview(
-        self, data: Dict[Component, Any], do_train: bool
-    ) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
+    def _preview(self, data: Dict["Component", Any], do_train: bool) -> Generator[Tuple[str, "gr.Slider"], None, None]:
         error = self._initialize(data, do_train, from_preview=True)
         if error:
             gr.Warning(error)
-            yield error, gr.update(visible=False)
+            yield error, gr.Slider(visible=False)
         else:
             args = self._parse_train_args(data) if do_train else self._parse_eval_args(data)
-            yield gen_cmd(args), gr.update(visible=False)
+            yield gen_cmd(args), gr.Slider(visible=False)
 
-    def _launch(self, data: Dict[Component, Any], do_train: bool) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
+    def _launch(self, data: Dict["Component", Any], do_train: bool) -> Generator[Tuple[str, "gr.Slider"], None, None]:
         error = self._initialize(data, do_train, from_preview=False)
         if error:
             gr.Warning(error)
-            yield error, gr.update(visible=False)
+            yield error, gr.Slider(visible=False)
         else:
             args = self._parse_train_args(data) if do_train else self._parse_eval_args(data)
             run_kwargs = dict(args=args, callbacks=[self.trainer_callback])
@@ -264,20 +261,20 @@ class Runner:
             self.thread.start()
             yield from self.monitor()
 
-    def preview_train(self, data: Dict[Component, Any]) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
+    def preview_train(self, data: Dict[Component, Any]) -> Generator[Tuple[str, gr.Slider], None, None]:
         yield from self._preview(data, do_train=True)
 
-    def preview_eval(self, data: Dict[Component, Any]) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
+    def preview_eval(self, data: Dict[Component, Any]) -> Generator[Tuple[str, gr.Slider], None, None]:
         yield from self._preview(data, do_train=False)
 
-    def run_train(self, data: Dict[Component, Any]) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
+    def run_train(self, data: Dict[Component, Any]) -> Generator[Tuple[str, gr.Slider], None, None]:
         yield from self._launch(data, do_train=True)
 
-    def run_eval(self, data: Dict[Component, Any]) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
+    def run_eval(self, data: Dict[Component, Any]) -> Generator[Tuple[str, gr.Slider], None, None]:
         yield from self._launch(data, do_train=False)
 
-    def monitor(self) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
-        get = lambda name: self.running_data[self.manager.get_elem_by_name(name)]
+    def monitor(self) -> Generator[Tuple[str, "gr.Slider"], None, None]:
+        get = lambda elem_id: self.running_data[self.manager.get_elem_by_id(elem_id)]
         self.running = True
         lang = get("top.lang")
         output_dir = get_save_dir(
@@ -286,12 +283,13 @@ class Runner:
             get("{}.output_dir".format("train" if self.do_train else "eval")),
         )
 
-        while self.thread.is_alive():
-            time.sleep(2)
+        while self.thread is not None and self.thread.is_alive():
             if self.aborted:
-                yield ALERTS["info_aborting"][lang], gr.update(visible=False)
+                yield ALERTS["info_aborting"][lang], gr.Slider(visible=False)
             else:
                 yield self.logger_handler.log, update_process_bar(self.trainer_callback)
+
+            time.sleep(2)
 
         if self.do_train:
             if os.path.exists(os.path.join(output_dir, TRAINING_ARGS_NAME)):
@@ -304,4 +302,34 @@ class Runner:
             else:
                 finish_info = ALERTS["err_failed"][lang]
 
-        yield self._finalize(lang, finish_info), gr.update(visible=False)
+        yield self._finalize(lang, finish_info), gr.Slider(visible=False)
+
+    def save_args(self, data: Dict[Component, Any]) -> Tuple[str, "gr.Slider"]:
+        error = self._initialize(data, do_train=True, from_preview=True)
+        if error:
+            gr.Warning(error)
+            return error, gr.Slider(visible=False)
+
+        config_dict: Dict[str, Any] = {}
+        lang = data[self.manager.get_elem_by_id("top.lang")]
+        config_path = data[self.manager.get_elem_by_id("train.config_path")]
+        skip_ids = ["top.lang", "top.model_path", "train.output_dir", "train.config_path"]
+        for elem, value in data.items():
+            elem_id = self.manager.get_id_by_elem(elem)
+            if elem_id not in skip_ids:
+                config_dict[elem_id] = value
+
+        save_path = save_args(config_path, config_dict)
+        return ALERTS["info_config_saved"][lang] + save_path, gr.Slider(visible=False)
+
+    def load_args(self, lang: str, config_path: str) -> Dict[Component, Any]:
+        config_dict = load_args(config_path)
+        if config_dict is None:
+            gr.Warning(ALERTS["err_config_not_found"][lang])
+            return {self.manager.get_elem_by_id("top.lang"): lang}
+
+        output_dict: Dict["Component", Any] = {}
+        for elem_id, value in config_dict.items():
+            output_dict[self.manager.get_elem_by_id(elem_id)] = value
+
+        return output_dict
