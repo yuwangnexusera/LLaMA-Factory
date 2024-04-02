@@ -396,6 +396,9 @@
     "file_name": "category_en.json"
   },
   "medical_report_extract": {
-      "file_name": "extract100_zh.json"
-    }
+    "file_name": "extract100_zh.json"
+  },
+  "medical_report_extract_en": {
+    "file_name": "extract100_en.json"
+  }
 }
