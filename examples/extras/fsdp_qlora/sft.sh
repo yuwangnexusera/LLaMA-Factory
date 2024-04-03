@@ -1,25 +1,31 @@
 #!/bin/bash
 
+pip install "transformers>=4.39.1"
+pip install "accelerate>=0.28.0"
+pip install "bitsandbytes>=0.43.0"
+
 CUDA_VISIBLE_DEVICES=0,1 accelerate launch \
-    --config_file ../accelerate/fsdp_config.yaml \
-    ../../src/train_bash.py \
+    --config_file ../../accelerate/fsdp_config.yaml \
+    ../../../src/train_bash.py \
     --stage sft \
     --do_train \
     --model_name_or_path meta-llama/Llama-2-70b-hf \
     --dataset alpaca_gpt4_en,glaive_toolcall \
-    --dataset_dir ../../data \
+    --dataset_dir ../../../data \
     --template default \
     --finetuning_type lora \
     --lora_target q_proj,v_proj \
-    --output_dir ../../saves/LLaMA2-70B/lora/sft \
+    --output_dir ../../../saves/LLaMA2-70B/lora/sft \
     --overwrite_cache \
     --overwrite_output_dir \
     --cutoff_len 1024 \
+    --preprocessing_num_workers 16 \
     --per_device_train_batch_size 1 \
     --per_device_eval_batch_size 1 \
-    --gradient_accumulation_steps 8 \
+    --gradient_accumulation_steps 4 \
     --lr_scheduler_type cosine \
     --logging_steps 10 \
+    --warmup_steps 20 \
     --save_steps 100 \
     --eval_steps 100 \
     --evaluation_strategy steps \
@@ -28,6 +34,7 @@ CUDA_VISIBLE_DEVICES=0,1 accelerate launch \
     --num_train_epochs 3.0 \
     --max_samples 3000 \
     --val_size 0.1 \
+    --ddp_timeout 180000000 \
     --quantization_bit 4 \
     --plot_loss \
     --fp16
