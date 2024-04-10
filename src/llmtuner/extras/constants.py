@@ -172,6 +172,19 @@ register_model_group(
 
 register_model_group(
     models={
+        "Breeze-7B": {
+            DownloadSource.DEFAULT: "MediaTek-Research/Breeze-7B-Base-v1_0",
+        },
+        "Breeze-7B-Chat": {
+            DownloadSource.DEFAULT: "MediaTek-Research/Breeze-7B-Instruct-v1_0",
+        },
+    },
+    template="breeze",
+)
+
+
+register_model_group(
+    models={
         "ChatGLM2-6B-Chat": {
             DownloadSource.DEFAULT: "THUDM/chatglm2-6b",
             DownloadSource.MODELSCOPE: "ZhipuAI/chatglm2-6b",
@@ -663,6 +676,10 @@ register_model_group(
             DownloadSource.DEFAULT: "Qwen/Qwen1.5-14B",
             DownloadSource.MODELSCOPE: "qwen/Qwen1.5-14B",
         },
+        "Qwen1.5-32B": {
+            DownloadSource.DEFAULT: "Qwen/Qwen1.5-32B",
+            DownloadSource.MODELSCOPE: "qwen/Qwen1.5-32B",
+        },
         "Qwen1.5-72B": {
             DownloadSource.DEFAULT: "Qwen/Qwen1.5-72B",
             DownloadSource.MODELSCOPE: "qwen/Qwen1.5-72B",
@@ -690,6 +707,10 @@ register_model_group(
         "Qwen1.5-14B-Chat": {
             DownloadSource.DEFAULT: "Qwen/Qwen1.5-14B-Chat",
             DownloadSource.MODELSCOPE: "qwen/Qwen1.5-14B-Chat",
+        },
+        "Qwen1.5-32B-Chat": {
+            DownloadSource.DEFAULT: "Qwen/Qwen1.5-32B-Chat",
+            DownloadSource.MODELSCOPE: "qwen/Qwen1.5-32B-Chat",
         },
         "Qwen1.5-72B-Chat": {
             DownloadSource.DEFAULT: "Qwen/Qwen1.5-72B-Chat",
@@ -738,6 +759,10 @@ register_model_group(
         "Qwen1.5-14B-int4-Chat": {
             DownloadSource.DEFAULT: "Qwen/Qwen1.5-14B-Chat-AWQ",
             DownloadSource.MODELSCOPE: "qwen/Qwen1.5-14B-Chat-AWQ",
+        },
+        "Qwen1.5-32B-int4-Chat": {
+            DownloadSource.DEFAULT: "Qwen/Qwen1.5-32B-Chat-AWQ",
+            DownloadSource.MODELSCOPE: "qwen/Qwen1.5-32B-Chat-AWQ",
         },
         "Qwen1.5-72B-int8-Chat": {
             DownloadSource.DEFAULT: "Qwen/Qwen1.5-72B-Chat-GPTQ-Int8",
