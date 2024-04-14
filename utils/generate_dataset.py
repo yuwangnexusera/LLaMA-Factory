@@ -78,7 +78,7 @@ def generate_other(
     print(jsonl_path)
 
 
-# 从增强数据到训练数据
+# 从增强数据到训练数据 test
 def generate_extract_dataset(
     aug_data_path,
     train_data_path,
