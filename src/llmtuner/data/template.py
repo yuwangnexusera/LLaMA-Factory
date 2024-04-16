@@ -527,6 +527,21 @@ _register_template(
 
 
 _register_template(
+    name="cohere",
+    format_user=StringFormatter(
+        slots=[
+            (
+                "<|START_OF_TURN_TOKEN|><|USER_TOKEN|>{{content}}<|END_OF_TURN_TOKEN|>"
+                "<|START_OF_TURN_TOKEN|><|CHATBOT_TOKEN|>"
+            )
+        ]
+    ),
+    format_system=EmptyFormatter(slots=[{"bos_token"}]),
+    force_system=True,
+)
+
+
+_register_template(
     name="cpm",
     format_user=StringFormatter(slots=["<用户>{{content}}<AI>"]),
     format_system=StringFormatter(slots=[{"bos_token"}, "{{content}}"]),
@@ -563,6 +578,13 @@ _register_template(
     format_user=StringFormatter(slots=["Human: {{content}}\nAssistant: "]),
     format_system=StringFormatter(slots=["{{content}}\n"]),
     format_separator=EmptyFormatter(slots=["\n"]),
+)
+
+
+_register_template(
+    name="empty",
+    format_user=StringFormatter(slots=["{{content}}"]),
+    format_assistant=StringFormatter(slots=["{{content}}"]),
 )
 
 

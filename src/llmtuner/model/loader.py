@@ -36,13 +36,22 @@ def load_tokenizer(model_args: "ModelArguments") -> "PreTrainedTokenizer":
     Note: including inplace operation of model_args.
     """
     init_kwargs = _get_init_kwargs(model_args)
-    tokenizer = AutoTokenizer.from_pretrained(
-        model_args.model_name_or_path,
-        use_fast=model_args.use_fast_tokenizer,
-        split_special_tokens=model_args.split_special_tokens,
-        padding_side="right",
-        **init_kwargs,
-    )
+    try:
+        tokenizer = AutoTokenizer.from_pretrained(
+            model_args.model_name_or_path,
+            use_fast=model_args.use_fast_tokenizer,
+            split_special_tokens=model_args.split_special_tokens,
+            padding_side="right",
+            **init_kwargs,
+        )
+    except ValueError:  # try the fast one
+        tokenizer = AutoTokenizer.from_pretrained(
+            model_args.model_name_or_path,
+            use_fast=True,
+            padding_side="right",
+            **init_kwargs,
+        )
+
     patch_tokenizer(tokenizer)
     return tokenizer
 
@@ -73,6 +82,8 @@ def load_model(
             "token": model_args.hf_hub_token,
             "device_map": {"": get_current_device()},
             "rope_scaling": getattr(config, "rope_scaling", None),
+            "fix_tokenizer": False,
+            "trust_remote_code": True,
         }
         try:
             model, _ = FastLanguageModel.from_pretrained(**unsloth_kwargs)
@@ -85,7 +96,9 @@ def load_model(
             logger.warning("Unsloth does not support loading adapters.")
 
     if model is None:
-        model = AutoModelForCausalLM.from_pretrained(model_args.model_name_or_path, config=config, **init_kwargs)
+        init_kwargs["config"] = config
+        init_kwargs["pretrained_model_name_or_path"] = model_args.model_name_or_path
+        model: "PreTrainedModel" = AutoModelForCausalLM.from_pretrained(**init_kwargs)
 
     patch_model(model, tokenizer, model_args, is_trainable)
     register_autoclass(config, model, tokenizer)
