@@ -79,7 +79,7 @@ def run_sft(
                 training_args.predict_with_generate
             ):  # eval_loss will be wrong if predict_with_generate is enabled
                 metrics.pop("eval_loss", None)
-            # trainer.log_metrics("eval", metrics)
+            trainer.log_metrics("eval", metrics)
             trainer.save_metrics("eval", metrics)
         trainer.save_state()
         if trainer.is_world_process_zero() and finetuning_args.plot_loss:
