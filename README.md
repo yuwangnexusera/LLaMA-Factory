@@ -46,7 +46,7 @@ Choose your path:
 - **Various models**: LLaMA, Mistral, Mixtral-MoE, Qwen, Yi, Gemma, Baichuan, ChatGLM, Phi, etc.
 - **Integrated methods**: (Continuous) pre-training, supervised fine-tuning, reward modeling, PPO, DPO and ORPO.
 - **Scalable resources**: 32-bit full-tuning, 16-bit freeze-tuning, 16-bit LoRA and 2/4/8-bit QLoRA via AQLM/AWQ/GPTQ/LLM.int8.
-- **Advanced algorithms**: GaLore, BAdam, DoRA, LongLoRA, LLaMA Pro, LoRA+, LoftQ and Agent tuning.
+- **Advanced algorithms**: GaLore, DoRA, LongLoRA, LLaMA Pro, LoRA+, LoftQ and Agent tuning.
 - **Practical tricks**: FlashAttention-2, Unsloth, RoPE scaling, NEFTune and rsLoRA.
 - **Experiment monitors**: LlamaBoard, TensorBoard, Wandb, MLflow, etc.
 - **Faster inference**: OpenAI-style API, Gradio UI and CLI with vLLM worker.
@@ -143,11 +143,11 @@ Compared to ChatGLM's [P-Tuning](https://github.com/THUDM/ChatGLM2-6B/tree/main/
 | [InternLM2](https://huggingface.co/internlm)             | 7B/20B                      | wqkv              | intern2   |
 | [LLaMA](https://github.com/facebookresearch/llama)       | 7B/13B/33B/65B              | q_proj,v_proj     | -         |
 | [LLaMA-2](https://huggingface.co/meta-llama)             | 7B/13B/70B                  | q_proj,v_proj     | llama2    |
-| [Mistral/Mixtral](https://huggingface.co/mistralai)      | 7B/8x7B                     | q_proj,v_proj     | mistral   |
+| [Mistral/Mixtral](https://huggingface.co/mistralai)      | 7B/8x7B/8x22B               | q_proj,v_proj     | mistral   |
 | [OLMo](https://huggingface.co/allenai)                   | 1B/7B                       | att_proj          | olmo      |
 | [Phi-1.5/2](https://huggingface.co/microsoft)            | 1.3B/2.7B                   | q_proj,v_proj     | -         |
 | [Qwen](https://huggingface.co/Qwen)                      | 1.8B/7B/14B/72B             | c_attn            | qwen      |
-| [Qwen1.5 (MoE)](https://huggingface.co/Qwen)             | 0.5B/1.8B/4B/7B/14B/32B/72B | q_proj,v_proj     | qwen      |
+| [Qwen1.5 (Code/MoE)](https://huggingface.co/Qwen)        | 0.5B/1.8B/4B/7B/14B/32B/72B | q_proj,v_proj     | qwen      |
 | [StarCoder2](https://huggingface.co/bigcode)             | 3B/7B/15B                   | q_proj,v_proj     | -         |
 | [XVERSE](https://huggingface.co/xverse)                  | 7B/13B/65B                  | q_proj,v_proj     | xverse    |
 | [Yi](https://huggingface.co/01-ai)                       | 6B/9B/34B                   | q_proj,v_proj     | yi        |
@@ -280,15 +280,15 @@ huggingface-cli login
 
 \* *estimated*
 
-| Method            | Bits |   7B  |  13B  |  30B  |   70B  |   8x7B |
-| ----------------- | ---- | ----- | ----- | ----- | ------ | ------ |
-| Full              | AMP  | 120GB | 240GB | 600GB | 1200GB |  900GB |
-| Full              |  16  |  60GB | 120GB | 300GB |  600GB |  400GB |
-| Freeze            |  16  |  20GB |  40GB |  80GB |  200GB |  160GB |
-| LoRA/GaLore/BAdam |  16  |  16GB |  32GB |  64GB |  160GB |  120GB |
-| QLoRA             |   8  |  10GB |  20GB |  40GB |   80GB |   60GB |
-| QLoRA             |   4  |   6GB |  12GB |  24GB |   48GB |   30GB |
-| QLoRA             |   2  |   4GB |   8GB |  16GB |   24GB |   18GB |
+| Method            | Bits |   7B  |  13B  |  30B  |   70B  |  8x7B |  8x22B |
+| ----------------- | ---- | ----- | ----- | ----- | ------ | ----- | ------ |
+| Full              | AMP  | 120GB | 240GB | 600GB | 1200GB | 900GB | 2400GB |
+| Full              |  16  |  60GB | 120GB | 300GB |  600GB | 400GB | 1200GB |
+| Freeze            |  16  |  20GB |  40GB |  80GB |  200GB | 160GB |  400GB |
+| LoRA/GaLore/BAdam |  16  |  16GB |  32GB |  64GB |  160GB | 120GB |  320GB |
+| QLoRA             |   8  |  10GB |  20GB |  40GB |   80GB |  60GB |  160GB |
+| QLoRA             |   4  |   6GB |  12GB |  24GB |   48GB |  30GB |   96GB |
+| QLoRA             |   2  |   4GB |   8GB |  16GB |   24GB |  18GB |   48GB |
 
 ## Getting Started
 
@@ -309,7 +309,7 @@ cd LLaMA-Factory
 pip install -e .[metrics]
 ```
 
-Extra dependencies available: deepspeed, metrics, unsloth, galore, vllm, bitsandbytes, gptq, awq, aqlm, qwen, modelscope, quality
+Extra dependencies available: deepspeed, metrics, unsloth, galore, badam, vllm, bitsandbytes, gptq, awq, aqlm, qwen, modelscope, quality
 
 <details><summary>For Windows users</summary>
 
