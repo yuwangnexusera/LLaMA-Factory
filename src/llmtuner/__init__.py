@@ -5,7 +5,7 @@ from .chat import ChatModel
 from .eval import Evaluator
 from .train import export_model, run_exp
 from .webui import create_ui, create_web_demo
-
+from .f1 import F1score
 
 __version__ = "0.6.3.dev0"
-__all__ = ["create_app", "ChatModel", "Evaluator", "export_model", "run_exp", "create_ui", "create_web_demo"]
+__all__ = ["create_app", "ChatModel", "Evaluator", "export_model", "run_exp", "create_ui", "create_web_demo", "F1score"]
