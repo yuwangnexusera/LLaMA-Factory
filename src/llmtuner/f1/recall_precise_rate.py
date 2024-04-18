@@ -5,7 +5,7 @@ import re
 
 
 class F1score():
-# 用于实验过程中不区分单元的比较
+    # 用于实验过程中不区分单元的比较
     def labor_recall_precise(generated_answer, answer_json, include_na_in_total=False):
         """
         CE (Correct Extraction) ↔ TP (True Positive)
@@ -22,6 +22,7 @@ class F1score():
         # 计算 CE 和 IE
         for key in reference_keys:
             if key in generated_keys:
+                # 相等，或者一个列表中只有一个元素均可以算正确 generated_answer[key]为字符串 generated_answer[key]为包含一个元素的列表 
                 if generated_answer[key] == answer_json[key]:
                     ce += 1  # 提取正确
                 else:

@@ -222,10 +222,11 @@ def convert_35_lf(
 
 if __name__ == "__main__":
     # 翻译中文数据集至英文，Google translate
-    translate_zh_dataset("data/extract512_zh.json")
+    translate_zh_dataset("nex_dataset/test/exrtract64_test_zh.json")
     # 从增强的数据文件生成数据集文件。
     # generate_extract_dataset(
-    #     "../lc-medical-record-recognition/data_augmentation/dataset_augmentation.json", "data/extract512_zh.json"
+    #     "../lc-medical-record-recognition/data_augmentation/dataset_augmentation_test.json",
+    #     "nex_dataset/test/dataset_augmentation_test.json",
     # )
     # convert_35_lf('nex_dataset/train/category_train_3_5.jsonl','data/category_zh.json')
     # query_dataset = ss_unit_dataset.select(
