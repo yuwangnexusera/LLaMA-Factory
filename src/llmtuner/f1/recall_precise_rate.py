@@ -6,7 +6,7 @@ import re
 
 class F1score():
     # 用于实验过程中不区分单元的比较
-    def labor_recall_precise(generated_answer, answer_json, include_na_in_total=False):
+    def labor_recall_precise(self, generated_answer, answer_json, include_na_in_total=False):
         """
         CE (Correct Extraction) ↔ TP (True Positive)
         IE (Incorrect Extraction) + SE (Spurious Extraction) ↔ FP (False Positive)
