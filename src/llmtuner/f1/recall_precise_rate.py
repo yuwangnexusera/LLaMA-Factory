@@ -23,6 +23,10 @@ class F1score():
         for key in reference_keys:
             if key in generated_keys:
                 # 相等，或者一个列表中只有一个元素均可以算正确 generated_answer[key]为字符串 generated_answer[key]为包含一个元素的列表 
+                if isinstance(generated_answer[key],list) and len(generated_answer[key])==1:
+                    generated_answer[key] = generated_answer[key][0]
+                if isinstance(answer_json[key],list) and len(answer_json[key])==1:
+                    answer_json[key] = answer_json[key][0]
                 if generated_answer[key] == answer_json[key]:
                     ce += 1  # 提取正确
                 else:
