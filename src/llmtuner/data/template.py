@@ -343,7 +343,7 @@ def get_template_and_fix_tokenizer(
     name: Optional[str] = None,
 ) -> Template:
     if name is None:
-        template = templates["vanilla"]  # placeholder
+        template = templates["empty"]  # placeholder
     else:
         template = templates.get(name, None)
         if template is None:
@@ -385,7 +385,8 @@ _register_template(
     format_user=StringFormatter(slots=["### Instruction:\n{{content}}\n\n### Response:\n"]),
     format_separator=EmptyFormatter(slots=["\n\n"]),
     default_system=(
-        "Below is an instruction that describes a task. " "Write a response that appropriately completes the request."
+        "Below is an instruction that describes a task. "
+        "Write a response that appropriately completes the request.\n\n"
     ),
 )
 
@@ -597,6 +598,13 @@ _register_template(
 
 
 _register_template(
+    name="fewshot",
+    format_separator=EmptyFormatter(slots=["\n\n"]),
+    efficient_eos=True,
+)
+
+
+_register_template(
     name="gemma",
     format_user=StringFormatter(slots=["<start_of_turn>user\n{{content}}<end_of_turn>\n<start_of_turn>model\n"]),
     format_system=StringFormatter(slots=[{"bos_token"}, "{{content}}"]),
@@ -650,24 +658,29 @@ _register_template(
 
 
 _register_template(
-    name="llama3",
-    format_user=StringFormatter(
-        slots=[
-            "<|start_header_id|>user<|end_header_id|>\n\n{{content}}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
-        ]
-    ),
-    format_system=StringFormatter(slots=[{"bos_token"}, "{{content}}"]),
-    format_separator=EmptyFormatter(slots=["<|eot_id|>"]),
-    efficient_eos=True,
-    force_system=True,
-)
-
-
-_register_template(
     name="llama2_zh",
     format_user=StringFormatter(slots=[{"bos_token"}, "[INST] {{content}} [/INST]"]),
     format_system=StringFormatter(slots=["<<SYS>>\n{{content}}\n<</SYS>>\n\n"]),
     default_system="You are a helpful assistant. 你是一个乐于助人的助手。",
+)
+
+
+_register_template(
+    name="llama3",
+    format_user=StringFormatter(
+        slots=[
+            (
+                "<|start_header_id|>user<|end_header_id|>\n\n{{content}}<|eot_id|>"
+                "<|start_header_id|>assistant<|end_header_id|>\n\n"
+            )
+        ]
+    ),
+    format_system=StringFormatter(
+        slots=[{"bos_token"}, "<|start_header_id|>system<|end_header_id|>\n\n{{content}}<|eot_id|>"]
+    ),
+    default_system="You are a helpful assistant.",
+    stop_words=["<|eot_id|>"],
+    replace_eos=True,
 )
 
 
@@ -732,13 +745,6 @@ _register_template(
     stop_words=["<|end|>"],
     replace_eos=True,
     force_system=True,
-)
-
-
-_register_template(
-    name="vanilla",
-    format_separator=EmptyFormatter(slots=["\n"]),
-    efficient_eos=True,
 )
 
 
