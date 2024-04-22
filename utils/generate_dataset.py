@@ -104,150 +104,79 @@ def generate_extract_dataset(
         train_file.flush()
 
 
+def flatten_nested_list(nested_list):
+    flat_list = []
+    for item in nested_list:
+        if isinstance(item, list):  # 如果元素是列表，递归调用
+            flat_list.extend(flatten_nested_list(item))
+        else:
+            flat_list.append(item)  # 如果元素不是列表，直接添加到结果列表
+    return flat_list
+
+
 def translate_zh_dataset(file_name):
     en_dataset = []
+    with open('utils/mapping_answer_zh_en.json','r',encoding='utf-8') as f:
+        mapping_zh_en = json.load(f)
     with open(file_name, "r", encoding="utf-8") as zh_file, open(
         file_name.replace("_zh", "_en"), "w", encoding="utf-8"
     ) as en_file:
         data = json.load(zh_file)
         i = 1
         for ds_item in data:
+            output = {}
             i = i + 1
             print(len(ds_item["input"]), "----", i)
-            instruction = google_translate.translate_text(ds_item["instruction"])
-            if not instruction:
-                print("error instruction")
+            instruction = (
+                "Your task is to extract medical information from the input report and output it in JSON format. Input report:"
+            )
             input = google_translate.translate_text(ds_item["input"])
             if not input:
                 print("error input")
-            output = google_translate.translate_text(ds_item["output"])
-            if not output:
-                print("error output")
-            en_dataset.append({"instruction": instruction, "input": input, "output": output})
+            output_zh = json.loads(ds_item["output"])
+            for key,value in output_zh.items():
+                new_key = mapping_zh_en.get(key, key)
+                if isinstance(value,list):
+                    value = flatten_nested_list(value)
+                    output[new_key] = []
+                    for v in value:
+                        if key in ["治疗用药名称"]:
+                            new_value = google_translate.translate_text(v)
+                        else:
+                            new_value = mapping_zh_en.get(v, v)
+                        output[new_key].append(new_value)
+                else:
+                    if key in ["治疗用药名称"]:
+                        new_value = google_translate.translate_text(value)
+                    else:
+                        new_value = mapping_zh_en.get(value, value)
+                    output[new_key] = new_value
+            en_dataset.append({"instruction": instruction, "input": input, "output": json.dumps(output, ensure_ascii=False)})
 
         en_file.write(json.dumps(en_dataset, indent=4, ensure_ascii=False))
 
         en_file.flush()
 
 
-def write_records_to_jsonl(
-    records,
-    jsonl_path,
-):
-
-    with open(
-        jsonl_path,
-        "a",
-        encoding="utf-8",
-    ) as file:
-        for item in records:
-            category = ss_report_type.select(ss_report_type.report_type).where(ss_report_type.id == item.report_id)[0].report_type
-            category_en = google_translate.translate_text(category)
-
-            if not item.content:
-                content_obj = hx_ocr_result.select().where(hx_ocr_result.url == item.url)[0]
-                content = google_translate.translate_text(content_obj.ocr_result["data"]["ocr_align"])
-            else:
-                content = google_translate.translate_text(item.content)
-            # 假设system_msg是一个你需要定义的变量
-            data = {
-                "conversations": [
-                    {
-                        "from": "human",
-                        "value": f"Your task is to determine the type of medical report entered. The report type options are: ['Other', 'Examination Record', 'Doctor's Order', 'Prescription', 'Injection', 'Expense', 'Physical Examination Report' ', 'Gene testing', 'Surgery record', 'Examination record', 'Treatment record', 'Pathology report', 'Disease course record', 'Outpatient medical record', 'Discharge and admission record', 'Informed consent', ' Other consultation records', 'Pathological consultation records', 'Other disease diagnosis certificates', 'Outpatient disease diagnosis certificates', 'Inpatient and admission disease diagnosis certificates']\nMedical report: {content}\nOutput format: directly select the most appropriate item from the options and output it, without explaining or outputting redundant content",
-                    },
-                    {
-                        "from": "assistant",
-                        "value": f"{category_en}",
-                    },
-                ]
-            }
-
-            # 将data转换为JSON字符串并写入文件，每个对象后面跟一个换行符
-            file.write(
-                json.dumps(
-                    data,
-                    ensure_ascii=False,
-                )
-                + "\n"
-            )
-            file.flush()
-    print("success")
-
 def fill_NA_answer():
-    mappings = {
-        "出院日期": "Discharge date",
-        "入院日期": "Date of admission",
-        "ECOG日期": "ECOG Date",
-        "ECOG": "ECOG",
-        "病理日期": "Pathology date",
-        "病理类型": "Pathological type",
-        "免疫检测日期": "Immunization test date",
-        "TPS": "TPS",
-        "PDL1": "PDL1",
-        "CPS": "CPS",
-        "IC": "IC",
-        "诊断医生": "Diagnostic doctor",
-        "病史采集日期": "Date of medical history collection",
-        "记录日期": "Record date",
-        "治疗开始日期": "Treatment start date",
-        "治疗结束日期": "Treatment end date",
-        "肿瘤具体治疗方式": "Specific tumor treatment",
-        "治疗用药名称": "Name of therapeutic drug",
-        "手术部位": "Surgical site",
-        "脑转移日期": "Date of brain metastasis",
-        "脑转部位": "Brain rotation area",
-        "基因检测日期": "Date of genetic testing",
-        "EGFR": "EGFR",
-        "ALK": "ALK",
-        "KRAS": "KRAS",
-        "BRAF": "BRAF",
-        "MET": "MET",
-        "RET": "RET",
-        "ROS1": "ROS1",
-        "NTRK": "NTRK",
-        "HER2(ERBB2)": "HER2(ERBB2)",
-        "FGFR": "FGFR",
-        "BRCA": "BRCA",
-        "TP53": "TP53",
-        "KEAP1": "KEAP1",
-        "STK11": "STK11",
-        "HER4（ERBB4）": "HER4 (ERBB4)",
-        "RB1": "RB1",
-        "HER3（ERBB3）": "HER3 (ERBB3)",
-        "疾病首次确诊日期": "Date the disease was first diagnosed",
-        "第一次病理确诊时间（穿刺、术后病理等）": "Time of first pathological diagnosis (puncture, postoperative pathology, etc.)",
-        "第一次切肺手术时间": "Time of first lung resection surgery",
-        "第一次影像确诊时间": "Time of first imaging diagnosis",
-        "第一次治疗时间（药物、放疗等）": "Time of first treatment (drugs, radiotherapy, etc.)",
-        "首发症状时间": "Time of first symptoms",
-        "疾病名称": "Disease Name",
-        "出生日期": "date of birth",
-        "年龄": "age",
-        "性别": "gender",
-        "内分泌及免疫系统疾病": "Endocrine and immune system diseases",
-        "神经系统疾病": "Nervous system disease",
-        "消化系统疾病": "Digestive system diseases",
-        "呼吸系统疾病": "Respiratory diseases",
-        "循环系统疾病": "Circulatory system diseases",
-        "传染性疾病": "Infectious Diseases",
-        "恶性肿瘤情况": "Malignant tumor",
-        "泌尿生殖系统疾病": "Urogenital system diseases",
-        "眼耳鼻喉相关疾病": "Eye, ear, nose and throat related diseases",
-    }
+    dict_list = set()
     with open('data/extract512_en.json','r',encoding='utf-8') as file:
         json_data = json.load(file)
     new_list = []
     for item in json_data:
         try:
             asnwer = json.loads(item["output"])
+            dict_list.update(asnwer.keys())
+            # 长度不一致,可能翻译时key的名字没对上，不使用这个mappings，用从数据集中取出的所有key
         except Exception as e:
             print(e)
             print(item["output"])
+    dict_list = list(dict_list)
+    for item in json_data:
         # 如果mappings中的value不都在asnwer中，进行空串补全
-        for key,value in mappings.items():
-            if value not in asnwer.keys():
-                asnwer[value] = 'NA'
+        for loc_key in list(dict_list):
+            if loc_key not in asnwer.keys():
+                asnwer[loc_key] = "NA"
         new_list.append({'instruction':item['instruction'],'input':item['input'],'output':json.dumps(asnwer,ensure_ascii=False)})
     with open('data/extract512_en_na.json','w',encoding='utf-8') as outfile:
         outfile.write(json.dumps(new_list,indent=4,ensure_ascii=False))
@@ -258,10 +187,10 @@ if __name__ == "__main__":
     import os
     print(os.getcwd())
     # 补全NA
-    # fill_NA_answer()
+    fill_NA_answer()
 
     # 翻译中文数据集至英文，Google translate
-    # translate_zh_dataset("nex_dataset/test/exrtract64_test_zh.json")
+    # translate_zh_dataset("data/extract512_zh.json")
 
     # 从增强的数据文件生成数据集文件。
     # generate_extract_dataset(
