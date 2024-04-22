@@ -33,9 +33,9 @@ class F1score():
                     answer_json[key] = answer_json[key][0]
                 else:
                     answer_json[key] = set(answer_json[key])
-                if key in ["PD-L1", "Age", "Immune Cell", "Tumor Proportion Score", "Combined Positive Score"]:  # 只比较数字部分
-                    generated_answer[key] = re.findall(r"\d+",generated_answer[key])[0]
-                    answer_json[key] = re.findall(r"\d+",answer_json[key])[0]
+                # if key in ["PD-L1", "Age", "Immune Cell", "Tumor Proportion Score", "Combined Positive Score"]:  # 只比较数字部分
+                #     generated_answer[key] = re.findall(r"\d+",generated_answer[key])[0]
+                #     answer_json[key] = re.findall(r"\d+",answer_json[key])[0]
 
                 if generated_answer[key] == answer_json[key]:
                     ce += 1  # 提取正确
