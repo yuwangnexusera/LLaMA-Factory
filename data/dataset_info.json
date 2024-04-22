@@ -426,6 +426,9 @@
   "medical_report_extract512_en": {
     "file_name": "extract512_en.json"
   },
+  "medical_report_extract512_en_NA": {
+    "file_name": "extract512_en_na.json"
+  },
   "medical_report_extract_en": {
     "file_name": "extract100_en.json"
   }

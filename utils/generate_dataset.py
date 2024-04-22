@@ -174,55 +174,95 @@ def write_records_to_jsonl(
             file.flush()
     print("success")
 
-
-def convert_35_lf(
-    source_path,
-    target_path,
-):
-    # 打开源jsonl文件和目标jsonl文件
-    with open(
-        source_path,
-        "r",
-        encoding="utf-8",
-    ) as source_file, open(
-        target_path,
-        "w",
-        encoding="utf-8",
-    ) as target_file:
-        # 逐行读取源jsonl文件
-        converted_data = []
-        for line in source_file:
-            # 解析JSON内容
-            data = json.loads(line)
-
-            # 提取相关内容
-            instruction = " ".join([msg["content"] for msg in data["messages"] if msg["role"] == "system"])
-            user_input = " ".join([msg["content"] for msg in data["messages"] if msg["role"] == "user"])
-            output = " ".join([msg["content"] for msg in data["messages"] if msg["role"] == "assistant"])
-
-            # 组合成新的格式
-            converted_data.append(
-                {
-                    "instruction": instruction,
-                    "input": user_input,
-                    "output": output,
-                }
-            )
-            # 将新的JSON对象转换为字符串并写入目标jsonl文件
-        target_file.write(
-            json.dumps(
-                converted_data,
-                ensure_ascii=False,
-            )
-            + "\n"
-        )
-
-        target_file.flush()
-
+def fill_NA_answer():
+    mappings = {
+        "出院日期": "Discharge date",
+        "入院日期": "Date of admission",
+        "ECOG日期": "ECOG Date",
+        "ECOG": "ECOG",
+        "病理日期": "Pathology date",
+        "病理类型": "Pathological type",
+        "免疫检测日期": "Immunization test date",
+        "TPS": "TPS",
+        "PDL1": "PDL1",
+        "CPS": "CPS",
+        "IC": "IC",
+        "诊断医生": "Diagnostic doctor",
+        "病史采集日期": "Date of medical history collection",
+        "记录日期": "Record date",
+        "治疗开始日期": "Treatment start date",
+        "治疗结束日期": "Treatment end date",
+        "肿瘤具体治疗方式": "Specific tumor treatment",
+        "治疗用药名称": "Name of therapeutic drug",
+        "手术部位": "Surgical site",
+        "脑转移日期": "Date of brain metastasis",
+        "脑转部位": "Brain rotation area",
+        "基因检测日期": "Date of genetic testing",
+        "EGFR": "EGFR",
+        "ALK": "ALK",
+        "KRAS": "KRAS",
+        "BRAF": "BRAF",
+        "MET": "MET",
+        "RET": "RET",
+        "ROS1": "ROS1",
+        "NTRK": "NTRK",
+        "HER2(ERBB2)": "HER2(ERBB2)",
+        "FGFR": "FGFR",
+        "BRCA": "BRCA",
+        "TP53": "TP53",
+        "KEAP1": "KEAP1",
+        "STK11": "STK11",
+        "HER4（ERBB4）": "HER4 (ERBB4)",
+        "RB1": "RB1",
+        "HER3（ERBB3）": "HER3 (ERBB3)",
+        "疾病首次确诊日期": "Date the disease was first diagnosed",
+        "第一次病理确诊时间（穿刺、术后病理等）": "Time of first pathological diagnosis (puncture, postoperative pathology, etc.)",
+        "第一次切肺手术时间": "Time of first lung resection surgery",
+        "第一次影像确诊时间": "Time of first imaging diagnosis",
+        "第一次治疗时间（药物、放疗等）": "Time of first treatment (drugs, radiotherapy, etc.)",
+        "首发症状时间": "Time of first symptoms",
+        "疾病名称": "Disease Name",
+        "出生日期": "date of birth",
+        "年龄": "age",
+        "性别": "gender",
+        "内分泌及免疫系统疾病": "Endocrine and immune system diseases",
+        "神经系统疾病": "Nervous system disease",
+        "消化系统疾病": "Digestive system diseases",
+        "呼吸系统疾病": "Respiratory diseases",
+        "循环系统疾病": "Circulatory system diseases",
+        "传染性疾病": "Infectious Diseases",
+        "恶性肿瘤情况": "Malignant tumor",
+        "泌尿生殖系统疾病": "Urogenital system diseases",
+        "眼耳鼻喉相关疾病": "Eye, ear, nose and throat related diseases",
+    }
+    with open('data/extract512_en.json','r',encoding='utf-8') as file:
+        json_data = json.load(file)
+    new_list = []
+    for item in json_data:
+        try:
+            asnwer = json.loads(item["output"])
+        except Exception as e:
+            print(e)
+            print(item["output"])
+        # 如果mappings中的value不都在asnwer中，进行空串补全
+        for key,value in mappings.items():
+            if value not in asnwer.keys():
+                asnwer[value] = 'NA'
+        new_list.append({'instruction':item['instruction'],'input':item['input'],'output':json.dumps(asnwer,ensure_ascii=False)})
+    with open('data/extract512_en_na.json','w',encoding='utf-8') as outfile:
+        outfile.write(json.dumps(new_list,indent=4,ensure_ascii=False))
+        outfile.flush()
+    return True
 
 if __name__ == "__main__":
+    import os
+    print(os.getcwd())
+    # 补全NA
+    # fill_NA_answer()
+
     # 翻译中文数据集至英文，Google translate
-    translate_zh_dataset("nex_dataset/test/exrtract64_test_zh.json")
+    # translate_zh_dataset("nex_dataset/test/exrtract64_test_zh.json")
+
     # 从增强的数据文件生成数据集文件。
     # generate_extract_dataset(
     #     "../lc-medical-record-recognition/data_augmentation/dataset_augmentation_test.json",
