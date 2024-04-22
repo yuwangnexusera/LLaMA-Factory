@@ -160,7 +160,7 @@ def translate_zh_dataset(file_name):
 
 def fill_NA_answer():
     dict_list = set()
-    with open('data/extract512_en.json','r',encoding='utf-8') as file:
+    with open('nex_dataset/test/exrtract64_test_en.json','r',encoding='utf-8') as file:
         json_data = json.load(file)
     new_list = []
     for item in json_data:
@@ -178,7 +178,7 @@ def fill_NA_answer():
             if loc_key not in asnwer.keys():
                 asnwer[loc_key] = "NA"
         new_list.append({'instruction':item['instruction'],'input':item['input'],'output':json.dumps(asnwer,ensure_ascii=False)})
-    with open('data/extract512_en_na.json','w',encoding='utf-8') as outfile:
+    with open("nex_dataset/test/exrtract64_test_en.json", "w", encoding="utf-8") as outfile:
         outfile.write(json.dumps(new_list,indent=4,ensure_ascii=False))
         outfile.flush()
     return True
@@ -190,7 +190,7 @@ if __name__ == "__main__":
     fill_NA_answer()
 
     # 翻译中文数据集至英文，Google translate
-    # translate_zh_dataset("data/extract512_zh.json")
+    # translate_zh_dataset("nex_dataset/test/exrtract64_test_zh.json")
 
     # 从增强的数据文件生成数据集文件。
     # generate_extract_dataset(
