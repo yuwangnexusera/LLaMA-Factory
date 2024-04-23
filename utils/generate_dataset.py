@@ -86,19 +86,18 @@ def generate_extract_dataset(
     with open(aug_data_path, "r", encoding="utf-8") as file, open(train_data_path, "a", encoding="utf-8") as train_file:
         datasets_json = json.load(file)
         converted_data = []
-        for category, datasets in datasets_json.items():
-            for dataset in datasets:
-                input_val = dataset.get("report", "")
-                if not input_val:
-                    continue
-                dataset.pop("report", None)
-                converted_data.append(
-                    {
-                        "instruction": "你的任务是从输入报告中提取医学信息，并以json格式输出，输入报告：",
-                        "input": input_val + "json结果：",
-                        "output": json.dumps(dataset, ensure_ascii=False),
-                    }
-                )
+        for dataset in datasets_json:
+            input_val = dataset.get("input", "")
+            if not input_val:
+                continue
+            dataset.pop("input", None)
+            converted_data.append(
+                {
+                    "instruction": "你的任务是从输入报告中提取医学信息，并以json格式输出，输入报告：",
+                    "input": input_val + "json结果：",
+                    "output": json.dumps(dataset, ensure_ascii=False),
+                }
+            )
         train_file.write(json.dumps(converted_data, ensure_ascii=False) + "\n")
 
         train_file.flush()
@@ -133,8 +132,10 @@ def translate_zh_dataset(file_name):
             input = google_translate.translate_text(ds_item["input"])
             if not input:
                 print("error input")
-            output_zh = json.loads(ds_item["output"])
+            output_zh = json.loads(ds_item["output"])["output"]
             for key, value in output_zh.items():
+                if value=="NA":
+                    continue
                 new_key = mapping_zh_en.get(key, key)
                 if isinstance(value, list):
                     value = flatten_nested_list(value)
@@ -196,61 +197,94 @@ if __name__ == "__main__":
     import os
 
     print(os.getcwd())
+    
+    # 补全NA deprecated 从开始都加上NA
+    # fill_NA_answer("data/extract512_en.json")
 
-    # 补全NA
-    fill_NA_answer("nex_dataset/test/exrtract64_test_en.json")
-
+    # TODO 加上单元层级，prompt和答案都需要
     # 翻译中文数据集至英文，Google translate
-    # translate_zh_dataset("nex_dataset/test/exrtract64_test_zh.json")
+    # translate_zh_dataset("data/extract512_zh_v2.json")
 
     # 从增强的数据文件生成数据集文件。
     # generate_extract_dataset(
-    #     "../lc-medical-record-recognition/data_augmentation/dataset_augmentation_test.json",
-    #     "nex_dataset/test/dataset_augmentation_test.json",
+    #     "../lc-medical-record-recognition/data_augmentation/dataset_augmentation_append1.json",
+    #     "data/extract512_zh_v2.json",
     # )
-    # convert_35_lf('nex_dataset/train/category_train_3_5.jsonl','data/category_zh.json')
-    # query_dataset = ss_unit_dataset.select(
-    #     ss_unit_dataset.url, ss_unit_dataset.content, ss_unit_dataset.report_id
-    # ).group_by(ss_unit_dataset.url)
-    # dataset_list = list(query_dataset.execute())
-    # records_train, records_validation, records_test = split_dataset(
-    #     dataset_list, [0.6, 0.2, 0.2]
-    # )
-    # test_record_for_gpt = []
-    # test_record_for_gpt_url = []
-    # for test_record in records_test:
-    #     test_record_for_gpt_url.append(test_record.url)
-    #     report_type_query = ss_report_type.select(ss_report_type.report_type).where(
-    #         ss_report_type.id == test_record.report_id
-    #     )[0]
-    #     if not test_record.content:
-    #         content_obj = hx_ocr_result.select().where(
-    #             hx_ocr_result.url == test_record.url
-    #         )[0]
-    #         test_record.content = content_obj.ocr_result["data"]["ocr_align"]
-    #     test_record_for_gpt.append(
-    #         {
-    #             "url": test_record.url,
-    #             "content": google_translate.translate_text(test_record.content),
-    #             "report_type": google_translate.translate_text(
-    #                 report_type_query.report_type
-    #             ),
-    #             "before_ft": "",
-    #             "after_ft": "",
-    #         }
-    #     )
-    # train_list = [
-    #     pic for pic in records_train if pic.url not in test_record_for_gpt_url
-    # ]
-    # validation_list = [
-    #     pic for pic in records_validation if pic.url not in test_record_for_gpt_url
-    # ]
-    # write_records_to_json(test_record_for_gpt, "nex_dataset/test/category_test_en.json")
-    # write_records_to_jsonl(
-    #     train_list,
-    #     "nex_dataset/train/category_train_en.jsonl",
-    # )
-    # write_records_to_jsonl(
-    #     validation_list,
-    #     "nex_dataset/validation/category_validation_en.jsonl",
-    # )
+
+    default_unit_locs = {
+        "基本信息": ["出生日期", "年龄", "性别"],
+        "疾病": [
+            "疾病首次确诊日期",
+            "第一次病理确诊时间（穿刺、术后病理等）",
+            "第一次切肺手术时间",
+            "第一次影像确诊时间",
+            "第一次治疗时间（药物、放疗等）",
+            "首发症状时间",
+            "疾病名称",
+        ],
+        "体征数据": ["ECOG", "ECOG日期"],
+        "诊断": ["诊断医生"],
+        "影像学": ["脑转移日期", "脑转部位"],
+        "病理": ["病理日期", "病理类型"],
+        "基因检测": [
+            "ALK",
+            "MET",
+            "RB1",
+            "RET",
+            "BRAF",
+            "BRCA",
+            "EGFR",
+            "FGFR",
+            "KRAS",
+            "NTRK",
+            "ROS1",
+            "TP53",
+            "KEAP1",
+            "STK11",
+            "HER2(ERBB2)",
+            "HER3（ERBB3）",
+            "HER4（ERBB4）",
+            "基因检测日期",
+        ],
+        "免疫检测": ["IC", "CPS", "TPS", "PDL1", "免疫检测日期"],
+        "肿瘤治疗": ["手术部位", "治疗开始日期", "治疗用药名称", "治疗结束日期", "肿瘤具体治疗方式"],
+        "治疗用药方案": ["治疗开始日期", "治疗用药名称", "治疗结束日期", "治疗用药是否为建议"],
+        "合并疾病": [
+            "合并疾病确诊日期",
+            "信息来源",
+            "传染性疾病",
+            "呼吸系统疾病",
+            "循环系统疾病",
+            "恶性肿瘤情况",
+            "消化系统疾病",
+            "神经系统疾病",
+            "泌尿生殖系统疾病",
+            "眼耳鼻喉相关疾病",
+            "内分泌及免疫系统疾病",
+        ],
+        "日期": ["入院日期", "出院日期", "病史采集日期", "记录日期"],
+    }
+
+    # with open('utils/mapping_answer_zh_en.json', 'r', encoding='utf-8') as f:
+    #     mapping = json.load(f)
+
+    # with open('nex_dataset/test/exrtract64_test_en.json', 'r', encoding='utf-8') as f:
+    #     data = json.load(f)
+    # for ds in data:
+    #     unit_output = {}
+    #     output = json.loads(ds['output'])
+    #     # 针对结构进行填充
+    #     for unit_name,locs in default_unit_locs.items():
+    #         en_unit_name = mapping.get(unit_name)
+    #         if en_unit_name not in unit_output:
+    #             unit_output[en_unit_name] = {}
+    #         for loc in locs:
+    #             en_loc = mapping.get(loc)
+    #             if not en_loc:
+    #                 raise Exception(f'error: {loc}')
+    #             unit_output[en_unit_name][en_loc] = output.get(en_loc, 'NA')
+
+    #     ds['output'] = json.dumps(unit_output, ensure_ascii=False)
+
+    # with open("nex_dataset/test/exrtract64_test_en.json", "w", encoding="utf-8") as f:
+    #     json.dump(data, f, ensure_ascii=False)

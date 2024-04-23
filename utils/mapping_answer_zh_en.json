@@ -271,6 +271,7 @@
     "治疗结束日期": "Treatment End Date",
     "肿瘤具体治疗方式": "Specific Tumor Treatment Method",
     "治疗用药名称": "Treatment Drug Names",
+    "治疗用药是否为建议": "Is Treatment Drug Recommended",
     "手术部位": "Surgical Site",
     "脑转移日期": "Brain Metastasis Date",
     "脑转部位": "Brain Metastasis Site",
@@ -304,6 +305,8 @@
     "性别": "Gender",
     "男": "male",
     "女": "female",
+    "合并疾病确诊日期": "Date of Confirmed Disease",
+    "信息来源": "Information Source",
     "内分泌及免疫系统疾病": "Endocrine and Immune System Diseases",
     "神经系统疾病": "Nervous System Diseases",
     "消化系统疾病": "Digestive System Diseases",
@@ -312,5 +315,18 @@
     "传染性疾病": "Infectious Diseases",
     "恶性肿瘤情况": "Malignant Tumor Conditions",
     "泌尿生殖系统疾病": "Urogenital System Diseases",
-    "眼耳鼻喉相关疾病": "Eye, Ear, Nose, and Throat Related Diseases"
+    "眼耳鼻喉相关疾病": "Eye, Ear, Nose, and Throat Related Diseases",
+    
+    "基本信息": "Basic Information",
+    "疾病":"Disease", 
+    "体征数据": "Symptom",
+    "诊断": "Diagnosis",
+    "影像学":"Imaging",
+    "病理": "Pathology",
+    "基因检测": "Genetic Testing",
+    "免疫检测": "Immune Testing",
+    "肿瘤治疗": "Cancer treatment",
+    "治疗用药方案": "Treatment Drug Plan",
+    "合并疾病": "Comorbid Disease",
+    "日期": "Date"
 }
