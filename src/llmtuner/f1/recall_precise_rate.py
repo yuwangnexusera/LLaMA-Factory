@@ -19,25 +19,27 @@ class F1score():
         reference_keys = set(answer_json.keys())
         generated_keys = set(generated_answer.keys())
 
-        # 计算 CE 和 IE
+        # 计算 CE 和 IE TODO 需优化
         for key in reference_keys:
             if key in ["Diagnosing Doctor"]:
                 continue
             if key in generated_keys:
-                # 相等，或者一个列表中只有一个元素均可以算正确 generated_answer[key]为字符串 generated_answer[key]为包含一个元素的列表
-                if isinstance(generated_answer[key],list) and len(generated_answer[key])==1:
-                    generated_answer[key] = generated_answer[key][0]
-                else:
-                    generated_answer[key] = set(generated_answer[key])
-                if isinstance(answer_json[key],list) and len(answer_json[key])==1:
-                    answer_json[key] = answer_json[key][0]
-                else:
-                    answer_json[key] = answer_json[key]
-                # if key in ["PD-L1", "Age", "Immune Cell", "Tumor Proportion Score", "Combined Positive Score"]:  # 只比较数字部分
-                #     generated_answer[key] = re.findall(r"\d+",generated_answer[key])[0]
-                #     answer_json[key] = re.findall(r"\d+",answer_json[key])[0]
+                # 数据准备，列表+长度为1，取出这个值；列表长度不是1，转为set，比较列表。
+                if isinstance(generated_answer[key],list) :
+                    if len(generated_answer[key])==1:
+                        generated_answer[key] = generated_answer[key][0]
+                    else:
+                        generated_answer[key] = set(generated_answer[key])
+                if isinstance(answer_json[key],list):
+                    if len(answer_json[key])==1:
+                        answer_json[key] = answer_json[key][0]
+                    else:
+                        answer_json[key] = set(answer_json[key])
+                if key in ["PD-L1", "Age", "Immune Cell", "Tumor Proportion Score", "Combined Positive Score"] and isinstance(generated_answer[key], str):  # 只比较数字部分
+                    generated_answer[key] = re.findall(r"\d+",generated_answer[key])[0]
+                    answer_json[key] = re.findall(r"\d+",answer_json[key])[0]
 
-                if generated_answer[key] == answer_json[key]:
+                if generated_answer[key] == answer_json[key]: 
                     ce += 1  # 提取正确
                 else:
                     ie += 1  # 提取错误
@@ -66,8 +68,8 @@ class F1score():
 if __name__ == "__main__":
     f1 = F1score()
     # 示例数据
-    generated_answer = {"key1": "value1", "key2": "value3", "key4": "value5"}
-    answer_json = {"key1": "value1", "key2": "value3", "key4": "value5"}
+    generated_answer = {"PD-L1": "10"}
+    answer_json = {"PD-L1": "10%"}
 
     # 调用函数并打印结果
     result = f1.labor_recall_precise(generated_answer, answer_json)
