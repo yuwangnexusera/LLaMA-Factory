@@ -116,7 +116,7 @@ def flatten_nested_list(nested_list):
 
 def translate_zh_dataset(file_name):
     en_dataset = []
-    with open('utils/mapping_answer_zh_en.json','r',encoding='utf-8') as f:
+    with open("utils/mapping_answer_zh_en.json", "r", encoding="utf-8") as f:
         mapping_zh_en = json.load(f)
     with open(file_name, "r", encoding="utf-8") as zh_file, open(
         file_name.replace("_zh", "_en"), "w", encoding="utf-8"
@@ -134,9 +134,9 @@ def translate_zh_dataset(file_name):
             if not input:
                 print("error input")
             output_zh = json.loads(ds_item["output"])
-            for key,value in output_zh.items():
+            for key, value in output_zh.items():
                 new_key = mapping_zh_en.get(key, key)
-                if isinstance(value,list):
+                if isinstance(value, list):
                     value = flatten_nested_list(value)
                     output[new_key] = []
                     for v in value:
@@ -158,11 +158,11 @@ def translate_zh_dataset(file_name):
         en_file.flush()
 
 
-def fill_NA_answer():
+def fill_NA_answer(file_name):
     dict_list = set()
-    with open('nex_dataset/test/exrtract64_test_en.json','r',encoding='utf-8') as file:
+    with open(file_name, "r", encoding="utf-8") as file:
         json_data = json.load(file)
-    new_list = []
+
     for item in json_data:
         try:
             asnwer = json.loads(item["output"])
@@ -172,22 +172,33 @@ def fill_NA_answer():
             print(e)
             print(item["output"])
     dict_list = list(dict_list)
+    new_list = []
     for item in json_data:
+        output_data = {}
+        try:
+            output_data = json.loads(item["output"])
+        except Exception as e:
+            print(e)
+            print(item["output"])
         # 如果mappings中的value不都在asnwer中，进行空串补全
-        for loc_key in list(dict_list):
-            if loc_key not in asnwer.keys():
-                asnwer[loc_key] = "NA"
-        new_list.append({'instruction':item['instruction'],'input':item['input'],'output':json.dumps(asnwer,ensure_ascii=False)})
-    with open("nex_dataset/test/exrtract64_test_en.json", "w", encoding="utf-8") as outfile:
-        outfile.write(json.dumps(new_list,indent=4,ensure_ascii=False))
-        outfile.flush()
+        for key in dict_list:
+            if key not in output_data:
+                output_data[key] = "NA"
+        new_list.append(
+            {"instruction": item["instruction"], "input": item["input"], "output": json.dumps(output_data, ensure_ascii=False)}
+        )
+    with open(file_name, "w", encoding="utf-8") as outfile:
+        outfile.write(json.dumps(new_list, indent=4, ensure_ascii=False))
     return True
+
 
 if __name__ == "__main__":
     import os
+
     print(os.getcwd())
+
     # 补全NA
-    fill_NA_answer()
+    fill_NA_answer("nex_dataset/test/exrtract64_test_en.json")
 
     # 翻译中文数据集至英文，Google translate
     # translate_zh_dataset("nex_dataset/test/exrtract64_test_zh.json")
