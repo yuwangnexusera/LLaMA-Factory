@@ -14,7 +14,17 @@ class F1score():
         TN (True Negative): 在信息提取任务中无法定义。
         """
         ce = ie = me = se = 0  # 初始化计数器：正确提取、错误提取、漏提取、误提取
-
+        # 先全部转换为小写
+        for k_g,v_g in generated_answer.items():
+            if isinstance(v_g,list):
+                generated_answer[k_g] = [i.lower() for i in v_g]
+            else:
+                generated_answer[k_g] = v_g.lower()
+        for k_a,v_a in answer_json.items():
+            if isinstance(v_a,list):
+                answer_json[k_a] = [i.lower() for i in v_a]
+            else:
+                answer_json[k_a] = v_a.lower()
         # 从 answer_json 获取所有可能的键作为参考
         reference_keys = set(answer_json.keys())
         generated_keys = set(generated_answer.keys())
@@ -68,8 +78,8 @@ class F1score():
 if __name__ == "__main__":
     f1 = F1score()
     # 示例数据
-    generated_answer = {"PD-L1": "10"}
-    answer_json = {"PD-L1": "10%"}
+    generated_answer = {"turmor": ["AbCde", "abcd"]}
+    answer_json = {"turmor": ["abcd", "abCDe"]}
 
     # 调用函数并打印结果
     result = f1.labor_recall_precise(generated_answer, answer_json)
