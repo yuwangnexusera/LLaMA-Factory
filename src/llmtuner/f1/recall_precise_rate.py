@@ -105,6 +105,7 @@ class F1score():
                 "spurious_extraction": se,
                 "precision": precision,
                 "recall": recall,
+                "error_keys":error_keys
             }
         except Exception as e:
             return {
