@@ -4,7 +4,7 @@ from difflib import SequenceMatcher
 import re
 
 
-class F1score():
+class F1score:
     # 用于实验过程中不区分单元的比较
     def labor_recall_precise(self, generated_answer, answer_json, include_na_in_total=False):
         """
@@ -13,7 +13,76 @@ class F1score():
         ME (Missed Extraction) ↔ FN (False Negative)
         TN (True Negative): 在信息提取任务中无法定义。
         """
-        unit_loc_mapping = {'Basic Information': ['Date of Birth', 'Age', 'Gender'], 'Disease': ['Date of First Diagnosis', 'Time of First Pathological Diagnosis (Biopsy, Post-operative Pathology, etc.)', 'Time of First Lung Resection', 'Time of First Imaging Diagnosis', 'Time of First Treatment (Drugs, Radiotherapy, etc.)', 'Time of First Symptom', 'Disease Name'], 'Symptom': ['ECOG Score', 'ECOG Date'], 'Diagnosis': ['Diagnosing Doctor'], 'Imaging': ['Brain Metastasis Date', 'Brain Metastasis Site'], 'Pathology': ['Pathology Date', 'Pathology Type'], 'Genetic Testing': ['ALK', 'MET', 'RB1', 'RET', 'BRAF', 'BRCA', 'EGFR', 'FGFR', 'KRAS', 'NTRK', 'ROS1', 'TP53', 'KEAP1', 'STK11', 'HER2 (ERBB2)', 'HER3 (ERBB3)', 'HER4 (ERBB4)', 'Genetic Testing Date'], 'Immune Testing': ['Immune Cell', 'Combined Positive Score', 'Tumor Proportion Score', 'PD-L1', 'Immunological Test Date'], 'Cancer treatment': ['Surgical Site', 'Treatment Start Date', 'Treatment Drug Names', 'Treatment End Date', 'Specific Tumor Treatment Method'], 'Treatment Drug Plan': ['Treatment Start Date', 'Treatment Drug Names', 'Treatment End Date', 'Is Treatment Drug Recommended'], 'Comorbid Disease': ['Date of Confirmed Disease', 'Information Source', 'Infectious Diseases', 'Respiratory System Diseases', 'Circulatory System Diseases', 'Malignant Tumor Conditions', 'Digestive System Diseases', 'Nervous System Diseases', 'Urogenital System Diseases', 'Eye, Ear, Nose, and Throat Related Diseases', 'Endocrine and Immune System Diseases'], 'Date': ['Admission Date', 'Discharge Date', 'Medical History Collection Date', 'Record Date']}
+        unit_loc_mapping = {
+            "Basic Information": ["Date of Birth", "Age", "Gender"],
+            "Disease": [
+                "Date of First Diagnosis",
+                "Time of First Pathological Diagnosis (Biopsy, Post-operative Pathology, etc.)",
+                "Time of First Lung Resection",
+                "Time of First Imaging Diagnosis",
+                "Time of First Treatment (Drugs, Radiotherapy, etc.)",
+                "Time of First Symptom",
+                "Disease Name",
+            ],
+            "Symptom": ["ECOG Score", "ECOG Date"],
+            "Diagnosis": ["Diagnosing Doctor"],
+            "Imaging": ["Brain Metastasis Date", "Brain Metastasis Site"],
+            "Pathology": ["Pathology Date", "Pathology Type"],
+            "Genetic Testing": [
+                "ALK",
+                "MET",
+                "RB1",
+                "RET",
+                "BRAF",
+                "BRCA",
+                "EGFR",
+                "FGFR",
+                "KRAS",
+                "NTRK",
+                "ROS1",
+                "TP53",
+                "KEAP1",
+                "STK11",
+                "HER2 (ERBB2)",
+                "HER3 (ERBB3)",
+                "HER4 (ERBB4)",
+                "Genetic Testing Date",
+            ],
+            "Immune Testing": [
+                "Immune Cell",
+                "Combined Positive Score",
+                "Tumor Proportion Score",
+                "PD-L1",
+                "Immunological Test Date",
+            ],
+            "Cancer treatment": [
+                "Surgical Site",
+                "Treatment Start Date",
+                "Treatment Drug Names",
+                "Treatment End Date",
+                "Specific Tumor Treatment Method",
+            ],
+            "Treatment Drug Plan": [
+                "Treatment Start Date",
+                "Treatment Drug Names",
+                "Treatment End Date",
+                "Is Treatment Drug Recommended",
+            ],
+            "Comorbid Disease": [
+                "Date of Confirmed Disease",
+                "Information Source",
+                "Infectious Diseases",
+                "Respiratory System Diseases",
+                "Circulatory System Diseases",
+                "Malignant Tumor Conditions",
+                "Digestive System Diseases",
+                "Nervous System Diseases",
+                "Urogenital System Diseases",
+                "Eye, Ear, Nose, and Throat Related Diseases",
+                "Endocrine and Immune System Diseases",
+            ],
+            "Date": ["Admission Date", "Discharge Date", "Medical History Collection Date", "Record Date"],
+        }
 
         # 单元层级
         ce = ie = me = se = 0  # 初始化计数器：正确提取、错误提取、漏提取、误提取
@@ -22,18 +91,18 @@ class F1score():
             for unit_name, answer_unit_value in answer_json.items():
                 if generated_answer.get(unit_name) is None and unit_name in unit_loc_mapping.keys():
                     me = len(unit_loc_mapping[unit_name]) + me
-                else: #如果单元存在，对比每个点位
+                else:  # 如果单元存在，对比每个点位
                     # TODO 如果是列表，如何比较
                     generate_unit_value = generated_answer.get(unit_name)
                     # 先全部转换为小写
                     for k_g, v_g in generate_unit_value.items():
-                        if isinstance(v_g,list):
+                        if isinstance(v_g, list):
                             generate_unit_value[k_g] = [i.lower() for i in v_g]
                         else:
-                            if isinstance(v_g,str):
-                                generate_unit_value[k_g] = v_g.lower() 
+                            if isinstance(v_g, str):
+                                generate_unit_value[k_g] = v_g.lower()
                     for k_a, v_a in answer_unit_value.items():
-                        if isinstance(v_a,list):
+                        if isinstance(v_a, list):
                             answer_unit_value[k_a] = [i.lower() for i in v_a]
                         else:
                             if isinstance(v_a, str):
@@ -44,10 +113,15 @@ class F1score():
 
                     # 计算 CE 和 IE TODO 需优化
                     for key in reference_keys:
-                        if key=="Age":
-                            generate_unit_value[key] = str(generate_unit_value[key])
-                            answer_unit_value[key] = str(answer_unit_value[key])
-                        if generate_unit_value[key]=="" or generate_unit_value[key]==[]:
+                        generate_unit_value[key] = (
+                            str(generate_unit_value[key])
+                            if isinstance(generate_unit_value[key], int)
+                            else generate_unit_value[key]
+                        )
+                        answer_unit_value[key] = (
+                            str(answer_unit_value[key]) if isinstance(generate_unit_value[key], int) else answer_unit_value[key]
+                        )
+                        if generate_unit_value[key] == "" or generate_unit_value[key] == []:
                             generate_unit_value[key] = "na"
                         if answer_unit_value[key] == "" or answer_unit_value[key] == []:
                             answer_unit_value[key] = "na"
@@ -56,13 +130,13 @@ class F1score():
                             continue
                         if key in generated_keys:
                             # 数据准备，列表+长度为1，取出这个值；列表长度不是1，转为set，比较列表。
-                            if isinstance(generate_unit_value[key],list) :
-                                if len(generate_unit_value[key])==1:
+                            if isinstance(generate_unit_value[key], list):
+                                if len(generate_unit_value[key]) == 1:
                                     generate_unit_value[key] = generate_unit_value[key][0]
                                 else:
                                     generate_unit_value[key] = set(generate_unit_value[key])
-                            if isinstance(answer_unit_value[key],list):
-                                if len(answer_unit_value[key])==1:
+                            if isinstance(answer_unit_value[key], list):
+                                if len(answer_unit_value[key]) == 1:
                                     answer_unit_value[key] = answer_unit_value[key][0]
                                 else:
                                     answer_unit_value[key] = set(answer_unit_value[key])
@@ -80,13 +154,17 @@ class F1score():
                                     if re.findall(r"\d+", generate_unit_value[key])
                                     else "na"
                                 )
-                                answer_unit_value[key] = re.findall(r"\d+",answer_unit_value[key])[0] if re.findall(r"\d+", answer_unit_value[key]) else "na"
+                                answer_unit_value[key] = (
+                                    re.findall(r"\d+", answer_unit_value[key])[0]
+                                    if re.findall(r"\d+", answer_unit_value[key])
+                                    else "na"
+                                )
 
                             if generate_unit_value[key] == answer_unit_value[key]:
                                 ce += 1  # 提取正确
                             else:
                                 ie += 1  # 提取错误
-                                error_keys.append({key:[answer_unit_value[key],generate_unit_value[key]]})
+                                error_keys.append({key: [answer_unit_value[key], generate_unit_value[key]]})
                         else:
                             me += 1  # 漏提取
 
@@ -106,7 +184,7 @@ class F1score():
                 "spurious_extraction": se,
                 "precision": precision,
                 "recall": recall,
-                "error_keys":error_keys
+                "error_keys": error_keys,
             }
         except Exception as e:
             return {
