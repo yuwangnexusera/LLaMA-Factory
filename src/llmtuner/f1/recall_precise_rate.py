@@ -17,6 +17,7 @@ class F1score():
 
         # 单元层级
         ce = ie = me = se = 0  # 初始化计数器：正确提取、错误提取、漏提取、误提取
+        error_keys = []
         try:
             for unit_name, answer_unit_value in answer_json.items():
                 if generated_answer.get(unit_name) is None and unit_name in unit_loc_mapping.keys():
@@ -77,6 +78,7 @@ class F1score():
                                 ce += 1  # 提取正确
                             else:
                                 ie += 1  # 提取错误
+                                error_keys.append(key)
                         else:
                             me += 1  # 漏提取
 
