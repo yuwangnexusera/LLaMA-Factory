@@ -44,6 +44,9 @@ class F1score():
 
                     # 计算 CE 和 IE TODO 需优化
                     for key in reference_keys:
+                        if key=="Age":
+                            generate_unit_value[key] = str(generate_unit_value[key])
+                            answer_unit_value[key] = str(answer_unit_value[key])
                         if key in ["Diagnosing Doctor"]:
                             continue
                         if key in generated_keys:
