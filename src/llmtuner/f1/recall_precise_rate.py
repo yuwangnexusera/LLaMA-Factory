@@ -47,6 +47,10 @@ class F1score():
                         if key=="Age":
                             generate_unit_value[key] = str(generate_unit_value[key])
                             answer_unit_value[key] = str(answer_unit_value[key])
+                        if generate_unit_value[key]=="":
+                            generate_unit_value[key] = "NA"
+                        if answer_unit_value[key]=="":
+                            answer_unit_value[key] = "NA"
                         if key in ["Diagnosing Doctor"]:
                             continue
                         if key in generated_keys:
