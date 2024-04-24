@@ -115,7 +115,7 @@ class F1score():
                 "spurious_extraction": 0,
                 "precision": 0,
                 "recall": 0,
-                "error_keys":e
+                "error_keys": str(e),
             }
 
 
