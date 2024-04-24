@@ -48,9 +48,9 @@ class F1score():
                             generate_unit_value[key] = str(generate_unit_value[key])
                             answer_unit_value[key] = str(answer_unit_value[key])
                         if generate_unit_value[key]=="" or generate_unit_value[key]==[]:
-                            generate_unit_value[key] = "NA"
+                            generate_unit_value[key] = "na"
                         if answer_unit_value[key] == "" or answer_unit_value[key] == []:
-                            answer_unit_value[key] = "NA"
+                            answer_unit_value[key] = "na"
 
                         if key in ["Diagnosing Doctor"]:
                             continue
@@ -78,9 +78,9 @@ class F1score():
                                 generate_unit_value[key] = (
                                     re.findall(r"\d+", generate_unit_value[key])[0]
                                     if re.findall(r"\d+", generate_unit_value[key])
-                                    else "NA"
+                                    else "na"
                                 )
-                                answer_unit_value[key] = re.findall(r"\d+",answer_unit_value[key])[0] if re.findall(r"\d+", answer_unit_value[key]) else "NA"
+                                answer_unit_value[key] = re.findall(r"\d+",answer_unit_value[key])[0] if re.findall(r"\d+", answer_unit_value[key]) else "na"
 
                             if generate_unit_value[key] == answer_unit_value[key]:
                                 ce += 1  # 提取正确
@@ -127,159 +127,159 @@ if __name__ == "__main__":
         "Basic Information": {"Date of Birth": "1952-03-17", "Age": 61, "Gender": "Unknown"},
         "Disease": {
             "Date of First Diagnosis": "2021-12-17",
-            "Time of First Pathological Diagnosis (Biopsy, Post-operative Pathology, etc.)": "NA",
-            "Time of First Lung Resection": "NA",
+            "Time of First Pathological Diagnosis (Biopsy, Post-operative Pathology, etc.)": "na",
+            "Time of First Lung Resection": "na",
             "Time of First Imaging Diagnosis": "2020-07-31",
-            "Time of First Treatment (Drugs, Radiotherapy, etc.)": "NA",
-            "Time of First Symptom": "NA",
+            "Time of First Treatment (Drugs, Radiotherapy, etc.)": "na",
+            "Time of First Symptom": "na",
             "Disease Name": ["Mesothelioma", "Small cell carcinoma"],
         },
-        "Symptom": {"ECOG Score": "NA", "ECOG Date": "NA"},
-        "Diagnosis": {"Diagnosing Doctor": "NA"},
-        "Imaging": {"Brain Metastasis Date": "2021-10-02", "Brain Metastasis Site": "NA"},
-        "Pathology": {"Pathology Date": "NA", "Pathology Type": ["Spindle cell carcinoma"]},
+        "Symptom": {"ECOG Score": "na", "ECOG Date": "na"},
+        "Diagnosis": {"Diagnosing Doctor": "na"},
+        "Imaging": {"Brain Metastasis Date": "2021-10-02", "Brain Metastasis Site": "na"},
+        "Pathology": {"Pathology Date": "na", "Pathology Type": ["Spindle cell carcinoma"]},
         "Genetic Testing": {
-            "ALK": "NA",
+            "ALK": "na",
             "MET": ["Other Rare Mutations"],
             "RB1": ["Positive"],
             "RET": ["Rearrangement"],
-            "BRAF": "NA",
+            "BRAF": "na",
             "BRCA": ["BRCA1"],
-            "EGFR": "NA",
+            "EGFR": "na",
             "FGFR": ["Fusion"],
-            "KRAS": "NA",
+            "KRAS": "na",
             "NTRK": ["NTRK3"],
             "ROS1": ["S1986F"],
             "TP53": ["Positive"],
-            "KEAP1": "NA",
-            "STK11": "NA",
-            "HER2 (ERBB2)": "NA",
+            "KEAP1": "na",
+            "STK11": "na",
+            "HER2 (ERBB2)": "na",
             "HER3 (ERBB3)": ["Positive"],
-            "HER4 (ERBB4)": "NA",
-            "Genetic Testing Date": "NA",
+            "HER4 (ERBB4)": "na",
+            "Genetic Testing Date": "na",
         },
         "Immune Testing": {
-            "Immune Cell": "NA",
-            "Combined Positive Score": "NA",
+            "Immune Cell": "na",
+            "Combined Positive Score": "na",
             "Tumor Proportion Score": "96%",
             "PD-L1": "77%",
             "Immunological Test Date": "2021-02-07",
         },
         "Cancer treatment": {
-            "Surgical Site": "NA",
+            "Surgical Site": "na",
             "Treatment Start Date": "2021-11-23",
-            "Treatment Drug Names": "NA",
+            "Treatment Drug Names": "na",
             "Treatment End Date": "2021-06-18",
             "Specific Tumor Treatment Method": ["Particle implantation"],
         },
         "Treatment Drug Plan": {
             "Treatment Start Date": "2021-11-23",
-            "Treatment Drug Names": "NA",
+            "Treatment Drug Names": "na",
             "Treatment End Date": "2021-06-18",
-            "Is Treatment Drug Recommended": "NA",
+            "Is Treatment Drug Recommended": "na",
         },
         "Comorbid Disease": {
-            "Date of Confirmed Disease": "NA",
-            "Information Source": "NA",
-            "Infectious Diseases": "NA",
+            "Date of Confirmed Disease": "na",
+            "Information Source": "na",
+            "Infectious Diseases": "na",
             "Respiratory System Diseases": ["Atelectasis", "Obstructive Emphysema"],
             "Circulatory System Diseases": ["Luminal Stenosis"],
             "Malignant Tumor Conditions": ["Gastric Cancer"],
             "Digestive System Diseases": ["Fatty Liver"],
-            "Nervous System Diseases": "NA",
-            "Urogenital System Diseases": "NA",
+            "Nervous System Diseases": "na",
+            "Urogenital System Diseases": "na",
             "Eye, Ear, Nose, and Throat Related Diseases": ["Keratomalacia"],
-            "Endocrine and Immune System Diseases": "NA",
+            "Endocrine and Immune System Diseases": "na",
         },
         "Date": {
             "Admission Date": "2019-09-24",
             "Discharge Date": "2022-02-10",
-            "Medical History Collection Date": "NA",
-            "Record Date": "NA",
+            "Medical History Collection Date": "na",
+            "Record Date": "na",
         },
     }
     answer_json = {
         "Basic Information": {"Date of Birth": "1952-03-17", "Age": 61, "Gender": "Unknown"},
         "Disease": {
             "Date of First Diagnosis": "2021-12-17",
-            "Time of First Pathological Diagnosis (Biopsy, Post-operative Pathology, etc.)": "NA",
-            "Time of First Lung Resection": "NA",
+            "Time of First Pathological Diagnosis (Biopsy, Post-operative Pathology, etc.)": "na",
+            "Time of First Lung Resection": "na",
             "Time of First Imaging Diagnosis": "2020-07-31",
-            "Time of First Treatment (Drugs, Radiotherapy, etc.)": "NA",
-            "Time of First Symptom": "NA",
+            "Time of First Treatment (Drugs, Radiotherapy, etc.)": "na",
+            "Time of First Symptom": "na",
             "Disease Name": ["Mesothelioma", "Small cell carcinoma"],
         },
-        "Symptom": {"ECOG Score": "NA", "ECOG Date": "NA"},
-        "Diagnosis": {"Diagnosing Doctor": "NA"},
-        "Imaging": {"Brain Metastasis Date": "2021-10-02", "Brain Metastasis Site": "NA"},
-        "Pathology": {"Pathology Date": "NA", "Pathology Type": ["Spindle cell carcinoma"]},
+        "Symptom": {"ECOG Score": "na", "ECOG Date": "na"},
+        "Diagnosis": {"Diagnosing Doctor": "na"},
+        "Imaging": {"Brain Metastasis Date": "2021-10-02", "Brain Metastasis Site": "na"},
+        "Pathology": {"Pathology Date": "na", "Pathology Type": ["Spindle cell carcinoma"]},
         "Genetic Testing": {
-            "ALK": "NA",
+            "ALK": "na",
             "MET": ["Other Rare Mutations"],
             "RB1": ["Positive"],
             "RET": ["Rearrangement"],
-            "BRAF": "NA",
+            "BRAF": "na",
             "BRCA": ["BRCA1"],
-            "EGFR": "NA",
+            "EGFR": "na",
             "FGFR": ["Fusion"],
-            "KRAS": "NA",
+            "KRAS": "na",
             "NTRK": ["NTRK3"],
             "ROS1": ["S1986F"],
             "TP53": ["Positive"],
-            "KEAP1": "NA",
-            "STK11": "NA",
-            "HER2 (ERBB2)": "NA",
+            "KEAP1": "na",
+            "STK11": "na",
+            "HER2 (ERBB2)": "na",
             "HER3 (ERBB3)": ["Positive"],
-            "HER4 (ERBB4)": "NA",
-            "Genetic Testing Date": "NA",
+            "HER4 (ERBB4)": "na",
+            "Genetic Testing Date": "na",
         },
         "Immune Testing": {
-            "Immune Cell": "NA",
-            "Combined Positive Score": "NA",
+            "Immune Cell": "na",
+            "Combined Positive Score": "na",
             "Tumor Proportion Score": "96%",
             "PD-L1": "77%",
             "Immunological Test Date": "2021-02-07",
         },
         "Cancer treatment": {
-            "Surgical Site": "NA",
+            "Surgical Site": "na",
             "Treatment Start Date": "2021-11-23",
-            "Treatment Drug Names": "NA",
+            "Treatment Drug Names": "na",
             "Treatment End Date": "2021-06-18",
             "Specific Tumor Treatment Method": ["Particle implantation"],
         },
         "Treatment Drug Plan": {
             "Treatment Start Date": "2021-11-23",
-            "Treatment Drug Names": "NA",
+            "Treatment Drug Names": "na",
             "Treatment End Date": "2021-06-18",
-            "Is Treatment Drug Recommended": "NA",
+            "Is Treatment Drug Recommended": "na",
         },
         "Comorbid Disease": {
-            "Date of Confirmed Disease": "NA",
-            "Information Source": "NA",
-            "Infectious Diseases": "NA",
+            "Date of Confirmed Disease": "na",
+            "Information Source": "na",
+            "Infectious Diseases": "na",
             "Respiratory System Diseases": ["Atelectasis", "Obstructive Emphysema"],
             "Circulatory System Diseases": ["Luminal Stenosis"],
             "Malignant Tumor Conditions": ["Gastric Cancer"],
             "Digestive System Diseases": ["Fatty Liver"],
-            "Nervous System Diseases": "NA",
-            "Urogenital System Diseases": "NA",
+            "Nervous System Diseases": "na",
+            "Urogenital System Diseases": "na",
             "Eye, Ear, Nose, and Throat Related Diseases": ["Keratomalacia"],
-            "Endocrine and Immune System Diseases": "NA",
+            "Endocrine and Immune System Diseases": "na",
         },
         "Date": {
             "Admission Date": "2019-09-24",
             "Discharge Date": "2022-02-10",
-            "Medical History Collection Date": "NA",
-            "Record Date": "NA",
+            "Medical History Collection Date": "na",
+            "Record Date": "na",
         },
     }
 
     # 调用函数并打印结果
     result = f1.labor_recall_precise(generated_answer, answer_json)
     print(result)
-    # pic_std = [{"url": "https://image.yoo.la/karen-test/%E5%9F%BA%E5%9B%A0%E6%B5%8B%E8%AF%951119/%E6%B5%8B%E5%9F%BA%E5%9B%A015.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2023-08-02", "出院日期": "NA", "治疗开始日期": "2022-10-29", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗"], "治疗结束日期": "NA", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "NA", "治疗开始日期": "2022-11-19", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "NA", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "NA", "治疗开始日期": "2022-12-10", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "2023-00-NA", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "NA", "治疗开始日期": "2022-01-03", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "2023-00-NA", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "NA", "治疗开始日期": "2023-01-31", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "NA", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "NA", "治疗开始日期": "2023-02-27", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "NA", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "NA", "治疗开始日期": "2023-03-27", "治疗用药名称": ["顺铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "NA", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "NA", "治疗开始日期": "2023-04-25", "治疗用药名称": ["顺铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "NA", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A1.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2020-06-29", "出院日期": "2020-07-22", "治疗开始日期": "NA", "治疗用药名称": ["吉非替尼"], "治疗结束日期": "NA", "肿瘤具体治疗方式": "靶向"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A5.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2023-10-20", "出院日期": "NA", "治疗开始日期": "2023-07-07", "治疗用药名称": ["依托泊苷", "卡铂"], "治疗结束日期": "NA", "肿瘤具体治疗方式": "化疗"}, {"入院日期": "2023-10-20", "出院日期": "NA", "治疗开始日期": "2023-09-NA", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "放疗"}, {"入院日期": "2023-10-20", "出院日期": "NA", "治疗开始日期": "2023-10-10", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "化疗"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9514.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2022-11-14", "出院日期": "NA", "治疗开始日期": "NA", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "手术"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9517.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2023-07-06", "出院日期": "2023-07-08", "治疗开始日期": "2023-07-07", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "手术"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9533.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2020-06-28", "出院日期": "2020-07-14", "治疗开始日期": "2020-06-29", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "放疗"}, {"入院日期": "2020-06-28", "出院日期": "2020-07-14", "治疗开始日期": "2020-07-06", "治疗用药名称": "培美曲塞,卡铂", "治疗结束日期": "NA", "肿瘤具体治疗方式": "化疗"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9536.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2021-11-11", "出院日期": "2021-11-17", "治疗开始日期": "NA", "治疗用药名称": ["EP方案", "维生素B6", "西咪替丁", "二羟丙茶碱"], "治疗结束日期": "NA", "肿瘤具体治疗方式": "化疗"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2021-06-07", "出院日期": "2021-06-18", "治疗开始日期": "2021-06-16", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "手术"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9527.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "NA", "出院日期": "NA", "治疗开始日期": "NA", "治疗用药名称": ["培美曲塞二钠", "顺铂"], "治疗结束日期": "NA", "肿瘤具体治疗方式": "化疗"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/%E9%AA%8C%E6%94%B6%E6%B5%8B%E8%AF%95/%E6%82%A3%E8%80%8511%E5%88%98%2A%E4%B8%BD/%E6%82%A3%E8%80%8511%E5%88%98%2A%E4%B8%BD/8.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "NA", "出院日期": "NA", "治疗开始日期": "2022-11-23", "治疗用药名称": ["顺铂", "恩度", "奥希替尼"], "治疗结束日期": "NA", "肿瘤具体治疗方式": "胸腔灌注,化疗,靶向"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A2.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2020-06-29", "出院日期": "NA", "手术部位": "NA", "治疗开始日期": "NA", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "NA"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A3.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2020-09-08", "出院日期": "2020-09-11", "手术部位": "NA", "治疗开始日期": "NA", "治疗用药名称": ["奥希替尼", "贝伐珠单抗"], "治疗结束日期": "NA", "肿瘤具体治疗方式": "靶向,抗血管"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A6.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "NA", "出院日期": "NA", "手术部位": "NA", "治疗开始日期": "NA", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "NA"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9510.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2023-10-18", "出院日期": "NA", "手术部位": "NA", "治疗开始日期": "NA", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "NA"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9514.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2022-11-14", "出院日期": "NA", "手术部位": "其他", "治疗开始日期": "NA", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "手术"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9516.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "NA", "出院日期": "NA", "手术部位": "NA", "治疗开始日期": "NA", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "NA"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9517.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2023-07-06", "出院日期": "2023-07-08", "手术部位": "其他", "治疗开始日期": "NA", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "手术"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9518.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2022-01-04", "出院日期": "NA", "手术部位": "NA", "治疗开始日期": "NA", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "NA"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9519.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2022-11-14", "出院日期": "NA", "手术部位": "其他", "治疗开始日期": "NA", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "手术"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9520.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2021-12-12", "出院日期": "2021-12-23", "手术部位": "NA", "治疗开始日期": "NA", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "NA"}]}}]
+    # pic_std = [{"url": "https://image.yoo.la/karen-test/%E5%9F%BA%E5%9B%A0%E6%B5%8B%E8%AF%951119/%E6%B5%8B%E5%9F%BA%E5%9B%A015.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2023-08-02", "出院日期": "na", "治疗开始日期": "2022-10-29", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "na", "治疗开始日期": "2022-11-19", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "na", "治疗开始日期": "2022-12-10", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "2023-00-NA", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "na", "治疗开始日期": "2022-01-03", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "2023-00-NA", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "na", "治疗开始日期": "2023-01-31", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "na", "治疗开始日期": "2023-02-27", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "na", "治疗开始日期": "2023-03-27", "治疗用药名称": ["顺铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "na", "治疗开始日期": "2023-04-25", "治疗用药名称": ["顺铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A1.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2020-06-29", "出院日期": "2020-07-22", "治疗开始日期": "na", "治疗用药名称": ["吉非替尼"], "治疗结束日期": "na", "肿瘤具体治疗方式": "靶向"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A5.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2023-10-20", "出院日期": "na", "治疗开始日期": "2023-07-07", "治疗用药名称": ["依托泊苷", "卡铂"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗"}, {"入院日期": "2023-10-20", "出院日期": "na", "治疗开始日期": "2023-09-NA", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "放疗"}, {"入院日期": "2023-10-20", "出院日期": "na", "治疗开始日期": "2023-10-10", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9514.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2022-11-14", "出院日期": "na", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "手术"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9517.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2023-07-06", "出院日期": "2023-07-08", "治疗开始日期": "2023-07-07", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "手术"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9533.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2020-06-28", "出院日期": "2020-07-14", "治疗开始日期": "2020-06-29", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "放疗"}, {"入院日期": "2020-06-28", "出院日期": "2020-07-14", "治疗开始日期": "2020-07-06", "治疗用药名称": "培美曲塞,卡铂", "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9536.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2021-11-11", "出院日期": "2021-11-17", "治疗开始日期": "na", "治疗用药名称": ["EP方案", "维生素B6", "西咪替丁", "二羟丙茶碱"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2021-06-07", "出院日期": "2021-06-18", "治疗开始日期": "2021-06-16", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "手术"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9527.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "na", "出院日期": "na", "治疗开始日期": "na", "治疗用药名称": ["培美曲塞二钠", "顺铂"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/%E9%AA%8C%E6%94%B6%E6%B5%8B%E8%AF%95/%E6%82%A3%E8%80%8511%E5%88%98%2A%E4%B8%BD/%E6%82%A3%E8%80%8511%E5%88%98%2A%E4%B8%BD/8.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "na", "出院日期": "na", "治疗开始日期": "2022-11-23", "治疗用药名称": ["顺铂", "恩度", "奥希替尼"], "治疗结束日期": "na", "肿瘤具体治疗方式": "胸腔灌注,化疗,靶向"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A2.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2020-06-29", "出院日期": "na", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "na"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A3.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2020-09-08", "出院日期": "2020-09-11", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": ["奥希替尼", "贝伐珠单抗"], "治疗结束日期": "na", "肿瘤具体治疗方式": "靶向,抗血管"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A6.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "na", "出院日期": "na", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "na"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9510.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2023-10-18", "出院日期": "na", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "na"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9514.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2022-11-14", "出院日期": "na", "手术部位": "其他", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "手术"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9516.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "na", "出院日期": "na", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "na"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9517.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2023-07-06", "出院日期": "2023-07-08", "手术部位": "其他", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "手术"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9518.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2022-01-04", "出院日期": "na", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "na"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9519.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2022-11-14", "出院日期": "na", "手术部位": "其他", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "手术"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9520.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2021-12-12", "出院日期": "2021-12-23", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "na"}]}}]
 
-    # pic_gpt = [{"url": "https://image.yoo.la/karen-test/%E5%9F%BA%E5%9B%A0%E6%B5%8B%E8%AF%951119/%E6%B5%8B%E5%9F%BA%E5%9B%A015.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2023-08-02", "出院日期": "NA", "手术部位": "NA", "治疗开始日期": "2022-10-29", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "NA", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "NA", "手术部位": "NA", "治疗开始日期": "2022-11-19", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "NA", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "NA", "手术部位": "NA", "治疗开始日期": "2022-12-10", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "NA", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "NA", "手术部位": "NA", "治疗开始日期": "2023-01-31", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "NA", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "NA", "手术部位": "NA", "治疗开始日期": "2023-02-27", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "NA", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "NA", "手术部位": "NA", "治疗开始日期": "2023-03-27", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "NA"}, {"入院日期": "2023-08-02", "出院日期": "NA", "手术部位": "NA", "治疗开始日期": "2023-04-25", "治疗用药名称": ["顺铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "NA", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A1.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2020-06-29", "出院日期": "2020-07-22", "手术部位": "NA", "治疗开始日期": "NA", "治疗用药名称": ["吉非替尼"], "治疗结束日期": "NA", "肿瘤具体治疗方式": "靶向"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A5.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2023-10-20", "出院日期": "NA", "手术部位": "NA", "治疗开始日期": "2023-07-07", "治疗用药名称": ["依托泊苷", "卡铂"], "治疗结束日期": "NA", "肿瘤具体治疗方式": "化疗"}, {"入院日期": "2023-10-20", "出院日期": "NA", "手术部位": "NA", "治疗开始日期": "2023-09-NA", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "放疗"}, {"入院日期": "2023-10-20", "出院日期": "NA", "手术部位": "NA", "治疗开始日期": "2023-10-10", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "同步放化疗"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9514.jpg/keep", "data": {"肿瘤治疗": {}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9517.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2023-07-06", "出院日期": "2023-07-08", "手术部位": "其他", "治疗开始日期": "NA", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "手术"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9533.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2020-06-28", "出院日期": "2020-07-14", "手术部位": "NA", "治疗开始日期": "2020-06-29", "治疗用药名称": ["培美曲塞", "卡铂"], "治疗结束日期": "NA", "肿瘤具体治疗方式": "放疗,化疗"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9536.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2021-11-11", "出院日期": "2021-11-17", "手术部位": "NA", "治疗开始日期": "NA", "治疗用药名称": ["EP方案", "维生素B6", "西咪替丁", "二羟丙茶碱"], "治疗结束日期": "NA", "肿瘤具体治疗方式": "化疗"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2021-06-07", "出院日期": "2021-06-18", "手术部位": "切肺", "治疗开始日期": "2021-06-16", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "手术"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9527.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "NA", "出院日期": "NA", "手术部位": "NA", "治疗开始日期": "NA", "治疗用药名称": ["培美曲塞", "顺铂"], "治疗结束日期": "NA", "肿瘤具体治疗方式": "化疗"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/%E9%AA%8C%E6%94%B6%E6%B5%8B%E8%AF%95/%E6%82%A3%E8%80%8511%E5%88%98%2A%E4%B8%BD/%E6%82%A3%E8%80%8511%E5%88%98%2A%E4%B8%BD/8.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "NA", "出院日期": "NA", "手术部位": "NA", "治疗开始日期": "2022-11-23", "治疗用药名称": ["顺铂", "恩度", "奥希替尼"], "治疗结束日期": "NA", "肿瘤具体治疗方式": "胸腔灌注,化疗,靶向"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A2.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2020-06-29", "出院日期": "NA", "手术部位": "NA", "治疗开始日期": "NA", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "NA"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A3.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2020-09-08", "出院日期": "2020-09-11", "手术部位": "NA", "治疗开始日期": "NA", "治疗用药名称": ["奥希替尼", "安罗替尼", "贝伐珠单抗"], "治疗结束日期": "NA", "肿瘤具体治疗方式": "靶向,抗血管"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A6.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "NA", "出院日期": "NA", "手术部位": "NA", "治疗开始日期": "NA", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "NA"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9510.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2023-10-18", "出院日期": "NA", "手术部位": "NA", "治疗开始日期": "NA", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "NA"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9514.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2022-11-14", "出院日期": "NA", "手术部位": "切肺", "治疗开始日期": "NA", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "手术"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9516.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "NA", "出院日期": "NA", "手术部位": "NA", "治疗开始日期": "NA", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "NA"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9517.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2023-07-06", "出院日期": "2023-07-08", "手术部位": "其他", "治疗开始日期": "NA", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "手术"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9518.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2022-01-04", "出院日期": "NA", "手术部位": "NA", "治疗开始日期": "NA", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "NA"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9519.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2022-11-14", "出院日期": "NA", "手术部位": "NA", "治疗开始日期": "NA", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "手术"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9520.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2021-12-12", "出院日期": "2021-12-23", "手术部位": "NA", "治疗开始日期": "NA", "治疗用药名称": "NA", "治疗结束日期": "NA", "肿瘤具体治疗方式": "NA"}}}]
+    # pic_gpt = [{"url": "https://image.yoo.la/karen-test/%E5%9F%BA%E5%9B%A0%E6%B5%8B%E8%AF%951119/%E6%B5%8B%E5%9F%BA%E5%9B%A015.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2023-08-02", "出院日期": "na", "手术部位": "na", "治疗开始日期": "2022-10-29", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "na", "手术部位": "na", "治疗开始日期": "2022-11-19", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "na", "手术部位": "na", "治疗开始日期": "2022-12-10", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "na", "手术部位": "na", "治疗开始日期": "2023-01-31", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "na", "手术部位": "na", "治疗开始日期": "2023-02-27", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "na", "手术部位": "na", "治疗开始日期": "2023-03-27", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "na"}, {"入院日期": "2023-08-02", "出院日期": "na", "手术部位": "na", "治疗开始日期": "2023-04-25", "治疗用药名称": ["顺铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A1.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2020-06-29", "出院日期": "2020-07-22", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": ["吉非替尼"], "治疗结束日期": "na", "肿瘤具体治疗方式": "靶向"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A5.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2023-10-20", "出院日期": "na", "手术部位": "na", "治疗开始日期": "2023-07-07", "治疗用药名称": ["依托泊苷", "卡铂"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗"}, {"入院日期": "2023-10-20", "出院日期": "na", "手术部位": "na", "治疗开始日期": "2023-09-NA", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "放疗"}, {"入院日期": "2023-10-20", "出院日期": "na", "手术部位": "na", "治疗开始日期": "2023-10-10", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "同步放化疗"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9514.jpg/keep", "data": {"肿瘤治疗": {}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9517.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2023-07-06", "出院日期": "2023-07-08", "手术部位": "其他", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "手术"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9533.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2020-06-28", "出院日期": "2020-07-14", "手术部位": "na", "治疗开始日期": "2020-06-29", "治疗用药名称": ["培美曲塞", "卡铂"], "治疗结束日期": "na", "肿瘤具体治疗方式": "放疗,化疗"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9536.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2021-11-11", "出院日期": "2021-11-17", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": ["EP方案", "维生素B6", "西咪替丁", "二羟丙茶碱"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2021-06-07", "出院日期": "2021-06-18", "手术部位": "切肺", "治疗开始日期": "2021-06-16", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "手术"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9527.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "na", "出院日期": "na", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": ["培美曲塞", "顺铂"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/%E9%AA%8C%E6%94%B6%E6%B5%8B%E8%AF%95/%E6%82%A3%E8%80%8511%E5%88%98%2A%E4%B8%BD/%E6%82%A3%E8%80%8511%E5%88%98%2A%E4%B8%BD/8.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "na", "出院日期": "na", "手术部位": "na", "治疗开始日期": "2022-11-23", "治疗用药名称": ["顺铂", "恩度", "奥希替尼"], "治疗结束日期": "na", "肿瘤具体治疗方式": "胸腔灌注,化疗,靶向"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A2.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2020-06-29", "出院日期": "na", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "na"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A3.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2020-09-08", "出院日期": "2020-09-11", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": ["奥希替尼", "安罗替尼", "贝伐珠单抗"], "治疗结束日期": "na", "肿瘤具体治疗方式": "靶向,抗血管"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A6.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "na", "出院日期": "na", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "na"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9510.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2023-10-18", "出院日期": "na", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "na"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9514.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2022-11-14", "出院日期": "na", "手术部位": "切肺", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "手术"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9516.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "na", "出院日期": "na", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "na"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9517.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2023-07-06", "出院日期": "2023-07-08", "手术部位": "其他", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "手术"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9518.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2022-01-04", "出院日期": "na", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "na"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9519.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2022-11-14", "出院日期": "na", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "手术"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9520.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2021-12-12", "出院日期": "2021-12-23", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "na"}}}]
     # precise, recall, diffs = compare_json_data(pic_std, pic_gpt, "肿瘤治疗")
     # # from MergeOutputUtil import DictMerger
     # # res = DictMerger([]).process_repetitive_data(standard_json["疾病"])
