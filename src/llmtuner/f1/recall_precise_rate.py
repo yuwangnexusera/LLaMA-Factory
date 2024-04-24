@@ -78,7 +78,7 @@ class F1score():
                                 ce += 1  # 提取正确
                             else:
                                 ie += 1  # 提取错误
-                                error_keys.append(key)
+                                error_keys.append({key:[answer_unit_value[key],generate_unit_value[key]]})
                         else:
                             me += 1  # 漏提取
 
