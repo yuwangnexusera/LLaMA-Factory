@@ -9,7 +9,7 @@ def mapping_loc_zh_en(key,trans=True):
     return_key = mapping.get(key)
     if return_key:
         return return_key
-    elif trans:
+    elif trans :
         print(f"{datetime.now()}-translate{key}")
         return translate_text(key)
     else:
@@ -18,6 +18,8 @@ def process_single_loc_obj(dic):
     if isinstance(dic, dict):
         new_dic = {}
         for k, v in dic.items():
+            if k in ["imageUrl","positions"]:
+                continue
             new_key = mapping_loc_zh_en(k)  # 如果key不存在于maps中，保留原始键
             if new_key:
                 if isinstance(v, list):
