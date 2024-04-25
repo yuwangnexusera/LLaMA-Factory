@@ -91,7 +91,7 @@ class F1score:
             for unit_name, answer_unit_value in answer_json.items():
                 if generated_answer.get(unit_name) is None and unit_name in unit_loc_mapping.keys():
                     me = len(unit_loc_mapping[unit_name]) + me
-                else:  # 如果单元存在，对比每个点位
+                else:  # TODO 如果单元存在，对比每个点位
                     # TODO 如果是列表，如何比较
                     generate_unit_value = generated_answer.get(unit_name)
                     # 先全部转换为小写
@@ -128,7 +128,7 @@ class F1score:
 
                         if key in ["Diagnosing Doctor"]:
                             continue
-                        if key in generated_keys:
+                        if key in generated_keys or (generate_unit_value[key]=="na" and answer_unit_value[key]!="na"):
                             # 数据准备，列表+长度为1，取出这个值；列表长度不是1，转为set，比较列表。
                             if isinstance(generate_unit_value[key], list):
                                 if len(generate_unit_value[key]) == 1:
@@ -174,8 +174,8 @@ class F1score:
                                 se += 1  # 误提取
 
                         # 计算 Precision 和 Recall
-                        precision = ce / (ce + ie) if (ce + ie) > 0 else 0
-                        recall = ce / (ce + ie + me) if (ce + ie + me) > 0 else 0
+                        precision = ce / (ce + ie + se) if (ce + ie) > 0 else 0
+                        recall = ce / (ce +  me) if (ce + me) > 0 else 0
 
             return {
                 "correct_extraction": ce,
