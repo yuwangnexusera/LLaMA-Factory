@@ -9,17 +9,18 @@ def mapping_loc_zh_en(key,trans=True):
     return_key = mapping.get(key)
     if return_key:
         return return_key
-    elif trans :
-        print(f"{datetime.now()}-translate{key}")
-        return translate_text(key)
-    else:
+    elif key in ["NA"]:
         return key
+    elif trans:
+        print(f"{datetime.now()}-translate:{key}")
+        return translate_text(key)
 def process_single_loc_obj(dic):
     if isinstance(dic, dict):
         new_dic = {}
         for k, v in dic.items():
-            if k in ["imageUrl","positions"]:
+            if k in ["imageUrl", "positions", "general_res", "picId"]:
                 continue
+
             new_key = mapping_loc_zh_en(k)  # 如果key不存在于maps中，保留原始键
             if new_key:
                 if isinstance(v, list):
@@ -46,6 +47,9 @@ if __name__ == '__main__':
             new_item = {}
             output = json.loads(item_test["output"])
             for unit, locs in output.items():
+                if unit == "合并疾病":
+                    if isinstance(locs,dict):
+                        locs.pop("general_res",None)# TODO general_res处理，合并疾病
                 en_unit = mapping_loc_zh_en(unit)
                 if en_unit and en_unit not in new_item:
                     new_item[en_unit] = {}

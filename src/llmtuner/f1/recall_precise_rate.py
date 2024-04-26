@@ -2,9 +2,53 @@ import json
 from copy import deepcopy
 from difflib import SequenceMatcher
 import re
-
+import numpy as np
+from typing import List,Tuple
+from pypinyin import pinyin, Style
 
 class F1score:
+
+    def compare_json(self, answer, generate):
+        # 此函数需要处理不同数据类型的 JSON 对象，比较它们的内容
+        if isinstance(answer, dict) and isinstance(generate, dict):
+            keys = set(answer.keys()) | set(generate.keys())
+            score = 0
+            total_keys = len(keys)
+            for key in keys:
+                if key in answer and key in generate:
+                    sub_score = self.compare_json(answer[key], generate[key])
+                    if sub_score is not None:
+                        score += sub_score
+            return score / total_keys if total_keys > 0 else 1
+        elif isinstance(answer, list) and isinstance(generate, list):
+            min_len = min(len(answer), len(generate))
+            max_len = max(len(answer), len(generate))
+            score = 0
+            for i in range(min_len):
+                sub_score = self.compare_json(answer[i], generate[i])
+                if sub_score is not None:
+                    score += sub_score
+            # 对于列表长度不等的情况，超出的部分得分为 0
+            return score / max_len if max_len > 0 else 1
+        else:
+            return 1 if answer == generate else 0
+
+    def sort_similarity_matrix(self, answer, generate) -> List[Tuple[float, Tuple[int, int]]]:
+        len_answer = len(answer)
+        len_generate = len(generate)
+        sim_matrix = -np.ones((len_answer, len_generate))
+        for i in range(len_answer):
+            for j in range(len_generate):
+                sim_matrix[i][j] = self.compare_json(answer[i], generate[j])
+        indexed_scores = []
+        for i in range(sim_matrix.shape[0]):
+            for j in range(sim_matrix.shape[1]):
+                indexed_scores.append((sim_matrix[i, j], (i, j)))
+
+        # 按相似度排序
+        indexed_scores.sort(reverse=True, key=lambda x: x[0])
+        return indexed_scores
+
     # 用于实验过程中不区分单元的比较
     def labor_recall_precise(self, generated_answer, answer_json, include_na_in_total=False):
         """
@@ -89,93 +133,140 @@ class F1score:
         error_keys = []
         try:
             for unit_name, answer_unit_value in answer_json.items():
-                if generated_answer.get(unit_name) is None and unit_name in unit_loc_mapping.keys():
-                    me = len(unit_loc_mapping[unit_name]) + me
-                else:  # TODO 如果单元存在，对比每个点位
-                    # TODO 如果是列表，如何比较
-                    generate_unit_value = generated_answer.get(unit_name)
-                    # 先全部转换为小写
-                    for k_g, v_g in generate_unit_value.items():
-                        if isinstance(v_g, list):
-                            generate_unit_value[k_g] = [i.lower() for i in v_g]
-                        else:
-                            if isinstance(v_g, str):
-                                generate_unit_value[k_g] = v_g.lower()
-                    for k_a, v_a in answer_unit_value.items():
-                        if isinstance(v_a, list):
-                            answer_unit_value[k_a] = [i.lower() for i in v_a]
-                        else:
-                            if isinstance(v_a, str):
-                                answer_unit_value[k_a] = v_a.lower()
-                    # 从 answer_json 获取所有可能的键作为参考
-                    reference_keys = set(answer_unit_value.keys())
-                    generated_keys = set(generate_unit_value.keys())
-
-                    # 计算 CE 和 IE TODO 需优化
-                    for key in reference_keys:
-                        generate_unit_value[key] = (
-                            str(generate_unit_value[key])
-                            if isinstance(generate_unit_value[key], int)
-                            else generate_unit_value[key]
-                        )
-                        answer_unit_value[key] = (
-                            str(answer_unit_value[key]) if isinstance(generate_unit_value[key], int) else answer_unit_value[key]
-                        )
-                        if generate_unit_value[key] == "" or generate_unit_value[key] == []:
-                            generate_unit_value[key] = "na"
-                        if answer_unit_value[key] == "" or answer_unit_value[key] == []:
-                            answer_unit_value[key] = "na"
-
-                        if key in ["Diagnosing Doctor"]:
+                generate_unit_value = generated_answer.get(unit_name)
+                if generate_unit_value is None:
+                    me += len(answer_unit_value) * len(unit_loc_mapping[unit_name])
+                    continue
+                length_gap = len(answer_unit_value) - len(generate_unit_value)
+                if length_gap > 0: # 生成的数据更少
+                    me += length_gap * len(unit_loc_mapping[unit_name])
+                elif length_gap < 0: # 生成的数据更多
+                    se += abs(length_gap) * len(unit_loc_mapping[unit_name])
+                similarity_tuple_list = self.sort_similarity_matrix(answer_unit_value, generate_unit_value) # (相似度, (i, j))
+                compared_generate_index = set()
+                compared_answer_index = set()
+                for similarity, (answer_index, generate_index) in similarity_tuple_list:
+                    if generate_index in compared_generate_index or answer_index in compared_answer_index: # 重复的数据
+                        continue
+                    compared_generate_index.add(generate_index)
+                    compared_answer_index.add(answer_index)
+                    # 取出对应的两个value 字典做对比
+                    answer_unit_value_dict = answer_unit_value[answer_index]
+                    generate_unit_value_dict = generate_unit_value[generate_index]
+                    for k_a, v_a in answer_unit_value_dict.items():
+                        # 数据准备
+                        # 先全部转换为小写
+                        # 可能出现整型数字，也可能是整型字符串，做一次归一化，变成字符串
+                        # 空串空列表都映射为na
+                        #诊断医生转为拼音
+                        # 数据准备结束
+                        # 列表+长度为1，取出这个值；列表长度不是1，转为set，比较列表。
+                        if k_a not in generate_unit_value_dict: #生成数据缺失key
+                            me += 1
+                            error_keys.append({k_a: "key not exist"})
                             continue
-                        if key in generated_keys or (generate_unit_value[key]=="na" and answer_unit_value[key]!="na"):
-                            # 数据准备，列表+长度为1，取出这个值；列表长度不是1，转为set，比较列表。
-                            if isinstance(generate_unit_value[key], list):
-                                if len(generate_unit_value[key]) == 1:
-                                    generate_unit_value[key] = generate_unit_value[key][0]
-                                else:
-                                    generate_unit_value[key] = set(generate_unit_value[key])
-                            if isinstance(answer_unit_value[key], list):
-                                if len(answer_unit_value[key]) == 1:
-                                    answer_unit_value[key] = answer_unit_value[key][0]
-                                else:
-                                    answer_unit_value[key] = set(answer_unit_value[key])
-                            if key in [
-                                "PD-L1",
-                                "Age",
-                                "Immune Cell",
-                                "Tumor Proportion Score",
-                                "Combined Positive Score",
-                            ] and isinstance(
-                                generate_unit_value[key], str
-                            ):  # 只比较数字部分
-                                generate_unit_value[key] = (
-                                    re.findall(r"\d+", generate_unit_value[key])[0]
-                                    if re.findall(r"\d+", generate_unit_value[key])
-                                    else "na"
-                                )
-                                answer_unit_value[key] = (
-                                    re.findall(r"\d+", answer_unit_value[key])[0]
-                                    if re.findall(r"\d+", answer_unit_value[key])
-                                    else "na"
-                                )
-
-                            if generate_unit_value[key] == answer_unit_value[key]:
-                                ce += 1  # 提取正确
-                            else:
-                                ie += 1  # 提取错误
-                                error_keys.append({key: [answer_unit_value[key], generate_unit_value[key]]})
+                        v_g = generate_unit_value_dict[k_a]
+                        if isinstance(v_a, list) and isinstance(v_g, list):
+                            if set(v_a) != set(v_g):
+                                ie += 1
+                                error_keys.append({k_a: {"answer": v_a, "generate": v_g}})
+                        elif v_a != v_g:
+                            ie += 1
+                            error_keys.append({k_a: {"answer": v_a, "generate": v_g}})
+                        elif v_a!="na" and v_g=="na":
+                            me+=1
+                            error_keys.append({k_a: {"answer": v_a, "generate": v_g}})
                         else:
-                            me += 1  # 漏提取
+                            ce+= 1
+                #  按照列表之前json对象的相似性，计算
+                # 先全部转换为小写
+                for k_g, v_g in generate_unit_value.items():
+                    if isinstance(v_g, list):
+                        generate_unit_value[k_g] = [i.lower() for i in v_g]
+                    else:
+                        if isinstance(v_g, str):
+                            generate_unit_value[k_g] = v_g.lower()
+                for k_a, v_a in answer_unit_value.items():
+                    if isinstance(v_a, list):
+                        answer_unit_value[k_a] = [i.lower() for i in v_a]
+                    else:
+                        if isinstance(v_a, str):
+                            answer_unit_value[k_a] = v_a.lower()
+                # 从 answer_json 获取所有可能的键作为参考
+                reference_keys = set(answer_unit_value[0].keys() if isinstance(answer_unit_value, list) else answer_unit_value.keys())
+                generated_keys = set(generate_unit_value[0].keys() if isinstance(generate_unit_value, list) else generate_unit_value.keys())
 
-                        # 计算 SE
-                        for key in generated_keys:
-                            if key not in reference_keys:
-                                se += 1  # 误提取
+                # 计算 CE 和 IE TODO 需优化
+                for key in reference_keys:
+                    # 准备操作 start
+                    # 可能出现整型数字，也可能是整型字符串，做一次归一化，变成字符串
+                    generate_unit_value[key] = (
+                        str(generate_unit_value[key])
+                        if isinstance(generate_unit_value[key], int)
+                        else generate_unit_value[key]
+                    )
+                    answer_unit_value[key] = (
+                        str(answer_unit_value[key]) if isinstance(generate_unit_value[key], int) else answer_unit_value[key]
+                    )
+                    # 空串空列表都映射为na
+                    if generate_unit_value[key] == "" or generate_unit_value[key] == []:
+                        generate_unit_value[key] = "na"
+                    if answer_unit_value[key] == "" or answer_unit_value[key] == []:
+                        answer_unit_value[key] = "na"
+                    if key in ["Diagnosing Doctor"]: #诊断医生转为拼音
+                        pinyin_list_a = pinyin(answer_unit_value[key], style=Style.NORMAL)
+                        pinyin_list_g = pinyin(generate_unit_value[key], style=Style.NORMAL)
+                        answer_unit_value[key] = "".join(word[0] for word in pinyin_list_a)
+                        generate_unit_value[key] = "".join(word[0] for word in pinyin_list_g)
+                    # 准备操作 end
+                    if key in generated_keys or (generate_unit_value[key] == "na" and answer_unit_value[key] != "na"):
+                        # 数据准备，列表+长度为1，取出这个值；列表长度不是1，转为set，比较列表。
+                        if isinstance(generate_unit_value[key], list):
+                            if len(generate_unit_value[key]) == 1:
+                                generate_unit_value[key] = generate_unit_value[key][0]
+                            else:
+                                generate_unit_value[key] = set(generate_unit_value[key])
+                        if isinstance(answer_unit_value[key], list):
+                            if len(answer_unit_value[key]) == 1:
+                                answer_unit_value[key] = answer_unit_value[key][0]
+                            else:
+                                answer_unit_value[key] = set(answer_unit_value[key])
+                        if key in [
+                            "PD-L1",
+                            "Age",
+                            "Immune Cell",
+                            "Tumor Proportion Score",
+                            "Combined Positive Score",
+                        ] and isinstance(
+                            generate_unit_value[key], str
+                        ):  # 只比较数字部分
+                            generate_unit_value[key] = (
+                                re.findall(r"\d+", generate_unit_value[key])[0]
+                                if re.findall(r"\d+", generate_unit_value[key])
+                                else "na"
+                            )
+                            answer_unit_value[key] = (
+                                re.findall(r"\d+", answer_unit_value[key])[0]
+                                if re.findall(r"\d+", answer_unit_value[key])
+                                else "na"
+                            )
 
-                        # 计算 Precision 和 Recall
-                        precision = ce / (ce + ie + se) if (ce + ie) > 0 else 0
-                        recall = ce / (ce +  me) if (ce + me) > 0 else 0
+                        if generate_unit_value[key] == answer_unit_value[key]:
+                            ce += 1  # 提取正确
+                        else:
+                            ie += 1  # 提取错误
+                            error_keys.append({key: [answer_unit_value[key], generate_unit_value[key]]})
+                    else:
+                        me += 1  # 漏提取
+
+                    # 计算 SE
+                    for key in generated_keys:
+                        if key not in reference_keys:
+                            se += 1  # 误提取
+
+                    # 计算 Precision 和 Recall
+                    precision = ce / (ce + ie + se) if (ce + ie) > 0 else 0
+                    recall = ce / (ce + me) if (ce + me) > 0 else 0
 
             return {
                 "correct_extraction": ce,
@@ -201,9 +292,20 @@ class F1score:
 if __name__ == "__main__":
     f1 = F1score()
     # 示例数据
-    generated_answer = {
-        "Basic Information": {"Date of Birth": "1952-03-17", "Age": 61, "Gender": "Unknown"},
-        "Disease": {
+    generated_answer = [
+        {
+            "Date of First Diagnosis": "2021-12-12",
+            "Time of First Pathological Diagnosis (Biopsy, Post-operative Pathology, etc.)": "na",
+            "Time of First Lung Resection": "na",
+            "Time of First Imaging Diagnosis": "2020-07-33",
+            "Time of First Treatment (Drugs, Radiotherapy, etc.)": "na",
+            "Time of First Symptom": "na",
+            "Disease Name": ["Mesothelioma", "Small cell carcinoma"],
+        }
+    ]
+    # 其他单元
+    answer_json = [
+        {
             "Date of First Diagnosis": "2021-12-17",
             "Time of First Pathological Diagnosis (Biopsy, Post-operative Pathology, etc.)": "na",
             "Time of First Lung Resection": "na",
@@ -212,153 +314,17 @@ if __name__ == "__main__":
             "Time of First Symptom": "na",
             "Disease Name": ["Mesothelioma", "Small cell carcinoma"],
         },
-        "Symptom": {"ECOG Score": "na", "ECOG Date": "na"},
-        "Diagnosis": {"Diagnosing Doctor": "na"},
-        "Imaging": {"Brain Metastasis Date": "2021-10-02", "Brain Metastasis Site": "na"},
-        "Pathology": {"Pathology Date": "na", "Pathology Type": ["Spindle cell carcinoma"]},
-        "Genetic Testing": {
-            "ALK": "na",
-            "MET": ["Other Rare Mutations"],
-            "RB1": ["Positive"],
-            "RET": ["Rearrangement"],
-            "BRAF": "na",
-            "BRCA": ["BRCA1"],
-            "EGFR": "na",
-            "FGFR": ["Fusion"],
-            "KRAS": "na",
-            "NTRK": ["NTRK3"],
-            "ROS1": ["S1986F"],
-            "TP53": ["Positive"],
-            "KEAP1": "na",
-            "STK11": "na",
-            "HER2 (ERBB2)": "na",
-            "HER3 (ERBB3)": ["Positive"],
-            "HER4 (ERBB4)": "na",
-            "Genetic Testing Date": "na",
-        },
-        "Immune Testing": {
-            "Immune Cell": "na",
-            "Combined Positive Score": "na",
-            "Tumor Proportion Score": "96%",
-            "PD-L1": "77%",
-            "Immunological Test Date": "2021-02-07",
-        },
-        "Cancer treatment": {
-            "Surgical Site": "na",
-            "Treatment Start Date": "2021-11-23",
-            "Treatment Drug Names": "na",
-            "Treatment End Date": "2021-06-18",
-            "Specific Tumor Treatment Method": ["Particle implantation"],
-        },
-        "Treatment Drug Plan": {
-            "Treatment Start Date": "2021-11-23",
-            "Treatment Drug Names": "na",
-            "Treatment End Date": "2021-06-18",
-            "Is Treatment Drug Recommended": "na",
-        },
-        "Comorbid Disease": {
-            "Date of Confirmed Disease": "na",
-            "Information Source": "na",
-            "Infectious Diseases": "na",
-            "Respiratory System Diseases": ["Atelectasis", "Obstructive Emphysema"],
-            "Circulatory System Diseases": ["Luminal Stenosis"],
-            "Malignant Tumor Conditions": ["Gastric Cancer"],
-            "Digestive System Diseases": ["Fatty Liver"],
-            "Nervous System Diseases": "na",
-            "Urogenital System Diseases": "na",
-            "Eye, Ear, Nose, and Throat Related Diseases": ["Keratomalacia"],
-            "Endocrine and Immune System Diseases": "na",
-        },
-        "Date": {
-            "Admission Date": "2019-09-24",
-            "Discharge Date": "2022-02-10",
-            "Medical History Collection Date": "na",
-            "Record Date": "na",
-        },
-    }
-    answer_json = {
-        "Basic Information": {"Date of Birth": "1952-03-17", "Age": 61, "Gender": "Unknown"},
-        "Disease": {
-            "Date of First Diagnosis": "2021-12-17",
+        {
+            "Date of First Diagnosis": "2021-12-12",
             "Time of First Pathological Diagnosis (Biopsy, Post-operative Pathology, etc.)": "na",
             "Time of First Lung Resection": "na",
-            "Time of First Imaging Diagnosis": "2020-07-31",
+            "Time of First Imaging Diagnosis": "2020-07-33",
             "Time of First Treatment (Drugs, Radiotherapy, etc.)": "na",
             "Time of First Symptom": "na",
             "Disease Name": ["Mesothelioma", "Small cell carcinoma"],
         },
-        "Symptom": {"ECOG Score": "na", "ECOG Date": "na"},
-        "Diagnosis": {"Diagnosing Doctor": "na"},
-        "Imaging": {"Brain Metastasis Date": "2021-10-02", "Brain Metastasis Site": "na"},
-        "Pathology": {"Pathology Date": "na", "Pathology Type": ["Spindle cell carcinoma"]},
-        "Genetic Testing": {
-            "ALK": "na",
-            "MET": ["Other Rare Mutations"],
-            "RB1": ["Positive"],
-            "RET": ["Rearrangement"],
-            "BRAF": "na",
-            "BRCA": ["BRCA1"],
-            "EGFR": "na",
-            "FGFR": ["Fusion"],
-            "KRAS": "na",
-            "NTRK": ["NTRK3"],
-            "ROS1": ["S1986F"],
-            "TP53": ["Positive"],
-            "KEAP1": "na",
-            "STK11": "na",
-            "HER2 (ERBB2)": "na",
-            "HER3 (ERBB3)": ["Positive"],
-            "HER4 (ERBB4)": "na",
-            "Genetic Testing Date": "na",
-        },
-        "Immune Testing": {
-            "Immune Cell": "na",
-            "Combined Positive Score": "na",
-            "Tumor Proportion Score": "96%",
-            "PD-L1": "77%",
-            "Immunological Test Date": "2021-02-07",
-        },
-        "Cancer treatment": {
-            "Surgical Site": "na",
-            "Treatment Start Date": "2021-11-23",
-            "Treatment Drug Names": "na",
-            "Treatment End Date": "2021-06-18",
-            "Specific Tumor Treatment Method": ["Particle implantation"],
-        },
-        "Treatment Drug Plan": {
-            "Treatment Start Date": "2021-11-23",
-            "Treatment Drug Names": "na",
-            "Treatment End Date": "2021-06-18",
-            "Is Treatment Drug Recommended": "na",
-        },
-        "Comorbid Disease": {
-            "Date of Confirmed Disease": "na",
-            "Information Source": "na",
-            "Infectious Diseases": "na",
-            "Respiratory System Diseases": ["Atelectasis", "Obstructive Emphysema"],
-            "Circulatory System Diseases": ["Luminal Stenosis"],
-            "Malignant Tumor Conditions": ["Gastric Cancer"],
-            "Digestive System Diseases": ["Fatty Liver"],
-            "Nervous System Diseases": "na",
-            "Urogenital System Diseases": "na",
-            "Eye, Ear, Nose, and Throat Related Diseases": ["Keratomalacia"],
-            "Endocrine and Immune System Diseases": "na",
-        },
-        "Date": {
-            "Admission Date": "2019-09-24",
-            "Discharge Date": "2022-02-10",
-            "Medical History Collection Date": "na",
-            "Record Date": "na",
-        },
-    }
+    ]
 
     # 调用函数并打印结果
-    result = f1.labor_recall_precise(generated_answer, answer_json)
+    result = f1.reorder_json_lists(answer_json, generated_answer)
     print(result)
-    # pic_std = [{"url": "https://image.yoo.la/karen-test/%E5%9F%BA%E5%9B%A0%E6%B5%8B%E8%AF%951119/%E6%B5%8B%E5%9F%BA%E5%9B%A015.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2023-08-02", "出院日期": "na", "治疗开始日期": "2022-10-29", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "na", "治疗开始日期": "2022-11-19", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "na", "治疗开始日期": "2022-12-10", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "2023-00-NA", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "na", "治疗开始日期": "2022-01-03", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "2023-00-NA", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "na", "治疗开始日期": "2023-01-31", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "na", "治疗开始日期": "2023-02-27", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "na", "治疗开始日期": "2023-03-27", "治疗用药名称": ["顺铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "na", "治疗开始日期": "2023-04-25", "治疗用药名称": ["顺铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A1.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2020-06-29", "出院日期": "2020-07-22", "治疗开始日期": "na", "治疗用药名称": ["吉非替尼"], "治疗结束日期": "na", "肿瘤具体治疗方式": "靶向"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A5.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2023-10-20", "出院日期": "na", "治疗开始日期": "2023-07-07", "治疗用药名称": ["依托泊苷", "卡铂"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗"}, {"入院日期": "2023-10-20", "出院日期": "na", "治疗开始日期": "2023-09-NA", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "放疗"}, {"入院日期": "2023-10-20", "出院日期": "na", "治疗开始日期": "2023-10-10", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9514.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2022-11-14", "出院日期": "na", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "手术"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9517.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2023-07-06", "出院日期": "2023-07-08", "治疗开始日期": "2023-07-07", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "手术"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9533.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2020-06-28", "出院日期": "2020-07-14", "治疗开始日期": "2020-06-29", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "放疗"}, {"入院日期": "2020-06-28", "出院日期": "2020-07-14", "治疗开始日期": "2020-07-06", "治疗用药名称": "培美曲塞,卡铂", "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9536.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2021-11-11", "出院日期": "2021-11-17", "治疗开始日期": "na", "治疗用药名称": ["EP方案", "维生素B6", "西咪替丁", "二羟丙茶碱"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2021-06-07", "出院日期": "2021-06-18", "治疗开始日期": "2021-06-16", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "手术"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9527.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "na", "出院日期": "na", "治疗开始日期": "na", "治疗用药名称": ["培美曲塞二钠", "顺铂"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/%E9%AA%8C%E6%94%B6%E6%B5%8B%E8%AF%95/%E6%82%A3%E8%80%8511%E5%88%98%2A%E4%B8%BD/%E6%82%A3%E8%80%8511%E5%88%98%2A%E4%B8%BD/8.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "na", "出院日期": "na", "治疗开始日期": "2022-11-23", "治疗用药名称": ["顺铂", "恩度", "奥希替尼"], "治疗结束日期": "na", "肿瘤具体治疗方式": "胸腔灌注,化疗,靶向"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A2.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2020-06-29", "出院日期": "na", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "na"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A3.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2020-09-08", "出院日期": "2020-09-11", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": ["奥希替尼", "贝伐珠单抗"], "治疗结束日期": "na", "肿瘤具体治疗方式": "靶向,抗血管"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A6.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "na", "出院日期": "na", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "na"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9510.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2023-10-18", "出院日期": "na", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "na"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9514.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2022-11-14", "出院日期": "na", "手术部位": "其他", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "手术"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9516.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "na", "出院日期": "na", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "na"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9517.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2023-07-06", "出院日期": "2023-07-08", "手术部位": "其他", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "手术"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9518.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2022-01-04", "出院日期": "na", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "na"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9519.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2022-11-14", "出院日期": "na", "手术部位": "其他", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "手术"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9520.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2021-12-12", "出院日期": "2021-12-23", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "na"}]}}]
-
-    # pic_gpt = [{"url": "https://image.yoo.la/karen-test/%E5%9F%BA%E5%9B%A0%E6%B5%8B%E8%AF%951119/%E6%B5%8B%E5%9F%BA%E5%9B%A015.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2023-08-02", "出院日期": "na", "手术部位": "na", "治疗开始日期": "2022-10-29", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "na", "手术部位": "na", "治疗开始日期": "2022-11-19", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "na", "手术部位": "na", "治疗开始日期": "2022-12-10", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "na", "手术部位": "na", "治疗开始日期": "2023-01-31", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "na", "手术部位": "na", "治疗开始日期": "2023-02-27", "治疗用药名称": ["卡铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}, {"入院日期": "2023-08-02", "出院日期": "na", "手术部位": "na", "治疗开始日期": "2023-03-27", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "na"}, {"入院日期": "2023-08-02", "出院日期": "na", "手术部位": "na", "治疗开始日期": "2023-04-25", "治疗用药名称": ["顺铂", "培美曲塞", "贝伐珠单抗", "信迪利单抗"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗,抗血管,免疫"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A1.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2020-06-29", "出院日期": "2020-07-22", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": ["吉非替尼"], "治疗结束日期": "na", "肿瘤具体治疗方式": "靶向"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A5.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2023-10-20", "出院日期": "na", "手术部位": "na", "治疗开始日期": "2023-07-07", "治疗用药名称": ["依托泊苷", "卡铂"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗"}, {"入院日期": "2023-10-20", "出院日期": "na", "手术部位": "na", "治疗开始日期": "2023-09-NA", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "放疗"}, {"入院日期": "2023-10-20", "出院日期": "na", "手术部位": "na", "治疗开始日期": "2023-10-10", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "同步放化疗"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9514.jpg/keep", "data": {"肿瘤治疗": {}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9517.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2023-07-06", "出院日期": "2023-07-08", "手术部位": "其他", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "手术"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9533.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "2020-06-28", "出院日期": "2020-07-14", "手术部位": "na", "治疗开始日期": "2020-06-29", "治疗用药名称": ["培美曲塞", "卡铂"], "治疗结束日期": "na", "肿瘤具体治疗方式": "放疗,化疗"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9536.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2021-11-11", "出院日期": "2021-11-17", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": ["EP方案", "维生素B6", "西咪替丁", "二羟丙茶碱"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2021-06-07", "出院日期": "2021-06-18", "手术部位": "切肺", "治疗开始日期": "2021-06-16", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "手术"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9527.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "na", "出院日期": "na", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": ["培美曲塞", "顺铂"], "治疗结束日期": "na", "肿瘤具体治疗方式": "化疗"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/%E9%AA%8C%E6%94%B6%E6%B5%8B%E8%AF%95/%E6%82%A3%E8%80%8511%E5%88%98%2A%E4%B8%BD/%E6%82%A3%E8%80%8511%E5%88%98%2A%E4%B8%BD/8.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "na", "出院日期": "na", "手术部位": "na", "治疗开始日期": "2022-11-23", "治疗用药名称": ["顺铂", "恩度", "奥希替尼"], "治疗结束日期": "na", "肿瘤具体治疗方式": "胸腔灌注,化疗,靶向"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A2.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2020-06-29", "出院日期": "na", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "na"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A3.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2020-09-08", "出院日期": "2020-09-11", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": ["奥希替尼", "安罗替尼", "贝伐珠单抗"], "治疗结束日期": "na", "肿瘤具体治疗方式": "靶向,抗血管"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E6%8A%A5%E5%91%8A6.jpg/keep", "data": {"肿瘤治疗": [{"入院日期": "na", "出院日期": "na", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "na"}]}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9510.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2023-10-18", "出院日期": "na", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "na"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9514.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2022-11-14", "出院日期": "na", "手术部位": "切肺", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "手术"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9516.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "na", "出院日期": "na", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "na"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9517.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2023-07-06", "出院日期": "2023-07-08", "手术部位": "其他", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "手术"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9518.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2022-01-04", "出院日期": "na", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "na"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9519.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2022-11-14", "出院日期": "na", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "手术"}}}, {"url": "https://yoola1-bucket.oss-cn-zhangjiakou.aliyuncs.com/ss1000/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9540/%E5%87%BA%E5%85%A5%E9%99%A2%E8%AE%B0%E5%BD%9520.jpg/keep", "data": {"肿瘤治疗": {"入院日期": "2021-12-12", "出院日期": "2021-12-23", "手术部位": "na", "治疗开始日期": "na", "治疗用药名称": "na", "治疗结束日期": "na", "肿瘤具体治疗方式": "na"}}}]
-    # precise, recall, diffs = compare_json_data(pic_std, pic_gpt, "肿瘤治疗")
-    # # from MergeOutputUtil import DictMerger
-    # # res = DictMerger([]).process_repetitive_data(standard_json["疾病"])
-    # print(precise, recall, diffs)
