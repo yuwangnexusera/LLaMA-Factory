@@ -10,8 +10,12 @@ from .base_engine import BaseEngine, Response
 
 if is_vllm_available():
     from vllm import AsyncEngineArgs, AsyncLLMEngine, RequestOutput, SamplingParams
+    from vllm.lora.request import LoRARequest
+
 
 if TYPE_CHECKING:
+    from numpy.typing import NDArray
+
     from ..hparams import DataArguments, FinetuningArguments, GeneratingArguments, ModelArguments
 
 
@@ -24,10 +28,13 @@ class VllmEngine(BaseEngine):
         generating_args: "GeneratingArguments",
     ) -> None:
         config = load_config(model_args)  # may download model from ms hub
-        load_dtype = infer_optim_dtype(model_dtype=getattr(config, "torch_dtype", None))
+        infer_dtype = infer_optim_dtype(model_dtype=getattr(config, "torch_dtype", None))
+        infer_dtype = str(infer_dtype).split(".")[-1]
 
         self.can_generate = finetuning_args.stage == "sft"
-        self.tokenizer = load_tokenizer(model_args)
+        tokenizer_module = load_tokenizer(model_args)
+        self.tokenizer = tokenizer_module["tokenizer"]
+        self.processor = tokenizer_module["processor"]
         self.tokenizer.padding_side = "left"
         self.template = get_template_and_fix_tokenizer(self.tokenizer, data_args.template)
         self.generating_args = generating_args.to_dict()
@@ -36,21 +43,27 @@ class VllmEngine(BaseEngine):
             model=model_args.model_name_or_path,
             trust_remote_code=True,
             download_dir=model_args.cache_dir,
-            dtype=str(load_dtype).split(".")[-1],
+            dtype=infer_dtype,
             max_model_len=model_args.vllm_maxlen,
             tensor_parallel_size=get_device_count() or 1,
             gpu_memory_utilization=model_args.vllm_gpu_util,
             disable_log_stats=True,
             disable_log_requests=True,
             enforce_eager=model_args.vllm_enforce_eager,
+            enable_lora=model_args.adapter_name_or_path is not None,
         )
         self.model = AsyncLLMEngine.from_engine_args(engine_args)
+        if model_args.adapter_name_or_path is not None:
+            self.lora_request = LoRARequest("default", 1, model_args.adapter_name_or_path[0])
+        else:
+            self.lora_request = None
 
     async def _generate(
         self,
         messages: Sequence[Dict[str, str]],
         system: Optional[str] = None,
         tools: Optional[str] = None,
+        image: Optional["NDArray"] = None,
         **input_kwargs,
     ) -> AsyncIterator["RequestOutput"]:
         request_id = "chatcmpl-{}".format(uuid.uuid4().hex)
@@ -98,7 +111,11 @@ class VllmEngine(BaseEngine):
             skip_special_tokens=True,
         )
         result_generator = self.model.generate(
-            prompt=None, sampling_params=sampling_params, request_id=request_id, prompt_token_ids=prompt_ids
+            prompt=None,
+            sampling_params=sampling_params,
+            request_id=request_id,
+            prompt_token_ids=prompt_ids,
+            lora_request=self.lora_request,
         )
         return result_generator
 
@@ -110,10 +127,11 @@ class VllmEngine(BaseEngine):
         messages: Sequence[Dict[str, str]],
         system: Optional[str] = None,
         tools: Optional[str] = None,
+        image: Optional["NDArray"] = None,
         **input_kwargs,
     ) -> List["Response"]:
         final_output = None
-        generator = await self._generate(messages, system, tools, **input_kwargs)
+        generator = await self._generate(messages, system, tools, image, **input_kwargs)
         async for request_output in generator:
             final_output = request_output
 
@@ -135,10 +153,11 @@ class VllmEngine(BaseEngine):
         messages: Sequence[Dict[str, str]],
         system: Optional[str] = None,
         tools: Optional[str] = None,
+        image: Optional["NDArray"] = None,
         **input_kwargs,
     ) -> AsyncGenerator[str, None]:
         generated_text = ""
-        generator = await self._generate(messages, system, tools, **input_kwargs)
+        generator = await self._generate(messages, system, tools, image, **input_kwargs)
         async for result in generator:
             delta_text = result.outputs[0].text[len(generated_text) :]
             generated_text = result.outputs[0].text

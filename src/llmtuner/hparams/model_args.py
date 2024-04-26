@@ -81,6 +81,10 @@ class ModelArguments:
         default=False,
         metadata={"help": "Whether or not to use unsloth's optimization for the LoRA training."},
     )
+    visual_inputs: bool = field(
+        default=False,
+        metadata={"help": "Whethor or not to use multimodal LLM that accepts visual inputs."},
+    )
     moe_aux_loss_coef: Optional[float] = field(
         default=None,
         metadata={"help": "Coefficient of the auxiliary router loss in mixture-of-experts model."},
@@ -139,7 +143,7 @@ class ModelArguments:
     )
     export_device: str = field(
         default="cpu",
-        metadata={"help": "The device used in model export."},
+        metadata={"help": "The device used in model export, use cuda to avoid addmm errors."},
     )
     export_quantization_bit: Optional[int] = field(
         default=None,
