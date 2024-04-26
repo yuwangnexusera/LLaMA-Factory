@@ -197,11 +197,22 @@ if __name__ == "__main__":
     import os
 
     print(os.getcwd())
-    
+    # TODO 将训练数据全都变成可多条的列表形式
+
+    with open("nex_dataset/test/extract64_test_en.json", "r", encoding="utf-8") as file:
+        data = json.load(file)
+        for item in data:
+            output = json.loads(item["output"])
+            for unit, locs in output.items():
+                if isinstance(locs, dict):
+                    output[unit] = [locs]
+            item["output"] = json.dumps(output, ensure_ascii=False)
+    with open("nex_dataset/test/extract64_test_en.json", "w", encoding="utf-8") as file:
+        json.dump(data, file, indent=4, ensure_ascii=False)
     # 补全NA deprecated 从开始都加上NA
     # fill_NA_answer("data/extract512_en.json")
 
-    # TODO 加上单元层级，prompt和答案都需要
+    # TODO 单元层级--prompt ?
     # 翻译中文数据集至英文，Google translate
     # translate_zh_dataset("data/extract512_zh_v2.json")
 
