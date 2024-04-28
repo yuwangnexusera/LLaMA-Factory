@@ -504,6 +504,8 @@ def generate_domain_data(report_type):
         selected_data["病理"]["病理类型"] = random_select("病理类型")
     return selected_data
 
+def generate_domain_data_en(report_type):
+    zh_domain = generate_domain_data(report_type)
 
 def get_locVal(report_type, loc):
     category_unit_location_mapping = __get_report_structure(report_type)

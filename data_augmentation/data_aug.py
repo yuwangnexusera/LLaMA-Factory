@@ -15,21 +15,18 @@ from dotenv import load_dotenv
 import numpy as np
 
 sys.path.append(".")
-from conf import OPENAI_API_BASE
+from utils import conf
 
 from random import choice, randint, sample
 from langchain.output_parsers import ResponseSchema, StructuredOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from utils.TokenAndCost import TokenCalculate
-from config import *
-from utils.MarkdownJsonUtil import MarkDownJsonToStandard
-from prompts.prompts_lung import *
+
 import prompt_dict
 
 # from report import *
 from utils.db2 import ss_report_type, ss_unit_dataset
-from utils.db2_prompt import *
 from utils.logger import logger
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -41,22 +38,9 @@ os.environ["OPENAI_API_KEY"] = os.getenv("key")
 # os.environ["OPENAI_API_KEY"] = "sk-SaF2Q6QYGo1INej98x1vM0itqQrvC16v3J5ae3LDL9HnMAPH"
 
 
-def ask_llm_by_str(model_name, prompt):
-    llm_openai = ChatOpenAI(model=model_name, openai_api_base=OPENAI_API_BASE, temperature=0, streaming=True)
-    try:
-        logger.info(f"{len(prompt)}-提取中")
-        output = llm_openai.invoke(prompt)
-        logger.info(f"{len(prompt)}-提取完成")
-        standard_json = MarkDownJsonToStandard(output.content).process_markdown_json()
-        if not standard_json:  # gpt3.5直接json，gpt4输出markdown json
-            standard_json = json.loads(output.content)
-    except Exception as e:
-        logger.error("chain.run 异常{}".format(e))
-    return standard_json
-
 
 def ask_llm_return_str(prompt, model_name):
-    llm_openai = ChatOpenAI(model=model_name, openai_api_base=OPENAI_API_BASE, temperature=0.8, streaming=True)
+    llm_openai = ChatOpenAI(model=model_name, openai_api_base=conf.OPENAI_API_BASE, temperature=0.8, streaming=True)
     try:
         logger.info(f"{model_name}：start chain.run")
         output = llm_openai.invoke(prompt)
@@ -70,34 +54,6 @@ def clean_json_string(s):
     """使用正则表达式移除字符串中所有的非法控制字符"""
     s = re.sub(r"[\x00-\x1f\x7f-\x9f]", "", s)
     return s
-
-
-def ask_llm_by_prompt(input, schemas, template, model_name):
-    output_parser = StructuredOutputParser.from_response_schemas(schemas)
-    format_instructions = output_parser.get_format_instructions()
-    prompt = PromptTemplate(
-        template=template,
-        input_variables=["input"],
-        partial_variables={"format_instructions": format_instructions},
-    )
-    llm_openai = ChatOpenAI(
-        model=model_name,
-        openai_api_base=OPENAI_API_BASE,
-        temperature=0.9,
-        streaming=True,
-    )
-    token_cal = TokenCalculate(llm_openai.model_name)
-    chain = LLMChain(llm=llm_openai, prompt=prompt)
-    try:
-        logger.info(f"start chain.run{schemas}")
-        output = clean_json_string(chain.run(input))
-        standard_json = MarkDownJsonToStandard(output).process_markdown_json()
-        logger.info("end chain.run")
-        logger.info(f"input:{token_cal.token_count(template+input)}, output:{token_cal.token_count(output)}")
-    except Exception as e:
-        logger.error("chain.run 异常{}".format(e))
-    return standard_json if standard_json else {}
-
 
 def generate_report_structure(report_type, model_name="gpt-3.5-turbo-free"):
     template_report = f"""请根据医院医疗报告的常见标准格式，告诉我肺癌患者{report_type}应包含哪些部分，每个部分应该含有哪些信息，请不要输出任何说明性文字。\
@@ -259,9 +215,10 @@ def remove_duplicate():
     return
 
 
-def align_token(length):
-    # token长度对其
-    return
+# TODO  直接插入英文点位到报告中 插入可多条的数据
+
+
+
 
 
 def insert_loc_in_report(file_name):
