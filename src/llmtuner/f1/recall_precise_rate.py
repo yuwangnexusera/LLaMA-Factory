@@ -5,7 +5,7 @@ import re
 import numpy as np
 from typing import List,Tuple
 from pypinyin import pinyin, Style
-
+from datetime import datetime
 class F1score:
 
     def compare_json(self, answer, generate):
@@ -91,6 +91,7 @@ class F1score:
                 "HER3 (ERBB3)",
                 "HER4 (ERBB4)",
                 "Genetic Testing Date",
+                "Whether to undergo genetic testing",
             ],
             "Immune Testing": [
                 "Immune Cell",
@@ -130,6 +131,8 @@ class F1score:
 
         # 单元层级
         ce = ie = me = se = 0  # 初始化计数器：正确提取、错误提取、漏提取、误提取
+        precision = 0
+        recall = 0
         error_keys = []
         try:
             for unit_name, answer_unit_value in answer_json.items():
@@ -142,6 +145,11 @@ class F1score:
                     me += length_gap * len(unit_loc_mapping[unit_name])
                 elif length_gap < 0: # 生成的数据更多
                     se += abs(length_gap) * len(unit_loc_mapping[unit_name])
+                if unit_name=='Date':
+                    if isinstance(answer_unit_value,dict):
+                        answer_unit_value = [answer_unit_value]
+                    if isinstance(generate_unit_value,dict):
+                        generate_unit_value = [generate_unit_value]
                 similarity_tuple_list = self.sort_similarity_matrix(answer_unit_value, generate_unit_value) # (相似度, (i, j))
                 compared_generate_index = set()
                 compared_answer_index = set()
@@ -153,119 +161,78 @@ class F1score:
                     # 取出对应的两个value 字典做对比
                     answer_unit_value_dict = answer_unit_value[answer_index]
                     generate_unit_value_dict = generate_unit_value[generate_index]
-                    for k_a, v_a in answer_unit_value_dict.items():
-                        # 数据准备
-                        # 先全部转换为小写
+                    # 数据准备
+                    # 先全部转换为小写
+                    for k_g, v_g in list(generate_unit_value_dict.items()):
                         # 可能出现整型数字，也可能是整型字符串，做一次归一化，变成字符串
+                        v_g = str(v_g) if isinstance(v_g, int) else v_g
                         # 空串空列表都映射为na
-                        #诊断医生转为拼音
-                        # 数据准备结束
-                        # 列表+长度为1，取出这个值；列表长度不是1，转为set，比较列表。
+                        if v_g == "" or v_g == []:
+                            v_g = "na"
+                        if isinstance(v_g, list):
+                            v_g = [i.lower() for i in v_g]
+                        else:
+                            if isinstance(v_g, str):
+                                v_g = v_g.lower()
+                        # 诊断医生转为拼音
+                        if k_g in ["Diagnosing Doctor"]:  # 诊断医生转为拼音
+                            pinyin_list_g = pinyin(v_g, style=Style.NORMAL)
+                            v_g = "".join(word[0] for word in pinyin_list_g)
+                        generate_unit_value_dict[k_g] = v_g  # 重新赋值以更新字典中的数据
+
+                    for k_a, v_a in list(answer_unit_value_dict.items()):
+                        # 可能出现整型数字，也可能是整型字符串，做一次归一化，变成字符串
+                        v_a = str(v_a) if isinstance(v_a, int) else v_a
+                        # 空串空列表都映射为na
+                        if v_a == "" or v_a == []:
+                            v_a = "na"
+                        if isinstance(v_a, list):
+                            v_a = [i.lower() for i in v_a]
+                        else:
+                            if isinstance(v_a, str):
+                                v_a = v_a.lower()
+                        # 诊断医生转为拼音
+                        if k_a in ["Diagnosing Doctor"]:  # 诊断医生转为拼音
+                            pinyin_list_a = pinyin(v_a, style=Style.NORMAL)
+                            v_a = "".join(word[0] for word in pinyin_list_a)
+                        answer_unit_value_dict[k_a] = v_a
+                    # 数据准备结束
+
+                    for k_a, v_a in answer_unit_value_dict.items():
+                        v_a = v_a[0] if len(v_a) == 1 else v_a
+                        
                         if k_a not in generate_unit_value_dict: #生成数据缺失key
                             me += 1
                             error_keys.append({k_a: "key not exist"})
                             continue
                         v_g = generate_unit_value_dict[k_a]
+
+                        v_g = v_g[0] if len(v_g) == 1 else v_g
                         if isinstance(v_a, list) and isinstance(v_g, list):
                             if set(v_a) != set(v_g):
                                 ie += 1
                                 error_keys.append({k_a: {"answer": v_a, "generate": v_g}})
+                            else:
+                                ce += 1
+                        elif v_a!="na" and v_g=="na":
+                            me += 1
+                            error_keys.append({k_a: {"answer": v_a, "generate": v_g}})
                         elif v_a != v_g:
                             ie += 1
                             error_keys.append({k_a: {"answer": v_a, "generate": v_g}})
-                        elif v_a!="na" and v_g=="na":
-                            me+=1
-                            error_keys.append({k_a: {"answer": v_a, "generate": v_g}})
+                        elif  v_a=="na" and v_g=="na":
+                            continue
                         else:
                             ce+= 1
-                #  按照列表之前json对象的相似性，计算
-                # 先全部转换为小写
-                for k_g, v_g in generate_unit_value.items():
-                    if isinstance(v_g, list):
-                        generate_unit_value[k_g] = [i.lower() for i in v_g]
-                    else:
-                        if isinstance(v_g, str):
-                            generate_unit_value[k_g] = v_g.lower()
-                for k_a, v_a in answer_unit_value.items():
-                    if isinstance(v_a, list):
-                        answer_unit_value[k_a] = [i.lower() for i in v_a]
-                    else:
-                        if isinstance(v_a, str):
-                            answer_unit_value[k_a] = v_a.lower()
-                # 从 answer_json 获取所有可能的键作为参考
-                reference_keys = set(answer_unit_value[0].keys() if isinstance(answer_unit_value, list) else answer_unit_value.keys())
-                generated_keys = set(generate_unit_value[0].keys() if isinstance(generate_unit_value, list) else generate_unit_value.keys())
-
-                # 计算 CE 和 IE TODO 需优化
-                for key in reference_keys:
-                    # 准备操作 start
-                    # 可能出现整型数字，也可能是整型字符串，做一次归一化，变成字符串
-                    generate_unit_value[key] = (
-                        str(generate_unit_value[key])
-                        if isinstance(generate_unit_value[key], int)
-                        else generate_unit_value[key]
-                    )
-                    answer_unit_value[key] = (
-                        str(answer_unit_value[key]) if isinstance(generate_unit_value[key], int) else answer_unit_value[key]
-                    )
-                    # 空串空列表都映射为na
-                    if generate_unit_value[key] == "" or generate_unit_value[key] == []:
-                        generate_unit_value[key] = "na"
-                    if answer_unit_value[key] == "" or answer_unit_value[key] == []:
-                        answer_unit_value[key] = "na"
-                    if key in ["Diagnosing Doctor"]: #诊断医生转为拼音
-                        pinyin_list_a = pinyin(answer_unit_value[key], style=Style.NORMAL)
-                        pinyin_list_g = pinyin(generate_unit_value[key], style=Style.NORMAL)
-                        answer_unit_value[key] = "".join(word[0] for word in pinyin_list_a)
-                        generate_unit_value[key] = "".join(word[0] for word in pinyin_list_g)
-                    # 准备操作 end
-                    if key in generated_keys or (generate_unit_value[key] == "na" and answer_unit_value[key] != "na"):
-                        # 数据准备，列表+长度为1，取出这个值；列表长度不是1，转为set，比较列表。
-                        if isinstance(generate_unit_value[key], list):
-                            if len(generate_unit_value[key]) == 1:
-                                generate_unit_value[key] = generate_unit_value[key][0]
-                            else:
-                                generate_unit_value[key] = set(generate_unit_value[key])
-                        if isinstance(answer_unit_value[key], list):
-                            if len(answer_unit_value[key]) == 1:
-                                answer_unit_value[key] = answer_unit_value[key][0]
-                            else:
-                                answer_unit_value[key] = set(answer_unit_value[key])
-                        if key in [
-                            "PD-L1",
-                            "Age",
-                            "Immune Cell",
-                            "Tumor Proportion Score",
-                            "Combined Positive Score",
-                        ] and isinstance(
-                            generate_unit_value[key], str
-                        ):  # 只比较数字部分
-                            generate_unit_value[key] = (
-                                re.findall(r"\d+", generate_unit_value[key])[0]
-                                if re.findall(r"\d+", generate_unit_value[key])
-                                else "na"
-                            )
-                            answer_unit_value[key] = (
-                                re.findall(r"\d+", answer_unit_value[key])[0]
-                                if re.findall(r"\d+", answer_unit_value[key])
-                                else "na"
-                            )
-
-                        if generate_unit_value[key] == answer_unit_value[key]:
-                            ce += 1  # 提取正确
-                        else:
-                            ie += 1  # 提取错误
-                            error_keys.append({key: [answer_unit_value[key], generate_unit_value[key]]})
-                    else:
-                        me += 1  # 漏提取
 
                     # 计算 SE
-                    for key in generated_keys:
-                        if key not in reference_keys:
+                    for key in generate_unit_value_dict.keys():
+                        if key not in answer_unit_value_dict.keys():
                             se += 1  # 误提取
+                            error_keys.append({key: "key not exist"})
 
                     # 计算 Precision 和 Recall
-                    precision = ce / (ce + ie + se) if (ce + ie) > 0 else 0
+                    precision = ce / (ce + ie + se) if (ce + ie + se) > 0 else 0
                     recall = ce / (ce + me) if (ce + me) > 0 else 0
 
             return {
@@ -278,6 +245,7 @@ class F1score:
                 "error_keys": error_keys,
             }
         except Exception as e:
+            print(f"{datetime.now()}:{e}")
             return {
                 "correct_extraction": 0,
                 "incorrect_extraction": 0,
@@ -292,39 +260,9 @@ class F1score:
 if __name__ == "__main__":
     f1 = F1score()
     # 示例数据
-    generated_answer = [
-        {
-            "Date of First Diagnosis": "2021-12-12",
-            "Time of First Pathological Diagnosis (Biopsy, Post-operative Pathology, etc.)": "na",
-            "Time of First Lung Resection": "na",
-            "Time of First Imaging Diagnosis": "2020-07-33",
-            "Time of First Treatment (Drugs, Radiotherapy, etc.)": "na",
-            "Time of First Symptom": "na",
-            "Disease Name": ["Mesothelioma", "Small cell carcinoma"],
-        }
-    ]
-    # 其他单元
-    answer_json = [
-        {
-            "Date of First Diagnosis": "2021-12-17",
-            "Time of First Pathological Diagnosis (Biopsy, Post-operative Pathology, etc.)": "na",
-            "Time of First Lung Resection": "na",
-            "Time of First Imaging Diagnosis": "2020-07-31",
-            "Time of First Treatment (Drugs, Radiotherapy, etc.)": "na",
-            "Time of First Symptom": "na",
-            "Disease Name": ["Mesothelioma", "Small cell carcinoma"],
-        },
-        {
-            "Date of First Diagnosis": "2021-12-12",
-            "Time of First Pathological Diagnosis (Biopsy, Post-operative Pathology, etc.)": "na",
-            "Time of First Lung Resection": "na",
-            "Time of First Imaging Diagnosis": "2020-07-33",
-            "Time of First Treatment (Drugs, Radiotherapy, etc.)": "na",
-            "Time of First Symptom": "na",
-            "Disease Name": ["Mesothelioma", "Small cell carcinoma"],
-        },
-    ]
+    generated_answer = {}
+    answer_json = {"Disease": ""}
 
     # 调用函数并打印结果
-    result = f1.reorder_json_lists(answer_json, generated_answer)
+    result = f1.labor_recall_precise(answer_json, generated_answer)
     print(result)

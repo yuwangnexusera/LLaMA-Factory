@@ -76,7 +76,15 @@ def generate_other(
             file.flush()
 
     print(jsonl_path)
-
+def insert_loc_in_answer(data,unit_name,loc,val):
+    for d in data:
+        output = json.loads(d["output"])
+        for unit,vals in output.items():
+            if unit == unit_name:
+                for v in vals:
+                    v[loc] = val
+        d["output"] = json.dumps(output, ensure_ascii=False)
+    return data
 
 # 从增强数据到训练数据 test
 def generate_extract_dataset(
@@ -197,18 +205,13 @@ if __name__ == "__main__":
     import os
 
     print(os.getcwd())
-    # TODO 将训练数据全都变成可多条的列表形式
-
-    with open("nex_dataset/test/extract64_test_en.json", "r", encoding="utf-8") as file:
-        data = json.load(file)
-        for item in data:
-            output = json.loads(item["output"])
-            for unit, locs in output.items():
-                if isinstance(locs, dict):
-                    output[unit] = [locs]
-            item["output"] = json.dumps(output, ensure_ascii=False)
-    with open("nex_dataset/test/extract64_test_en.json", "w", encoding="utf-8") as file:
-        json.dump(data, file, indent=4, ensure_ascii=False)
+    with open('utils/mapping_answer_zh_en.json', 'r', encoding='utf-8') as f:
+        mapping = json.load(f)
+    with open("data/extract1k_en.json", "r", encoding="utf-8") as f_ori:
+        data = json.load(f_ori)
+        new_data = insert_loc_in_answer(data, "Treatment Drug Plan", "Is Treatment Drug Recommended", "No")
+    with open("data/extract1k_en.json", "w", encoding="utf-8") as f_new:
+        json.dump(new_data, f_new, indent=4, ensure_ascii=False)
     # 补全NA deprecated 从开始都加上NA
     # fill_NA_answer("data/extract512_en.json")
 
