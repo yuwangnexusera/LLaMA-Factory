@@ -1,7 +1,7 @@
 import json
 import math
 import os
-from typing import List
+from typing import Any, Dict, List
 
 from transformers.trainer import TRAINER_STATE_NAME
 
@@ -10,6 +10,7 @@ from .packages import is_matplotlib_available
 
 
 if is_matplotlib_available():
+    import matplotlib.figure
     import matplotlib.pyplot as plt
 
 
@@ -21,7 +22,7 @@ def smooth(scalars: List[float]) -> List[float]:
     EMA implementation according to TensorBoard.
     """
     last = scalars[0]
-    smoothed = list()
+    smoothed = []
     weight = 1.8 * (1 / (1 + math.exp(-0.05 * len(scalars))) - 0.5)  # a sigmoid function
     for next_val in scalars:
         smoothed_val = last * weight + (1 - weight) * next_val
@@ -30,33 +31,70 @@ def smooth(scalars: List[float]) -> List[float]:
     return smoothed
 
 
+def gen_loss_plot(trainer_log: List[Dict[str, Any]]) -> "matplotlib.figure.Figure":
+    plt.close("all")
+    plt.switch_backend("agg")
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    steps, losses = [], []
+    for log in trainer_log:
+        if log.get("loss", None):
+            steps.append(log["current_steps"])
+            losses.append(log["loss"])
+
+    ax.plot(steps, losses, color="#1f77b4", alpha=0.4, label="original")
+    ax.plot(steps, smooth(losses), color="#1f77b4", label="smoothed")
+    ax.legend()
+    ax.set_xlabel("step")
+    ax.set_ylabel("loss")
+    return fig
+
+
+def merge_loss_data(data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    merged_data = []
+    epoch_dict = {}  # 用于存储每个 epoch 的数据
+
+    for entry in data:
+        epoch = entry.get("epoch")
+
+        if epoch is not None:
+            if epoch not in epoch_dict:
+                epoch_dict[epoch] = {"epoch": epoch}
+
+            # 如果当前条目包含训练损失，则添加到当前 epoch 数据中
+            if "loss" in entry:
+                epoch_dict[epoch]["loss"] = entry["loss"]
+
+            # 如果当前条目包含验证损失，则添加到当前 epoch 数据中
+            if "eval_loss" in entry:
+                epoch_dict[epoch]["eval_loss"] = entry["eval_loss"]
+
+    # 将合并后的数据添加到 merged_data 列表中
+    for epoch_data in epoch_dict.values():
+        merged_data.append(epoch_data)
+
+    return merged_data
+
+
 def plot_loss(save_dictionary: os.PathLike, keys: List[str] = ["loss"]) -> None:
+    plt.switch_backend("agg")
     with open(os.path.join(save_dictionary, TRAINER_STATE_NAME), "r", encoding="utf-8") as f:
         data = json.load(f)
-
-    for key in keys:
-        steps, metrics = [], []
-
-        for i in range(len(data["log_history"])):
-
-            if key in data["log_history"][i]:
-                steps.append(data["log_history"][i]["step"])
-                metrics.append(data["log_history"][i][key])
-
-        if len(metrics) == 0:
-            logger.warning(f"No metric {key} to plot.")
-            continue
-
-        plt.figure()
-        plt.plot(steps, metrics, color="#FFDAB9", alpha=0.4, label="original")
-        plt.plot(steps, smooth(metrics), color="#FFD700", label="smoothed")
-        plt.title("training {} of {}".format(key, save_dictionary))
-        plt.xlabel("step")
-        plt.ylabel(key)
-        plt.legend()
-        figure_path = os.path.join(save_dictionary, "training_{}.png".format(key.replace("/", "_")))
-        plt.savefig(figure_path, format="png", dpi=100)
-        print("Figure saved at:", figure_path)
+    merged_data = merge_loss_data(data["log_history"])
+    epochs = [entry["epoch"] for entry in merged_data]
+    train_losses = [entry["loss"] for entry in merged_data if "loss" in entry]
+    train_losses.append(merged_data[-1]["train_loss"] if "train_loss" in merged_data[-1] else None)
+    eval_losses = [entry["eval_loss"] for entry in merged_data if "eval_loss" in entry]
+    plt.figure()
+    plt.plot(epochs, train_losses, color="#0000CD", label="Train Loss")
+    plt.plot(epochs, eval_losses, color="#00FA9A", label="Validation Loss")
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.title("Train and Validation Loss")
+    plt.legend()
+    figure_path = os.path.join(save_dictionary, "loss.png")
+    plt.savefig(figure_path, format="png", dpi=100)
+    print("Figure saved at:", figure_path)
 
 
 def plot_loss_error_curve(
