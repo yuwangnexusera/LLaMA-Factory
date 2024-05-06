@@ -7,17 +7,7 @@ sys.path.append(".")
 from utils.google_translate import translate_text
 
 
-def mapping_loc_zh_en(key, trans=True):
-    with open("utils/mapping_answer_zh_en.json", "r", encoding="utf-8") as f:
-        mapping = json.load(f)
-    return_key = mapping.get(key)
-    if return_key:
-        return return_key
-    elif key in ["NA"]:
-        return key
-    elif trans:
-        print(f"{datetime.now()}-translate:{key}")
-        return translate_text(key)
+
 
 
 def process_single_loc_obj(dic):
@@ -93,24 +83,25 @@ if __name__ == "__main__":
         for item_test in data:
             new_item = {}
             output = json.loads(item_test["output"])
-            ori_date_unit = output["基本信息"][0]
-            date_unit = {
-                "Discharge Date": ori_date_unit["出院日期"],
-                "Admission Date": ori_date_unit["入院日期"],
-                "Record Date": ori_date_unit["记录日期"],
-                "Medical History Collection Date": ori_date_unit["病史采集日期"],
-            }
-            for unit, locs in output.items():
-                en_unit = mapping_loc_zh_en(unit)
-                if en_unit and en_unit not in new_item:
-                    new_item[en_unit] = []
-                if unit == "合并疾病":
-                    processed_locs = mapping_comorbid_disease(locs)
-                else:
-                    processed_locs = process_single_loc_obj(locs)
-                new_item[en_unit] = processed_locs
-                new_item["Date"] = date_unit
-            item_test["output"] = json.dumps(new_item)
+            continue
+            # ori_date_unit = output["基本信息"][0]
+            # date_unit = {
+            #     "Discharge Date": ori_date_unit["出院日期"],
+            #     "Admission Date": ori_date_unit["入院日期"],
+            #     "Record Date": ori_date_unit["记录日期"],
+            #     "Medical History Collection Date": ori_date_unit["病史采集日期"],
+            # }
+            # for unit, locs in output.items():
+            #     en_unit = mapping_loc_zh_en(unit)
+            #     if en_unit and en_unit not in new_item:
+            #         new_item[en_unit] = []
+            #     if unit == "合并疾病":
+            #         processed_locs = mapping_comorbid_disease(locs)
+            #     else:
+            #         processed_locs = process_single_loc_obj(locs)
+            #     new_item[en_unit] = processed_locs
+            #     new_item["Date"] = date_unit
+            # item_test["output"] = json.dumps(new_item)
 
     with open("nex_dataset/test/extract_with_unit.json", "w", encoding="utf-8") as f:
 

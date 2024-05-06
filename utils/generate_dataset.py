@@ -7,7 +7,7 @@ import google_translate
 import sys
 
 sys.path.append(".")
-
+from data_augmentation import prompt_dict
 
 def split_dataset(
     dataset_list,
@@ -168,34 +168,37 @@ def translate_zh_dataset(file_name):
 
 
 def fill_NA_answer(file_name):
-    dict_list = set()
+    '''去除列表长度大于1，全NA的对象，并且补全对象中key不全的情况'''
     with open(file_name, "r", encoding="utf-8") as file:
         json_data = json.load(file)
-
-    for item in json_data:
-        try:
-            asnwer = json.loads(item["output"])
-            dict_list.update(asnwer.keys())
-            # 长度不一致,可能翻译时key的名字没对上，不使用这个mappings，用从数据集中取出的所有key
-        except Exception as e:
-            print(e)
-            print(item["output"])
-    dict_list = list(dict_list)
+    unit_locs = prompt_dict._get_report_structure("出入院记录")
+    en_unit_locs = {}
+    for unit, locs in unit_locs.items():
+        en_unit = prompt_dict.mapping_loc_zh_en(unit)
+        en_vals = [prompt_dict.mapping_loc_zh_en(val) for val in locs]
+        en_unit_locs[en_unit] = en_vals
     new_list = []
     for item in json_data:
-        output_data = {}
-        try:
-            output_data = json.loads(item["output"])
-        except Exception as e:
-            print(e)
-            print(item["output"])
-        # 如果mappings中的value不都在asnwer中，进行空串补全
-        for key in dict_list:
-            if key not in output_data:
-                output_data[key] = "NA"
-        new_list.append(
-            {"instruction": item["instruction"], "input": item["input"], "output": json.dumps(output_data, ensure_ascii=False)}
-        )
+        output_data = json.loads(item["output"])
+        cleaned_data = {} #存储去除NA的
+        for unit,locs in output_data.items():
+            if len(locs) > 1:
+                print()
+            if isinstance(locs, list) and len(locs) > 1:
+                valid_dicts = []
+                for loc_dict in locs:
+                    # 检查是否每个值都是'NA'
+                    if not all(value == 'NA' for value in loc_dict.values()):
+                        # 补全缺失的键
+                        complete_loc_dict = {key: loc_dict.get(key, 'NA') for key in en_unit_locs.get(unit, [])}
+                        valid_dicts.append(complete_loc_dict)
+                if valid_dicts:
+                    cleaned_data[unit] = valid_dicts
+            else:
+                # 直接补全缺失的键
+                complete_loc_dict = {key: locs[0].get(key, 'NA') for key in en_unit_locs.get(unit, [])}
+                cleaned_data[unit] = [complete_loc_dict]
+        new_list.append({"instruction": item["instruction"], "input": item["input"], "output": json.dumps(cleaned_data, ensure_ascii=False)})  # 将清理后的数据追加到new_list中
     with open(file_name, "w", encoding="utf-8") as outfile:
         outfile.write(json.dumps(new_list, indent=4, ensure_ascii=False))
     return True
@@ -205,6 +208,7 @@ if __name__ == "__main__":
     import os
 
     print(os.getcwd())
+    fill_NA_answer("data/extract1k_en.json") # TODO 执行这个，补全NA
     with open('utils/mapping_answer_zh_en.json', 'r', encoding='utf-8') as f:
         mapping = json.load(f)
     with open("data/extract1k_en.json", "r", encoding="utf-8") as f_ori:
@@ -213,7 +217,7 @@ if __name__ == "__main__":
     with open("data/extract1k_en.json", "w", encoding="utf-8") as f_new:
         json.dump(new_data, f_new, indent=4, ensure_ascii=False)
     # 补全NA deprecated 从开始都加上NA
-    # fill_NA_answer("data/extract512_en.json")
+
 
     # TODO 单元层级--prompt ?
     # 翻译中文数据集至英文，Google translate

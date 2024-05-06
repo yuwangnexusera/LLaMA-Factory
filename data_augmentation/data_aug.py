@@ -1,6 +1,5 @@
 import json
 import os
-from random import randint
 import random
 import re
 
@@ -17,26 +16,19 @@ import numpy as np
 sys.path.append(".")
 from utils import conf
 
-from random import choice, randint, sample
-from langchain.output_parsers import ResponseSchema, StructuredOutputParser
-from langchain_core.prompts import PromptTemplate
-from langchain.chains import LLMChain
 from utils.TokenAndCost import TokenCalculate
 
 import prompt_dict
 
 # from report import *
-from utils.db2 import ss_report_type, ss_unit_dataset
 from utils.logger import logger
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
-load_dotenv(dotenv_path="key.env")
-warnings.filterwarnings("ignore")
-os.environ["OPENAI_API_KEY"] = os.getenv("key")
-# os.environ["OPENAI_API_KEY"] = "sk-SaF2Q6QYGo1INej98x1vM0itqQrvC16v3J5ae3LDL9HnMAPH"
 
+os.environ["OPENAI_API_KEY"] = conf.OPENAI_API_KEY
+# os.environ["OPENAI_API_KEY"] = "sk-SaF2Q6QYGo1INej98x1vM0itqQrvC16v3J5ae3LDL9HnMAPH"
 
 
 def ask_llm_return_str(prompt, model_name):
@@ -54,6 +46,7 @@ def clean_json_string(s):
     """使用正则表达式移除字符串中所有的非法控制字符"""
     s = re.sub(r"[\x00-\x1f\x7f-\x9f]", "", s)
     return s
+
 
 def generate_report_structure(report_type, model_name="gpt-3.5-turbo-free"):
     template_report = f"""请根据医院医疗报告的常见标准格式，告诉我肺癌患者{report_type}应包含哪些部分，每个部分应该含有哪些信息，请不要输出任何说明性文字。\
@@ -121,6 +114,17 @@ def generate_recheck(report, report_type, prompt_data, model_name):
     checked_report = ask_llm_return_str(template_recheck, model_name)
     # print("@@@@checked_report:{}".format(checked_report))
     return checked_report
+
+
+def insert_mul_en_loc(loc, report):
+
+    prompt = f"""Your task is to insert medical data into the corresponding contents of the medical report as required. Requirement ：\
+    1. First analyze which contents of the report are related to {list(loc.keys())} \
+    2. The medical data :{loc} should be added to the relevant position according to the analysis in point 1, and the medical data should be converted into a context-appropriate statement without changing the rest of the report,Ensure that all medical information appears in the report \
+    Medical report :{report}. Output format: Directly output the modified medical report, do not output any explanatory statements."""
+    model_name = random.choices(["gpt-3.5-turbo", "gpt-4-turbo"], [0.7, 0.3], k=1)[0]
+    new_report = ask_llm_return_str(prompt, model_name)
+    return new_report
 
 
 def generate_dataset_by_answer(report_type):
@@ -215,10 +219,54 @@ def remove_duplicate():
     return
 
 
-# TODO  直接插入英文点位到报告中 插入可多条的数据
+#   插入英文点位到报告中 可多条的
+def insert_en_loc(dataset_path, test_data_path):
+    # with open(test_data_path, "r", encoding="utf-8") as f:
+    #     test_data = json.load(f)
 
-
-
+    unit_to_insert = [
+        "Treatment Drug Plan",
+        "Cancer treatment",
+        "Comorbid Disease",
+        "Pathology",
+        "Imaging",
+    ]
+    # 检查哪些单元经常出现可多条
+    # for item in test_data:
+    #     output = json.loads(item["output"])
+    #     for unit_name,vals in output.items():
+    #         if isinstance(vals,list) and len(vals)>1:
+    #             unit_to_insert.add(unit_name)
+    index_set = set()
+    for i in range(290):
+        with open(dataset_path, "r", encoding="utf-8") as f:
+            dataset = json.load(f)
+        index = random.randint(0, len(dataset) - 1)
+        if index in index_set:
+            continue
+        index_set.add(index)
+        
+        # 获取选中的数据项
+        item_data = dataset[index]
+        output = json.loads(item_data["output"])
+        report = item_data["input"]
+        unit_selected = random.sample(unit_to_insert, random.randint(1, 3))
+        unit_domain = {}
+        for unit in unit_selected:
+            if len(output[unit])>1:
+                continue
+            single_unit_domain = prompt_dict.generate_domain_unit_en("出入院记录", unit)
+            unit_domain[unit] = single_unit_domain
+            output[unit].append(single_unit_domain)
+        if unit_domain == {}:
+            continue
+        new_report = insert_mul_en_loc(unit_domain, report)
+        dataset[index]["input"] = new_report + "json output:"
+        dataset[index]["output"] = json.dumps(output, ensure_ascii=False)
+        with open("processed_dataset.json", "w", encoding="utf-8") as outfile:
+            json.dump(dataset, outfile, ensure_ascii=False, indent=4)
+            logger.info(f"写入完成{index}")
+    return
 
 
 def insert_loc_in_report(file_name):
@@ -349,6 +397,9 @@ def insert_loc_in_report(file_name):
 
 
 if __name__ == "__main__":
+
+    insert_en_loc("data/extract1k_en.json", "nex_dataset/test/extract_with_unit.json")
+    print()
     # 加入单元层级
     structure = {
         "日期": {"出院日期": "", "入院日期": "", "病史采集日期": "", "记录日期": ""},
@@ -406,7 +457,6 @@ if __name__ == "__main__":
             "内分泌及免疫系统疾病": "",
         },
     }
-    
 
     # 根据已有报告插入点位进行增强
     # insert_loc_in_report("data_augmentation/dataset_augmentation_append1.json")

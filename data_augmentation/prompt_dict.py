@@ -1,15 +1,15 @@
 import json
 from random import randint, sample
 import random
+import re
 from attr import attributes
 from faker import Faker
 import datetime
 import sys
-
 sys.path.append(".")
 from peewee import fn
 from utils.db2 import ss_turmo_medicine
-
+from utils.google_translate import translate_text
 fake = Faker(locale="zh_CN")
 
 
@@ -379,7 +379,24 @@ _domain_list = {
 }
 
 
-def __get_report_structure(report_type):
+def mapping_loc_zh_en(key, trans=True):
+    with open("utils/mapping_answer_zh_en.json", "r", encoding="utf-8") as f:
+        mapping = json.load(f)
+    return_key = mapping.get(key)
+    if return_key:
+        return return_key
+    elif key in ["NA"] or re.match(r"\d{4}-\d{2}-\d{2}", key):
+        return key
+    elif key not in mapping.keys():
+        # 找到相等的value返回key值
+        for k, v in mapping.items():
+            if v == key:
+                return k
+        print(f"{datetime.datetime.now()}-translate:{key}")
+        return translate_text(key)
+        
+
+def _get_report_structure(report_type):
     # 优先看_category_locs的unit, 若无则引用_default_unit_locs
     category_unique_locations = _category_locs.get(report_type)
     if category_unique_locations:
@@ -471,11 +488,13 @@ def _get_date_des():
 
 def generate_domain_data(report_type):
     # 报告类型-单元-点位
-    category_unit_location_mapping = __get_report_structure(report_type)
+    category_unit_location_mapping = _get_report_structure(report_type)
     selection_criteria = {
-        "基因检测": 3,
+        "基因检测": 4,
         "免疫检测": 2,
-        "合并疾病":3
+        "合并疾病":3,
+        "治疗用药方案": 3,
+        "影像学": 3,
     }
     # 从相应的报告类型中取出一些unit_name
     selected_data = {}
@@ -507,8 +526,22 @@ def generate_domain_data(report_type):
 def generate_domain_data_en(report_type):
     zh_domain = generate_domain_data(report_type)
 
+
+def generate_domain_unit_en(report_type,unit_name):
+    zh_unit_name = mapping_loc_zh_en(unit_name)
+    zh_domain = generate_domain_data(report_type).get(zh_unit_name, [])
+    en_unit_domain = {}
+    for k_zh,v_zh in zh_domain.items():
+        if isinstance(v_zh,list):
+            for i_zh in v_zh:
+                en_unit_domain[mapping_loc_zh_en(k_zh)] = mapping_loc_zh_en(i_zh)
+        else:
+            en_unit_domain[mapping_loc_zh_en(k_zh)] = mapping_loc_zh_en(v_zh)
+    return en_unit_domain
+
+
 def get_locVal(report_type, loc):
-    category_unit_location_mapping = __get_report_structure(report_type)
+    category_unit_location_mapping = _get_report_structure(report_type)
     if loc not in category_unit_location_mapping:
         return None
     if loc in _domain_list.keys():
@@ -519,7 +552,7 @@ def get_locVal(report_type, loc):
 
 # 不同报告类型包含的keys
 if __name__ == "__main__":
-    # res = __get_report_structure("出入院记录")
+    # res = _get_report_structure("出入院记录")
     # select_val = generate_domain_data("出入院记录")
     # print(select_val)
-    print(get_locVal("出入院记录", "病理类型"))
+    print(generate_domain_unit_en("出入院记录", "病理"))

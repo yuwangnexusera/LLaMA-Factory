@@ -143,6 +143,7 @@ class F1score:
                 length_gap = len(answer_unit_value) - len(generate_unit_value)
                 if length_gap > 0: # 生成的数据更少
                     me += length_gap * len(unit_loc_mapping[unit_name])
+                    print(f"{unit_name}缺少{length_gap}条数据")
                 elif length_gap < 0: # 生成的数据更多
                     se += abs(length_gap) * len(unit_loc_mapping[unit_name])
                 if unit_name=='Date':
