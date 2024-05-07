@@ -1,3 +1,4 @@
+import re
 from db_unit_dataset import *
 from playhouse.shortcuts import (
     model_to_dict,
@@ -5,77 +6,74 @@ from playhouse.shortcuts import (
 import random
 import google_translate
 import sys
+from pypinyin import Style,pinyin
 
 sys.path.append(".")
 from data_augmentation import prompt_dict
 
-def split_dataset(
-    dataset_list,
-    ratios,
-):
+def check_zh(string):
+    zh_pattern = re.compile("[\u4e00-\u9fa5]")  # 匹配中文字符的正则表达式
+    match = zh_pattern.search(string)
+    if match:
+        start_index = match.start()
+        end_index = match.end() - 1  # 结束索引需要减1，因为match.end()返回的是下一个字符的索引
+        return True, start_index, end_index
+    else:
+        return False, None, None
 
-    if sum(ratios) != 1:
-        raise ValueError("The sum of the ratios must be equal to 1.")
+def zh_pinyin(chinese_text):
+    pinyin_list = pinyin(chinese_text, style=Style.NORMAL)
+    
+    # 拼接拼音
+    pinyin_text = ''.join([word[0] for word in pinyin_list])
 
-    # Shuffle the dataset to ensure randomness
-    random.shuffle(dataset_list)
+    return pinyin_text
 
-    # Calculate split indices
-    first_split_idx = int(len(dataset_list) * ratios[0])
-    second_split_idx = first_split_idx + int(len(dataset_list) * ratios[1])
+def check_ds_zh(ds_path):
+    with open(ds_path, "r", encoding="utf-8") as file:
+        dataset_ori = json.load(file)
+    for item in dataset_ori:
+        output = json.loads(item["output"])
+        report  = item["input"]
+        flag, start_report, end__report = check_zh(report)
+        if flag:
+            print(f"报告中包含中文:{report[start_report:end__report+1]}")
+        for unit_name, locs in output.items():
+            for loc in locs:
+                for key, value in loc.items():
+                    if key =="Diagnosing Doctor":
+                        loc[key] = zh_pinyin(value)
+                        continue
+                    if isinstance(value,list):
+                        for v in value:
+                            contains_zh, start, end = check_zh(v)
+                            if contains_zh:
+                                # 调用 prompt_dict.mapping(value) 进行中英文转换
+                                translated_value = prompt_dict.mapping_loc_zh_en(v)
+                                loc[key] = loc[key].replace(v, translated_value)
+                                print(
+                                    "在字符串 '{}' 中发现中文，起始索引为{}，结束索引为{}，中文内容为 '{}'，转换后的内容为 '{}'".format(
+                                        v, start, end, v[start : end + 1], translated_value
+                                    )
+                                )
+                    else:
+                        if isinstance(value,int):
+                            loc[key] = str(value)
+                        contains_zh, start, end = check_zh(str(value))
+                        if contains_zh:
+                            # 调用 prompt_dict.mapping(value) 进行中英文转换
+                            translated_value = prompt_dict.mapping_loc_zh_en(value)
+                            loc[key] = loc[key].replace(value, translated_value)
+                            print(
+                                "在字符串 '{}' 中发现中文，起始索引为{}，结束索引为{}，中文内容为 '{}'，转换后的内容为 '{}'".format(
+                                    value, start, end, value[start : end + 1], translated_value
+                                )
+                            )
+    with open(ds_path, "w", encoding="utf-8") as file:
+        json.dump(dataset_ori, file, ensure_ascii=False, indent=4)
+    return True
 
-    # Split the dataset
-    first_part = dataset_list[:first_split_idx]
-    second_part = dataset_list[first_split_idx:second_split_idx]
-    third_part = dataset_list[second_split_idx:]
 
-    return (
-        first_part,
-        second_part,
-        third_part,
-    )
-
-
-# 打开文件准备写入
-def generate_other(
-    jsonl_path,
-    records_80_percent,
-):
-    with open(
-        jsonl_path,
-        "a",
-        encoding="utf-8",
-    ) as file:
-        for item in records_80_percent:
-
-            category = ss_report_type.select(ss_report_type.report_type).where(ss_report_type.id == item.report_id)[0].report_type
-            content = item.content  # 假设每一项都有.content属性
-            if not content:
-                content_obj = hx_ocr_result.select().where(hx_ocr_result.url == item.url)[0]
-                content = content_obj.ocr_result["data"]["ocr_align"]
-            # 假设system_msg是一个你需要定义的变量
-            train_validation_data = {
-                "conversations": [
-                    {
-                        "from": "human",
-                        "value": f"Your task is to determine the type of medical report entered. The report type options are: ['Other', 'Examination Record', 'Doctor's Order', 'Prescription', 'Injection', 'Expense', 'Physical Examination Report' ', 'Gene testing', 'Surgery record', 'Examination record', 'Treatment record', 'Pathology report', 'Disease course record', 'Outpatient medical record', 'Discharge and admission record', 'Informed consent', ' Other consultation records', 'Pathological consultation records', 'Other disease diagnosis certificates', 'Outpatient disease diagnosis certificates', 'Inpatient and admission disease diagnosis certificates']\nMedical report: {content}\nOutput format: directly select the most appropriate item from the options and output it, without explaining or outputting redundant content",
-                    },
-                    {
-                        "from": "assistant",
-                        "value": f"{category}",
-                    },
-                ]
-            }
-            file.write(
-                json.dumps(
-                    train_validation_data,
-                    ensure_ascii=False,
-                )
-                + "\n"
-            )
-            file.flush()
-
-    print(jsonl_path)
 def insert_loc_in_answer(data,unit_name,loc,val):
     for d in data:
         output = json.loads(d["output"])
@@ -178,12 +176,10 @@ def fill_NA_answer(file_name):
         en_vals = [prompt_dict.mapping_loc_zh_en(val) for val in locs]
         en_unit_locs[en_unit] = en_vals
     new_list = []
-    for item in json_data:
+    for item in json_data: 
         output_data = json.loads(item["output"])
         cleaned_data = {} #存储去除NA的
         for unit,locs in output_data.items():
-            if len(locs) > 1:
-                print()
             if isinstance(locs, list) and len(locs) > 1:
                 valid_dicts = []
                 for loc_dict in locs:
@@ -196,8 +192,11 @@ def fill_NA_answer(file_name):
                     cleaned_data[unit] = valid_dicts
             else:
                 # 直接补全缺失的键
-                complete_loc_dict = {key: locs[0].get(key, 'NA') for key in en_unit_locs.get(unit, [])}
-                cleaned_data[unit] = [complete_loc_dict]
+                if len(locs)==0:
+                    cleaned_data[unit] = [{key: 'NA' for key in en_unit_locs.get(unit, [])}]
+                else:
+                    complete_loc_dict = {key: locs[0].get(key, 'NA') for key in en_unit_locs.get(unit, [])}
+                    cleaned_data[unit] = [complete_loc_dict]
         new_list.append({"instruction": item["instruction"], "input": item["input"], "output": json.dumps(cleaned_data, ensure_ascii=False)})  # 将清理后的数据追加到new_list中
     with open(file_name, "w", encoding="utf-8") as outfile:
         outfile.write(json.dumps(new_list, indent=4, ensure_ascii=False))
@@ -208,16 +207,20 @@ if __name__ == "__main__":
     import os
 
     print(os.getcwd())
-    fill_NA_answer("data/extract1k_en.json") # TODO 执行这个，补全NA
-    with open('utils/mapping_answer_zh_en.json', 'r', encoding='utf-8') as f:
-        mapping = json.load(f)
-    with open("data/extract1k_en.json", "r", encoding="utf-8") as f_ori:
-        data = json.load(f_ori)
-        new_data = insert_loc_in_answer(data, "Treatment Drug Plan", "Is Treatment Drug Recommended", "No")
-    with open("data/extract1k_en.json", "w", encoding="utf-8") as f_new:
-        json.dump(new_data, f_new, indent=4, ensure_ascii=False)
-    # 补全NA deprecated 从开始都加上NA
+    # 检查中文，并且走mapping_zh_en
+    # check_ds_zh("data/extract1k_en.json")
 
+    fill_NA_answer("nex_dataset/test/extract_with_unit.json")  
+
+    # with open('utils/mapping_answer_zh_en.json', 'r', encoding='utf-8') as f:
+    #     mapping = json.load(f)
+    # with open("data/extract1k_en.json", "r", encoding="utf-8") as f_ori:
+    #     data = json.load(f_ori)
+    #     new_data = insert_loc_in_answer(data, "Treatment Drug Plan", "Is Treatment Drug Recommended", "No")
+    # with open("data/extract1k_en.json", "w", encoding="utf-8") as f_new:
+    #     json.dump(new_data, f_new, indent=4, ensure_ascii=False)
+
+    # 补全NA deprecated 从开始都加上NA
 
     # TODO 单元层级--prompt ?
     # 翻译中文数据集至英文，Google translate
@@ -228,60 +231,6 @@ if __name__ == "__main__":
     #     "../lc-medical-record-recognition/data_augmentation/dataset_augmentation_append1.json",
     #     "data/extract512_zh_v2.json",
     # )
-
-    default_unit_locs = {
-        "基本信息": ["出生日期", "年龄", "性别"],
-        "疾病": [
-            "疾病首次确诊日期",
-            "第一次病理确诊时间（穿刺、术后病理等）",
-            "第一次切肺手术时间",
-            "第一次影像确诊时间",
-            "第一次治疗时间（药物、放疗等）",
-            "首发症状时间",
-            "疾病名称",
-        ],
-        "体征数据": ["ECOG", "ECOG日期"],
-        "诊断": ["诊断医生"],
-        "影像学": ["脑转移日期", "脑转部位"],
-        "病理": ["病理日期", "病理类型"],
-        "基因检测": [
-            "ALK",
-            "MET",
-            "RB1",
-            "RET",
-            "BRAF",
-            "BRCA",
-            "EGFR",
-            "FGFR",
-            "KRAS",
-            "NTRK",
-            "ROS1",
-            "TP53",
-            "KEAP1",
-            "STK11",
-            "HER2(ERBB2)",
-            "HER3（ERBB3）",
-            "HER4（ERBB4）",
-            "基因检测日期",
-        ],
-        "免疫检测": ["IC", "CPS", "TPS", "PDL1", "免疫检测日期"],
-        "肿瘤治疗": ["手术部位", "治疗开始日期", "治疗用药名称", "治疗结束日期", "肿瘤具体治疗方式"],
-        "治疗用药方案": ["治疗开始日期", "治疗用药名称", "治疗结束日期", "治疗用药是否为建议"],
-        "合并疾病": [
-            "合并疾病确诊日期",
-            "信息来源",
-            "传染性疾病",
-            "呼吸系统疾病",
-            "循环系统疾病",
-            "恶性肿瘤情况",
-            "消化系统疾病",
-            "神经系统疾病",
-            "泌尿生殖系统疾病",
-            "眼耳鼻喉相关疾病",
-            "内分泌及免疫系统疾病",
-        ],
-        "日期": ["入院日期", "出院日期", "病史采集日期", "记录日期"],
-    }
 
     # with open('utils/mapping_answer_zh_en.json', 'r', encoding='utf-8') as f:
     #     mapping = json.load(f)

@@ -238,14 +238,19 @@ def insert_en_loc(dataset_path, test_data_path):
     #         if isinstance(vals,list) and len(vals)>1:
     #             unit_to_insert.add(unit_name)
     index_set = set()
-    for i in range(290):
+    num = 1
+    for i in range(310):
+        print(num)
+        num +=1
+        if num>300:
+            break
         with open(dataset_path, "r", encoding="utf-8") as f:
             dataset = json.load(f)
         index = random.randint(0, len(dataset) - 1)
         if index in index_set:
             continue
         index_set.add(index)
-        
+
         # 获取选中的数据项
         item_data = dataset[index]
         output = json.loads(item_data["output"])
@@ -263,7 +268,7 @@ def insert_en_loc(dataset_path, test_data_path):
         new_report = insert_mul_en_loc(unit_domain, report)
         dataset[index]["input"] = new_report + "json output:"
         dataset[index]["output"] = json.dumps(output, ensure_ascii=False)
-        with open("processed_dataset.json", "w", encoding="utf-8") as outfile:
+        with open(dataset_path, "w", encoding="utf-8") as outfile:
             json.dump(dataset, outfile, ensure_ascii=False, indent=4)
             logger.info(f"写入完成{index}")
     return
