@@ -204,7 +204,7 @@ class F1score:
                         
                         if k_a not in generate_unit_value_dict: #生成数据缺失key
                             me += 1
-                            error_keys.append({k_a: "key not exist"})
+                            error_keys.append({k_a: "key not exist in generate"})
                             continue
                         v_g = generate_unit_value_dict[k_a]
 
@@ -230,7 +230,7 @@ class F1score:
                     for key in generate_unit_value_dict.keys():
                         if key not in answer_unit_value_dict.keys():
                             se += 1  # 误提取
-                            error_keys.append({key: "key not exist"})
+                            error_keys.append({key: "key not exist in answer"})
 
                     # 计算 Precision 和 Recall
                     precision = ce / (ce + ie + se) if (ce + ie + se) > 0 else 0

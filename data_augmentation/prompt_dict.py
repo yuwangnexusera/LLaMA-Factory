@@ -46,8 +46,7 @@ _default_unit_locs = {
         "HER2(ERBB2)",
         "HER3（ERBB3）",
         "HER4（ERBB4）",
-        "基因检测日期",
-        "患者是否进行基因检测",
+        "基因检测日期"
     ],
     "免疫检测": ["IC", "CPS", "TPS", "PDL1", "免疫检测日期"],
     "肿瘤治疗": ["手术部位", "治疗开始日期", "治疗用药名称", "治疗结束日期", "肿瘤具体治疗方式"],
@@ -448,7 +447,6 @@ def get_loc_des():
         "TPS": str(fake.random_int(min=1, max=100)) + "%",
         "诊断医生": fake.name(),
         "治疗用药名称": __select_drugs(),
-        "治疗用药是否为建议": fake.random_element(elements=("是", "否")),
         "信息来源": fake.random_element(elements=("既往史", "出院诊断", "诊断", "入院诊断")),
     }
 

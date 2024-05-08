@@ -58,7 +58,8 @@ def check_ds_zh(ds_path):
                                 )
                     else:
                         if isinstance(value,int):
-                            loc[key] = str(value)
+                            loc[key] = f"{value}"
+                            continue
                         contains_zh, start, end = check_zh(str(value))
                         if contains_zh:
                             # 调用 prompt_dict.mapping(value) 进行中英文转换
@@ -69,6 +70,7 @@ def check_ds_zh(ds_path):
                                     value, start, end, value[start : end + 1], translated_value
                                 )
                             )
+        item["output"] = json.dumps(output, ensure_ascii=False)
     with open(ds_path, "w", encoding="utf-8") as file:
         json.dump(dataset_ori, file, ensure_ascii=False, indent=4)
     return True
@@ -198,15 +200,27 @@ def fill_NA_answer(file_name):
         outfile.write(json.dumps(new_list, indent=4, ensure_ascii=False))
     return True
 
+def transfer_output_format(file_path):
+    with open(file_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+        for item in data:
+            if isinstance(item["output"], str):
+                item["output"] = json.loads(item["output"])
+            elif isinstance(item["output"], dict):
+                item["output"] = json.dumps(item["output"], ensure_ascii=False)
+        with open(file_path, "w", encoding="utf-8") as f_new:
+            json.dump(data, f_new, indent=4, ensure_ascii=False)
 
 if __name__ == "__main__":
     import os
 
     print(os.getcwd())
+    # json<->json str
+    transfer_output_format("data/extract1k_en.json")
     # 检查中文，并且走mapping_zh_en
     # check_ds_zh("data/extract1k_en.json")
 
-    fill_NA_answer("nex_dataset/test/extract_with_unit_gn.json")  
+    # fill_NA_answer("nex_dataset/test/extract_with_unit.json")  
 
     # with open('utils/mapping_answer_zh_en.json', 'r', encoding='utf-8') as f:
     #     mapping = json.load(f)
