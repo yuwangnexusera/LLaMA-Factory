@@ -47,6 +47,7 @@ _default_unit_locs = {
         "HER3（ERBB3）",
         "HER4（ERBB4）",
         "基因检测日期",
+        "患者是否进行基因检测",
     ],
     "免疫检测": ["IC", "CPS", "TPS", "PDL1", "免疫检测日期"],
     "肿瘤治疗": ["手术部位", "治疗开始日期", "治疗用药名称", "治疗结束日期", "肿瘤具体治疗方式"],
@@ -394,7 +395,7 @@ def mapping_loc_zh_en(key, trans=True):
                 return k
         print(f"{datetime.datetime.now()}-translate:{key}")
         return translate_text(key)
-        
+
 
 def _get_report_structure(report_type):
     # 优先看_category_locs的unit, 若无则引用_default_unit_locs

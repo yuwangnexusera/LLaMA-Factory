@@ -191,12 +191,8 @@ def fill_NA_answer(file_name):
                 if valid_dicts:
                     cleaned_data[unit] = valid_dicts
             else:
-                # 直接补全缺失的键
-                if len(locs)==0:
-                    cleaned_data[unit] = [{key: 'NA' for key in en_unit_locs.get(unit, [])}]
-                else:
-                    complete_loc_dict = {key: locs[0].get(key, 'NA') for key in en_unit_locs.get(unit, [])}
-                    cleaned_data[unit] = [complete_loc_dict]
+                complete_loc_dict = {key: locs[0].get(key, 'NA') for key in en_unit_locs.get(unit, [])}
+                cleaned_data[unit] = [complete_loc_dict]
         new_list.append({"instruction": item["instruction"], "input": item["input"], "output": json.dumps(cleaned_data, ensure_ascii=False)})  # 将清理后的数据追加到new_list中
     with open(file_name, "w", encoding="utf-8") as outfile:
         outfile.write(json.dumps(new_list, indent=4, ensure_ascii=False))
@@ -210,7 +206,7 @@ if __name__ == "__main__":
     # 检查中文，并且走mapping_zh_en
     # check_ds_zh("data/extract1k_en.json")
 
-    fill_NA_answer("nex_dataset/test/extract_with_unit.json")  
+    fill_NA_answer("nex_dataset/test/extract_with_unit_gn.json")  
 
     # with open('utils/mapping_answer_zh_en.json', 'r', encoding='utf-8') as f:
     #     mapping = json.load(f)
