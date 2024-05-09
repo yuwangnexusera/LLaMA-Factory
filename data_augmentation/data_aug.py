@@ -218,7 +218,6 @@ def remove_duplicate():
     print(f"重复项已移除并已更新文件。{len(data)-len(new_data)}")
     return
 
-
 #   插入英文点位到报告中 可多条的
 def insert_en_loc(dataset_path, test_data_path):
     # with open(test_data_path, "r", encoding="utf-8") as f:

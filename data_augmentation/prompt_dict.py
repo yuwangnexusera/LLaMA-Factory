@@ -50,7 +50,7 @@ _default_unit_locs = {
     ],
     "免疫检测": ["IC", "CPS", "TPS", "PDL1", "免疫检测日期"],
     "肿瘤治疗": ["手术部位", "治疗开始日期", "治疗用药名称", "治疗结束日期", "肿瘤具体治疗方式"],
-    "治疗用药方案": ["治疗开始日期", "治疗用药名称", "治疗结束日期", "治疗用药是否为建议"],
+    "治疗用药方案": ["治疗开始日期", "治疗用药名称", "治疗结束日期"],
     "合并疾病": [
         "合并疾病确诊日期",
         "信息来源",
@@ -554,4 +554,5 @@ if __name__ == "__main__":
     # res = _get_report_structure("出入院记录")
     # select_val = generate_domain_data("出入院记录")
     # print(select_val)
-    print(generate_domain_unit_en("出入院记录", "病理"))
+    while(True):
+        print(__select_drugs())

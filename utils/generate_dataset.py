@@ -6,10 +6,11 @@ from playhouse.shortcuts import (
 import random
 import google_translate
 import sys
-from pypinyin import Style,pinyin
+from pypinyin import Style, pinyin
 
 sys.path.append(".")
 from data_augmentation import prompt_dict
+
 
 def check_zh(string):
     zh_pattern = re.compile("[\u4e00-\u9fa5]")  # 匹配中文字符的正则表达式
@@ -21,30 +22,32 @@ def check_zh(string):
     else:
         return False, None, None
 
+
 def zh_pinyin(chinese_text):
     pinyin_list = pinyin(chinese_text, style=Style.NORMAL)
-    
+
     # 拼接拼音
-    pinyin_text = ''.join([word[0] for word in pinyin_list])
+    pinyin_text = "".join([word[0] for word in pinyin_list])
 
     return pinyin_text
+
 
 def check_ds_zh(ds_path):
     with open(ds_path, "r", encoding="utf-8") as file:
         dataset_ori = json.load(file)
     for item in dataset_ori:
         output = json.loads(item["output"])
-        report  = item["input"]
+        report = item["input"]
         flag, start_report, end__report = check_zh(report)
         if flag:
             print(f"报告中包含中文:{report[start_report:end__report+1]}")
         for unit_name, locs in output.items():
             for loc in locs:
                 for key, value in loc.items():
-                    if key =="Diagnosing Doctor":
+                    if key == "Diagnosing Doctor":
                         loc[key] = zh_pinyin(value)
                         continue
-                    if isinstance(value,list):
+                    if isinstance(value, list):
                         for v in value:
                             contains_zh, start, end = check_zh(v)
                             if contains_zh:
@@ -57,7 +60,7 @@ def check_ds_zh(ds_path):
                                     )
                                 )
                     else:
-                        if isinstance(value,int):
+                        if isinstance(value, int):
                             loc[key] = f"{value}"
                             continue
                         contains_zh, start, end = check_zh(str(value))
@@ -76,15 +79,16 @@ def check_ds_zh(ds_path):
     return True
 
 
-def insert_loc_in_answer(data,unit_name,loc,val):
+def insert_loc_in_answer(data, unit_name, loc, val):
     for d in data:
         output = json.loads(d["output"])
-        for unit,vals in output.items():
+        for unit, vals in output.items():
             if unit == unit_name:
                 for v in vals:
                     v[loc] = val
         d["output"] = json.dumps(output, ensure_ascii=False)
     return data
+
 
 # 从增强数据到训练数据 test
 def generate_extract_dataset(
@@ -142,7 +146,7 @@ def translate_zh_dataset(file_name):
                 print("error input")
             output_zh = json.loads(ds_item["output"])["output"]
             for key, value in output_zh.items():
-                if value=="NA":
+                if value == "NA":
                     continue
                 new_key = mapping_zh_en.get(key, key)
                 if isinstance(value, list):
@@ -168,7 +172,7 @@ def translate_zh_dataset(file_name):
 
 
 def fill_NA_answer(file_name):
-    '''去除列表长度大于1，全NA的对象，并且补全对象中key不全的情况'''
+    """去除列表长度大于1，全NA的对象，并且补全对象中key不全的情况"""
     with open(file_name, "r", encoding="utf-8") as file:
         json_data = json.load(file)
     unit_locs = prompt_dict._get_report_structure("出入院记录")
@@ -178,27 +182,30 @@ def fill_NA_answer(file_name):
         en_vals = [prompt_dict.mapping_loc_zh_en(val) for val in locs]
         en_unit_locs[en_unit] = en_vals
     new_list = []
-    for item in json_data: 
+    for item in json_data:
         output_data = json.loads(item["output"])
-        cleaned_data = {} #存储去除NA的
-        for unit,locs in output_data.items():
+        cleaned_data = {}  # 存储去除NA的
+        for unit, locs in output_data.items():
             if isinstance(locs, list) and len(locs) > 1:
                 valid_dicts = []
                 for loc_dict in locs:
                     # 检查是否每个值都是'NA'
-                    if not all(value == 'NA' for value in loc_dict.values()):
+                    if not all(value == "NA" for value in loc_dict.values()):
                         # 补全缺失的键
-                        complete_loc_dict = {key: loc_dict.get(key, 'NA') for key in en_unit_locs.get(unit, [])}
+                        complete_loc_dict = {key: loc_dict.get(key, "NA") for key in en_unit_locs.get(unit, [])}
                         valid_dicts.append(complete_loc_dict)
                 if valid_dicts:
                     cleaned_data[unit] = valid_dicts
             else:
-                complete_loc_dict = {key: locs[0].get(key, 'NA') for key in en_unit_locs.get(unit, [])}
+                complete_loc_dict = {key: locs[0].get(key, "NA") for key in en_unit_locs.get(unit, [])}
                 cleaned_data[unit] = [complete_loc_dict]
-        new_list.append({"instruction": item["instruction"], "input": item["input"], "output": json.dumps(cleaned_data, ensure_ascii=False)})  # 将清理后的数据追加到new_list中
+        new_list.append(
+            {"instruction": item["instruction"], "input": item["input"], "output": json.dumps(cleaned_data, ensure_ascii=False)}
+        )  # 将清理后的数据追加到new_list中
     with open(file_name, "w", encoding="utf-8") as outfile:
         outfile.write(json.dumps(new_list, indent=4, ensure_ascii=False))
     return True
+
 
 def transfer_output_format(file_path):
     with open(file_path, "r", encoding="utf-8") as f:
@@ -211,16 +218,56 @@ def transfer_output_format(file_path):
         with open(file_path, "w", encoding="utf-8") as f_new:
             json.dump(data, f_new, indent=4, ensure_ascii=False)
 
+
+def json_to_jsonl_or_json(input_file_path, output_file_path):
+    # Determine input data type based on file extension
+    is_jsonl = input_file_path.endswith(".jsonl")
+
+    # Read data from input file
+    with open(input_file_path, "r", encoding="utf-8") as input_file:
+        if is_jsonl:
+            data = [json.loads(line.strip()) for line in input_file]
+        else:
+            data = json.load(input_file)
+
+    # Convert data to target format
+    if is_jsonl:
+        # JSONL to JSON
+        json_data = []
+        for item in data:
+            input_report = item[0]["prompt"]
+            answer = item[0]["response"][0][0]
+            json_data.append(
+                {
+                    "instruction": "Your task is to extract medical information from the input report and output it in JSON format. Input report:",
+                    "input": input_report,
+                    "output": json.loads(answer),
+                }
+            )
+        with open(output_file_path, "w", encoding="utf-8") as output_file:
+            output_file.write(json.dumps(json_data, ensure_ascii=False))
+    else:
+        with open(output_file_path, "w", encoding="utf-8") as output_file:
+            for item in data:
+                jsonl_data = [{"prompt": item["input"], "response": json.dumps(item["output"], ensure_ascii=False, indent=3)}]
+                output_file.write(json.dumps(jsonl_data, ensure_ascii=False) + "\n")
+                output_file.flush()
+
+
 if __name__ == "__main__":
     import os
 
     print(os.getcwd())
+    # json<->jsonl(baidu)
+    # json_to_jsonl_or_json("nex_dataset/train/extract1k_en.jsonl", "data/extract1k_en.json")
+
     # json<->json str
     transfer_output_format("data/extract1k_en.json")
+
     # 检查中文，并且走mapping_zh_en
     # check_ds_zh("data/extract1k_en.json")
 
-    # fill_NA_answer("nex_dataset/test/extract_with_unit.json")  
+    # fill_NA_answer("nex_dataset/test/extract_with_unit.json")
 
     # with open('utils/mapping_answer_zh_en.json', 'r', encoding='utf-8') as f:
     #     mapping = json.load(f)
