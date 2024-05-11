@@ -392,7 +392,6 @@ def mapping_loc_zh_en(key, trans=True):
         for k, v in mapping.items():
             if v == key:
                 return k
-        print(f"{datetime.datetime.now()}-translate:{key}")
         return translate_text(key)
 
 
@@ -404,10 +403,10 @@ def _get_report_structure(report_type):
     return category_unique_locations
 
 
-def __generate_date(start_year=2018, end_year=2024):
+def __generate_date(start_year=2018, start_month=1, end_year=2024,end_month=12):
     """随机生成一个日期"""
-    start_date = datetime.datetime(start_year, 1, 1)
-    end_date = datetime.datetime(end_year, 12, 31)
+    start_date = datetime.datetime(start_year, start_month, 1)
+    end_date = datetime.datetime(end_year, end_month, 30)
     days_between_dates = (end_date - start_date).days
     random_number_of_days = randint(0, days_between_dates)
     return (start_date + datetime.timedelta(days=random_number_of_days)).strftime("%Y-%m-%d")
@@ -429,7 +428,9 @@ def __select_drugs():
     drug_set = set()
     for record in random_drug_records:
         drug_set.add(record.component_name)
-        drug_set.add(record.general_name.replace("（未上市）", ""))
+        # 取record.component_synonym 第一个顿号、之前的元素
+        drug_set.add(record.component_synonym.split(",")[0].split("、")[0])
+        # drug_set.add(record.general_name.replace("（未上市）", ""))
         if record.product_name != "nan":
             drug_set.add(record.product_name)
     selected_drugs = random.sample(list(drug_set), fake.random_int(min=0, max=4))
@@ -446,7 +447,8 @@ def get_loc_des():
         "ECOG": fake.random_element(elements=("0", "1", "2", "3", "4", "5")),
         "TPS": str(fake.random_int(min=1, max=100)) + "%",
         "诊断医生": fake.name(),
-        "治疗用药名称": __select_drugs(),
+        # "治疗用药名称": __select_drugs(),
+        "治疗用药名称": random.sample(["pemigatinib", "carboplatin", "bevacizumab", "anlotinib"],fake.random_int(min=1, max=4)),
         "信息来源": fake.random_element(elements=("既往史", "出院诊断", "诊断", "入院诊断")),
     }
 
@@ -470,8 +472,8 @@ def _get_date_des():
         "病理日期": __generate_date(start_year=2021, end_year=2021),
         "病史采集日期": __generate_date(start_year=2021, end_year=2021),
         "首次确诊日期": __generate_date(start_year=2020, end_year=2021),
-        "治疗开始日期": __generate_date(start_year=2020, end_year=2021),
-        "治疗结束日期": __generate_date(start_year=2021, end_year=2022),
+        "治疗开始日期": __generate_date(start_year=2020,start_month=6, end_year=2020,end_month=9),
+        "治疗结束日期": __generate_date(start_year=2021,start_month = 1, end_year=2021,end_month=3),
         "疾病首次确诊日期": __generate_date(start_year=2020, end_year=2021),
         "第一次病理确诊时间（穿刺、术后病理等）": __generate_date(start_year=2019, end_year=2020),
         "第一次切肺手术时间": __generate_date(start_year=2021, end_year=2021),
@@ -494,6 +496,7 @@ def generate_domain_data(report_type):
         "合并疾病":3,
         "治疗用药方案": 3,
         "影像学": 3,
+        "肿瘤治疗":4
     }
     # 从相应的报告类型中取出一些unit_name
     selected_data = {}
@@ -532,8 +535,9 @@ def generate_domain_unit_en(report_type,unit_name):
     en_unit_domain = {}
     for k_zh,v_zh in zh_domain.items():
         if isinstance(v_zh,list):
+            en_unit_domain[mapping_loc_zh_en(k_zh)] = []
             for i_zh in v_zh:
-                en_unit_domain[mapping_loc_zh_en(k_zh)] = mapping_loc_zh_en(i_zh)
+                en_unit_domain[mapping_loc_zh_en(k_zh)].append(mapping_loc_zh_en(i_zh))
         else:
             en_unit_domain[mapping_loc_zh_en(k_zh)] = mapping_loc_zh_en(v_zh)
     return en_unit_domain

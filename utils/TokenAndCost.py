@@ -7,7 +7,10 @@ class TokenCalculate:
 
     def token_count(self, string):
         # TODO baichuan
-        encoding = tiktoken.encoding_for_model(self.model)  # gpt-4/gpt-3.5-turbo
+        try:
+            encoding = tiktoken.encoding_for_model(self.model)  # gpt-4/gpt-3.5-turbo
+        except:
+            encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
         token_num = len(encoding.encode(string))
         return token_num
 

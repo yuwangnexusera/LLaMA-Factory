@@ -1,8 +1,21 @@
+import re
 from google.cloud import translate
 import os
+from datetime import datetime
 # credential_path = "utils\M400806-7257e31dba3d.json"
 # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credential_path
 # Initialize Translation client
+def check_zh(string):
+    zh_pattern = re.compile("[\u4e00-\u9fa5]")  # 匹配中文字符的正则表达式
+    match = zh_pattern.search(string)
+    if match:
+        start_index = match.start()
+        end_index = match.end() - 1  # 结束索引需要减1，因为match.end()返回的是下一个字符的索引
+        return True, start_index, end_index
+    else:
+        return False, None, None
+
+
 def translate_text(
     text: str = "YOUR_TEXT_TO_TRANSLATE", project_id: str = "agent-400806"
 ) -> translate.TranslationServiceClient:
@@ -19,6 +32,9 @@ def translate_text(
         # https://cloud.google.com/translate/docs/supported-formats
         if not text:
             text = "Oh, No"
+        check_zh_flag, start_index, end_index = check_zh(text)
+        if not check_zh_flag:
+            return text
         response = client.translate_text(
             request={
                 "parent": parent,
@@ -28,6 +44,7 @@ def translate_text(
                 "target_language_code": "en-US",
             }
         )
+        print(f"{datetime.now()}-translate:{text}")
         return response.translations[0].translated_text
     except Exception as e:
         print("Error:", e)

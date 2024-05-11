@@ -139,7 +139,7 @@ def translate_zh_dataset(file_name):
             i = i + 1
             print(len(ds_item["input"]), "----", i)
             instruction = (
-                "Your task is to extract medical information from the input report and output it in JSON format. Input report:"
+                "Your task is to extract medical information from the input report and output it in JSON format, and output NA for information not mentioned in the report"
             )
             input = google_translate.translate_text(ds_item["input"])
             if not input:
@@ -239,7 +239,7 @@ def json_to_jsonl_or_json(input_file_path, output_file_path):
             answer = item[0]["response"][0][0]
             json_data.append(
                 {
-                    "instruction": "Your task is to extract medical information from the input report and output it in JSON format. Input report:",
+                    "instruction": "Your task is to extract medical information from the input report and output it in JSON format, and output NA for information not mentioned in the report",
                     "input": input_report,
                     "output": json.loads(answer),
                 }
@@ -259,15 +259,15 @@ if __name__ == "__main__":
 
     print(os.getcwd())
     # json<->jsonl(baidu)
-    # json_to_jsonl_or_json("nex_dataset/train/extract1k_en.jsonl", "data/extract1k_en.json")
+    # json_to_jsonl_or_json( "nex_dataset/train/extract1k_en.jsonl","data/extract1k_en.json")
 
     # json<->json str
-    transfer_output_format("data/extract1k_en.json")
+    # transfer_output_format("data/extract1k_en.json")
 
     # 检查中文，并且走mapping_zh_en
-    # check_ds_zh("data/extract1k_en.json")
+    check_ds_zh("data/extract1k_en.json")
 
-    # fill_NA_answer("nex_dataset/test/extract_with_unit.json")
+    fill_NA_answer("data/extract1k_en.json")
 
     # with open('utils/mapping_answer_zh_en.json', 'r', encoding='utf-8') as f:
     #     mapping = json.load(f)

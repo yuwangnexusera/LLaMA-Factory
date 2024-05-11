@@ -32,7 +32,7 @@ os.environ["OPENAI_API_KEY"] = conf.OPENAI_API_KEY
 
 
 def ask_llm_return_str(prompt, model_name):
-    llm_openai = ChatOpenAI(model=model_name, openai_api_base=conf.OPENAI_API_BASE, temperature=0.8, streaming=True)
+    llm_openai = ChatOpenAI(model=model_name, openai_api_base=conf.OPENAI_API_BASE, temperature=0.9, streaming=True)
     try:
         logger.info(f"{model_name}：start chain.run")
         output = llm_openai.invoke(prompt)
@@ -118,12 +118,28 @@ def generate_recheck(report, report_type, prompt_data, model_name):
 
 def insert_mul_en_loc(loc, report):
 
-    prompt = f"""Your task is to insert medical data into the corresponding contents of the medical report as required. Requirement ：\
-    1. First analyze which contents of the report are related to {list(loc.keys())} \
-    2. The medical data :{loc} should be added to the relevant position according to the analysis in point 1, and the medical data should be converted into a context-appropriate statement without changing the rest of the report,Ensure that all medical information appears in the report \
-    Medical report :{report}. Output format: Directly output the modified medical report, do not output any explanatory statements."""
-    model_name = random.choices(["gpt-3.5-turbo", "gpt-4-turbo"], [0.7, 0.3], k=1)[0]
+    prompt = f""""Your task is to insert medical data in the appropriate location of the medical report as required. \
+        Requirements:\
+            1. First, analyze where the input report describes the {list(loc.keys())}. \
+            2. According to the location analysis of the first point, the following Json format medical data are converted into professional descriptions of clinical medical reports and placed in the analyzed location,\
+            3. Ensure that the insert data without changing other medical information in the report, convert medical data into a context-appropriate description, ensure that all medical information appears in the report! \n
+        medical data :{loc}.\n
+        Medical report: {report} \n
+        Output format: directly output the modified medical report without any explanatory notes."""
+    model_name = random.choices(
+        [
+            "gpt-4-turbo",
+            "ERNIE-Bot 4.0",
+            "gpt-3.5-turbo",
+            "Llama-2-70b-chat",
+            "Baichuan2-53B",
+        ],
+        [0.4, 0.2, 0.3, 0.05, 0.05],
+        k=1,
+    )[0]
+    tokenize = TokenCalculate(model_name)
     new_report = ask_llm_return_str(prompt, model_name)
+    logger.info(f"input:{tokenize.token_count(prompt)},output:{tokenize.token_count(report)}")
     return new_report
 
 
@@ -218,17 +234,15 @@ def remove_duplicate():
     print(f"重复项已移除并已更新文件。{len(data)-len(new_data)}")
     return
 
+
 #   插入英文点位到报告中 可多条的
 def insert_en_loc(dataset_path, test_data_path):
     # with open(test_data_path, "r", encoding="utf-8") as f:
     #     test_data = json.load(f)
 
     unit_to_insert = [
-        "Treatment Drug Plan",
-        "Cancer treatment",
-        "Comorbid Disease",
-        "Pathology",
-        "Imaging",
+        # "Treatment Drug Plan",
+        "Cancer treatment"
     ]
     # 检查哪些单元经常出现可多条
     # for item in test_data:
@@ -238,15 +252,16 @@ def insert_en_loc(dataset_path, test_data_path):
     #             unit_to_insert.add(unit_name)
     index_set = set()
     num = 1
-    for i in range(310):
+    for i in range(100):
         print(num)
-        num +=1
-        if num>300:
+        num += 1
+        if num > 40:
             break
         with open(dataset_path, "r", encoding="utf-8") as f:
             dataset = json.load(f)
         index = random.randint(0, len(dataset) - 1)
         if index in index_set:
+            logger.info(f"index:{index},pass--")
             continue
         index_set.add(index)
 
@@ -254,15 +269,17 @@ def insert_en_loc(dataset_path, test_data_path):
         item_data = dataset[index]
         output = json.loads(item_data["output"])
         report = item_data["input"]
-        unit_selected = random.sample(unit_to_insert, random.randint(1, 3))
+        unit_selected = random.sample(unit_to_insert, random.randint(1, len(unit_to_insert)))
         unit_domain = {}
         for unit in unit_selected:
-            if len(output[unit])>1:
+            if len(output[unit]) > 1:
+                logger.info(f"index:{index},unit-{unit}-length={len(output[unit])},pass--")
                 continue
             single_unit_domain = prompt_dict.generate_domain_unit_en("出入院记录", unit)
             unit_domain[unit] = single_unit_domain
             output[unit].append(single_unit_domain)
-        if unit_domain == {}:
+        if unit_domain == {}:  # or unit_domain["Treatment Drug Plan"]["Treatment Drug Names"] == []
+            logger.info(f"null")
             continue
         new_report = insert_mul_en_loc(unit_domain, report)
         dataset[index]["input"] = new_report + "json output:"
@@ -402,7 +419,7 @@ def insert_loc_in_report(file_name):
 
 if __name__ == "__main__":
 
-    insert_en_loc("data/extract1k_en.json", "nex_dataset/test/extract_with_unit.json")
+    # insert_en_loc("data/extract1k_en.json", "nex_dataset/test/extract_with_unit.json")
     print()
     # 加入单元层级
     structure = {
@@ -464,8 +481,16 @@ if __name__ == "__main__":
     # 根据已有报告插入点位进行增强
     # insert_loc_in_report("data_augmentation/dataset_augmentation_append1.json")
     # remove_duplicate()
-    # 按照category，以追加的方式,写入dataset_augmentation.json中
-
+    # 查看多少个可多条的比例
+    with open('data/extract1k_en.json','r',encoding='utf-8') as f:
+        data = json.load(f)
+        num = 0
+        for d in data:
+            for unit,vals in json.loads(d['output']).items():
+                if unit == "Cancer treatment":
+                    if len(vals) > 1:
+                        num+=1
+        print(num)
     # 文件路径
     file_path = "data_augmentation/dataset_augmentation_append1.json"
     report_types = ["出入院记录"]
