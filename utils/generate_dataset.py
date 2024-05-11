@@ -297,11 +297,17 @@ if __name__ == "__main__":
         # 解析 JSON 格式的数据
         try:
             json_data = json.loads(line)
+            output = [
+                {"label_type": x["label_type"], "label_content": json_data["originalText"][x["start_pos"] : x["end_pos"]]}
+                for x in json_data["entities"]
+            ]
         except:
             print(line)
             continue
         # 将解析后的数据添加到列表中
-        data_list.append({"instruction": "", "input": json_data["originalText"], "output": json.dumps(json_data["entities"],ensure_ascii=False)})
+        data_list.append(
+            {"instruction": "", "input": json_data["originalText"], "output": json.dumps(output, ensure_ascii=False)}
+        )
     with open("data/extract_other2_zh.json",'w',encoding='utf-8') as f:
         json.dump(data_list, f, indent=4, ensure_ascii=False)
     # TODO 单元层级--prompt ?
