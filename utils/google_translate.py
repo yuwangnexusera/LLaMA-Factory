@@ -44,7 +44,7 @@ def translate_text(
                 "target_language_code": "en-US",
             }
         )
-        print(f"{datetime.now()}-translate:{text}")
+        print(f"{datetime.now()}-translate:{text}->{response.translations[0].translated_text}")
         return response.translations[0].translated_text
     except Exception as e:
         print("Error:", e)

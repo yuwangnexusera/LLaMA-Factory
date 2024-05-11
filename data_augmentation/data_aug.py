@@ -255,7 +255,7 @@ def insert_en_loc(dataset_path, test_data_path):
     for i in range(100):
         print(num)
         num += 1
-        if num > 40:
+        if num > 50:
             break
         with open(dataset_path, "r", encoding="utf-8") as f:
             dataset = json.load(f)
@@ -288,7 +288,15 @@ def insert_en_loc(dataset_path, test_data_path):
             json.dump(dataset, outfile, ensure_ascii=False, indent=4)
             logger.info(f"写入完成{index}")
     return
-
+def check_en_loc_report(ds_path,unit_to_check):
+    with open(ds_path, "r", encoding="utf-8") as f:
+        dataset = json.load(f)
+    for item in dataset:
+        output = json.loads(item["output"])
+        for unit_name,vals in output.items():
+            if unit_name == unit_to_check:
+                new_report = check_unit_report_llm()
+    return
 
 def insert_loc_in_report(file_name):
     # 出入院的key列表
@@ -419,7 +427,7 @@ def insert_loc_in_report(file_name):
 
 if __name__ == "__main__":
 
-    # insert_en_loc("data/extract1k_en.json", "nex_dataset/test/extract_with_unit.json")
+    insert_en_loc("data/extract1k_en.json", "nex_dataset/test/extract_with_unit.json")
     print()
     # 加入单元层级
     structure = {

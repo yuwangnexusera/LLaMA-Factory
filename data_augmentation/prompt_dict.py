@@ -447,8 +447,8 @@ def get_loc_des():
         "ECOG": fake.random_element(elements=("0", "1", "2", "3", "4", "5")),
         "TPS": str(fake.random_int(min=1, max=100)) + "%",
         "诊断医生": fake.name(),
-        # "治疗用药名称": __select_drugs(),
-        "治疗用药名称": random.sample(["pemigatinib", "carboplatin", "bevacizumab", "anlotinib"],fake.random_int(min=1, max=4)),
+        "治疗用药名称": __select_drugs(),
+        # "治疗用药名称": random.sample(["pemigatinib", "carboplatin", "bevacizumab", "anlotinib"],fake.random_int(min=1, max=4)),
         "信息来源": fake.random_element(elements=("既往史", "出院诊断", "诊断", "入院诊断")),
     }
 

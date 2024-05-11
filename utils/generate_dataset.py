@@ -265,9 +265,10 @@ if __name__ == "__main__":
     # transfer_output_format("data/extract1k_en.json")
 
     # 检查中文，并且走mapping_zh_en
-    check_ds_zh("data/extract1k_en.json")
+    # check_ds_zh("data/extract1k_en.json")
 
-    fill_NA_answer("data/extract1k_en.json")
+    # NA填充
+    # fill_NA_answer("data/extract1k_en.json")
 
     # with open('utils/mapping_answer_zh_en.json', 'r', encoding='utf-8') as f:
     #     mapping = json.load(f)
@@ -277,8 +278,28 @@ if __name__ == "__main__":
     # with open("data/extract1k_en.json", "w", encoding="utf-8") as f_new:
     #     json.dump(new_data, f_new, indent=4, ensure_ascii=False)
 
-    # 补全NA deprecated 从开始都加上NA
-
+    # 读取文件写入数据
+    import pandas as pd
+    data = pd.read_parquet('c:/Users/Administrator/Documents/结构化/train-cmeee.parquet')
+    mapping = {
+        "dis":"疾病",
+        "sym":"临床表现",
+        "dru":"药物",
+        "equ":"医疗设备",
+        "pro":"医疗程序",
+        "bod":"身体",
+        "ite":"医学检验项目",
+        "mic":"微生物类",
+        "dep":"科室"
+        }
+    new_data = []
+    for index,row in data.iterrows():
+        row_list = row.values.tolist()
+        output = row_list[1].tolist()
+        output_filter = [{"entity": x["entity"], "label": mapping.get(x["label"], x["label"])} for x in output]
+        new_data.append({"instruction": "", "input": row_list[0], "output": json.dumps(output_filter,ensure_ascii=False)})
+    with open("data/extract_other_zh.json",'w',encoding='utf-8') as f:
+        json.dump(new_data,f,indent=4,ensure_ascii=False)
     # TODO 单元层级--prompt ?
     # 翻译中文数据集至英文，Google translate
     # translate_zh_dataset("data/extract512_zh_v2.json")
