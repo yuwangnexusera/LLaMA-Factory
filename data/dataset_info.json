@@ -455,5 +455,8 @@
   },
   "extract_other_zh": {
     "file_name": "extract_other_zh.json"
+  },
+  "extract_other2_zh": {
+    "file_name": "extract_other2_zh.json"
   }
 }

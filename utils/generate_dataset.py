@@ -278,28 +278,32 @@ if __name__ == "__main__":
     # with open("data/extract1k_en.json", "w", encoding="utf-8") as f_new:
     #     json.dump(new_data, f_new, indent=4, ensure_ascii=False)
 
-    # 读取文件写入数据
-    import pandas as pd
-    data = pd.read_parquet('c:/Users/Administrator/Documents/结构化/train-cmeee.parquet')
-    mapping = {
-        "dis":"疾病",
-        "sym":"临床表现",
-        "dru":"药物",
-        "equ":"医疗设备",
-        "pro":"医疗程序",
-        "bod":"身体",
-        "ite":"医学检验项目",
-        "mic":"微生物类",
-        "dep":"科室"
-        }
-    new_data = []
-    for index,row in data.iterrows():
-        row_list = row.values.tolist()
-        output = row_list[1].tolist()
-        output_filter = [{"entity": x["entity"], "label": mapping.get(x["label"], x["label"])} for x in output]
-        new_data.append({"instruction": "", "input": row_list[0], "output": json.dumps(output_filter,ensure_ascii=False)})
-    with open("data/extract_other_zh.json",'w',encoding='utf-8') as f:
-        json.dump(new_data,f,indent=4,ensure_ascii=False)
+    # 读取txt文件写入数据,txt文件中是多个json
+    data_list = []
+    with open(
+        "c:/Users/Administrator/Documents/结构化/subtask1_train/subtask1_train/subtask1_training_part1.txt",
+        "r",
+        encoding="utf-8-sig",
+    ) as f:
+        data1 = f.readlines()
+    with open(
+        "c:/Users/Administrator/Documents/结构化/subtask1_train/subtask1_train/subtask1_training_part2.txt",
+        "r",
+        encoding="utf-8-sig",
+    ) as f:
+        data2 = f.readlines()
+    data = data1 + data2
+    for line in data:
+        # 解析 JSON 格式的数据
+        try:
+            json_data = json.loads(line)
+        except:
+            print(line)
+            continue
+        # 将解析后的数据添加到列表中
+        data_list.append({"instruction": "", "input": json_data["originalText"], "output": json.dumps(json_data["entities"],ensure_ascii=False)})
+    with open("data/extract_other2_zh.json",'w',encoding='utf-8') as f:
+        json.dump(data_list, f, indent=4, ensure_ascii=False)
     # TODO 单元层级--prompt ?
     # 翻译中文数据集至英文，Google translate
     # translate_zh_dataset("data/extract512_zh_v2.json")
