@@ -128,7 +128,10 @@ class F1score:
             ],
             "Date": ["Admission Date", "Discharge Date", "Medical History Collection Date", "Record Date"],
         }
-
+        if not isinstance(answer_json, dict):
+            answer_json = {"sywu": answer_json}
+        if not isinstance(generated_answer, dict):
+            generated_answer = {"sywu": generated_answer}
         # 单元层级
         ce = ie = me = se = 0  # 初始化计数器：正确提取、错误提取、漏提取、误提取
         precision = 0
@@ -261,8 +264,16 @@ class F1score:
 if __name__ == "__main__":
     f1 = F1score()
     # 示例数据
-    generated_answer = {}
-    answer_json = {"Disease": ""}
+    generated_answer = [
+        {"entity": "导管消融", "label": "医疗程序"},
+        {"entity": "血流动力学损害的室性心动过速", "label": "疾病"},
+        {"entity": "ventriculartachycardia", "label": "疾病"}
+    ]
+    answer_json = [
+        {"entity": "血流动力学损害的室性心动过速", "label": "疾病"},
+        {"entity": "ventriculartachycardia", "label": "疾病"},
+        {"entity": "导管消融", "label": "医疗程序"},
+    ]
 
     # 调用函数并打印结果
     result = f1.labor_recall_precise(answer_json, generated_answer)
