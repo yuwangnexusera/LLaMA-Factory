@@ -392,7 +392,7 @@ def mapping_loc_zh_en(key, trans=True):
         for k, v in mapping.items():
             if v == key:
                 return k
-        return translate_text(key)
+        return translate_text(key,task="mapping")
 
 
 def _get_report_structure(report_type):

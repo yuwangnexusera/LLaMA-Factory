@@ -127,7 +127,57 @@ class F1score:
                 "Endocrine and Immune System Diseases",
             ],
             "Date": ["Admission Date", "Discharge Date", "Medical History Collection Date", "Record Date"],
-            "sywu":["label","entity"]
+            "基本信息": ["出生日期", "年龄", "性别"],
+            "疾病": [
+                "疾病首次确诊日期",
+                "第一次病理确诊时间（穿刺、术后病理等）",
+                "第一次切肺手术时间",
+                "第一次影像确诊时间",
+                "第一次治疗时间（药物、放疗等）",
+                "首发症状时间",
+                "疾病名称",
+            ],
+            "体征数据": ["ECOG", "ECOG日期"],
+            "诊断": ["诊断医生"],
+            "影像学": ["脑转移日期", "脑转部位"],
+            "病理": ["病理日期", "病理类型"],
+            "基因检测": [
+                "ALK",
+                "MET",
+                "RB1",
+                "RET",
+                "BRAF",
+                "BRCA",
+                "EGFR",
+                "FGFR",
+                "KRAS",
+                "NTRK",
+                "ROS1",
+                "TP53",
+                "KEAP1",
+                "STK11",
+                "HER2(ERBB2)",
+                "HER3（ERBB3）",
+                "HER4（ERBB4）",
+                "基因检测日期",
+            ],
+            "免疫检测": ["IC", "CPS", "TPS", "PDL1", "免疫检测日期"],
+            "肿瘤治疗": ["手术部位", "治疗开始日期", "治疗用药名称", "治疗结束日期", "肿瘤具体治疗方式"],
+            "治疗用药方案": ["治疗开始日期", "治疗用药名称", "治疗结束日期"],
+            "合并疾病": [
+                "合并疾病确诊日期",
+                "信息来源",
+                "传染性疾病",
+                "呼吸系统疾病",
+                "循环系统疾病",
+                "恶性肿瘤情况",
+                "消化系统疾病",
+                "神经系统疾病",
+                "泌尿生殖系统疾病",
+                "眼耳鼻喉相关疾病",
+                "内分泌及免疫系统疾病",
+            ],
+            "sywu": ["label", "entity"],
         }
         if not isinstance(answer_json, dict):
             answer_json = {"sywu": answer_json}
@@ -205,7 +255,7 @@ class F1score:
 
                     for k_a, v_a in answer_unit_value_dict.items():
                         v_a = v_a[0] if len(v_a) == 1 else v_a
-                        
+
                         if k_a not in generate_unit_value_dict: #生成数据缺失key
                             me += 1
                             error_keys.append({k_a: "key not exist in generate"})
@@ -266,15 +316,22 @@ if __name__ == "__main__":
     f1 = F1score()
     # 示例数据
     generated_answer = [
-        {"entity": "狂犬病病毒", "label": "微生物类"},
-        {"entity": "免疫酶技术", "label": "医疗程序"},
-        {"entity": "动物接种试验", "label": "医疗程序"},
-        {"entity": "病毒", "label": "微生物类"},
+        {"entity": "呼吸肌", "label": "身体"},
+        {"entity": "呼吸肌痉挛", "label": "临床表现"},
+        {"entity": "呼吸困难", "label": "临床表现"},
+        {"entity": "全身肌", "label": "身体"},
+        {"entity": "全身肌张力高", "label": "临床表现"},
+        {"entity": "颈部", "label": "身体"},
+        {"entity": "颈部强硬", "label": "临床表现"},
     ]
     answer_json = [
-        {"entity": "血流动力学损害的室性心动过速", "label": "疾病"},
-        {"entity": "ventriculartachycardia", "label": "疾病"},
-        {"entity": "导管消融", "label": "医疗程序"},
+        {"entity": "呼吸肌", "label": "身体"},
+        {"entity": "颈部", "label": "身体"},
+        {"entity": "颈部强硬", "label": "临床表现"},
+        {"entity": "呼吸困难", "label": "临床表现"},
+        {"entity": "全身肌1", "label": "身体"},
+        {"entity": "全身肌张力高", "label": "临床表现"},
+        {"entity": "呼吸肌痉挛", "label": "临床表现"},
     ]
 
     # 调用函数并打印结果

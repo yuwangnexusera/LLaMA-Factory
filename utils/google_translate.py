@@ -17,7 +17,7 @@ def check_zh(string):
 
 
 def translate_text(
-    text: str = "YOUR_TEXT_TO_TRANSLATE", project_id: str = "agent-400806"
+    text: str = "YOUR_TEXT_TO_TRANSLATE", project_id: str = "agent-400806",source_language_code: str = "zh-CN", target_language_code: str = "en-US",task="trans"
 ) -> translate.TranslationServiceClient:
     """Translating Text."""
     try:
@@ -33,15 +33,15 @@ def translate_text(
         if not text:
             text = "Oh, No"
         check_zh_flag, start_index, end_index = check_zh(text)
-        if not check_zh_flag:
+        if not check_zh_flag and task != "trans":
             return text
         response = client.translate_text(
             request={
                 "parent": parent,
                 "contents": [text],
                 "mime_type": "text/plain",  # mime types: text/plain, text/html
-                "source_language_code": "zh-CN",
-                "target_language_code": "en-US",
+                "source_language_code": source_language_code,
+                "target_language_code": target_language_code,
             }
         )
         print(f"{datetime.now()}-translate:{text}->{response.translations[0].translated_text}")

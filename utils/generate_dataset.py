@@ -125,50 +125,58 @@ def flatten_nested_list(nested_list):
     return flat_list
 
 
-def translate_zh_dataset(file_name):
-    en_dataset = []
-    with open("utils/mapping_answer_zh_en.json", "r", encoding="utf-8") as f:
-        mapping_zh_en = json.load(f)
-    with open(file_name, "r", encoding="utf-8") as zh_file, open(
-        file_name.replace("_zh", "_en"), "w", encoding="utf-8"
-    ) as en_file:
-        data = json.load(zh_file)
-        i = 1
+def translate_dataset(file_name):
+    translation_direction = None
+    if "_zh" in file_name:
+        translation_direction = "zh_to_en"
+    elif "_en" in file_name:
+        translation_direction = "en_to_zh"
+    else:
+        print("File name does not contain '_zh' or '_en'. Unable to determine translation direction.")
+        return
+
+    res_dataset = []
+    instruction_en = "Your task is to extract medical information from the input report and output it in JSON format, and output NA for information not mentioned in the report,input report:"
+    instruction_zh = "您的任务是从输入的报告中提取医疗信息并以JSON格式输出，报告中未提及的信息输出NA,输入报告："
+    with open(file_name, "r", encoding="utf-8") as input_file:
+        data = json.load(input_file)
         for ds_item in data:
             output = {}
-            i = i + 1
-            print(len(ds_item["input"]), "----", i)
-            instruction = (
-                "Your task is to extract medical information from the input report and output it in JSON format, and output NA for information not mentioned in the report"
-            )
-            input = google_translate.translate_text(ds_item["input"])
-            if not input:
-                print("error input")
-            output_zh = json.loads(ds_item["output"])["output"]
-            for key, value in output_zh.items():
-                if value == "NA":
-                    continue
-                new_key = mapping_zh_en.get(key, key)
-                if isinstance(value, list):
-                    value = flatten_nested_list(value)
-                    output[new_key] = []
-                    for v in value:
-                        if key in ["治疗用药名称"]:
-                            new_value = google_translate.translate_text(v)
+            if translation_direction == "zh_to_en":
+                # 翻译成英文
+                input_text = google_translate.translate_text(
+                    ds_item["input"], source_language_code="zh-CN", target_language_code="en-US"
+                )
+                instruction = instruction_en
+            elif translation_direction == "en_to_zh":
+                # 翻译成中文
+                input_text = google_translate.translate_text(
+                    ds_item["input"], source_language_code="en-US", target_language_code="zh-CN"
+                )
+                instruction = instruction_zh
+            else:
+                print("Invalid translation direction.")
+                return
+
+            output_text = json.loads(ds_item["output"])
+            # 进行翻译后的处理逻辑，根据需求进行修改和扩展
+            for unit, vals in output_text.items():
+                zh_unit = prompt_dict.mapping_loc_zh_en(unit)
+                zh_vals = []
+                for v in vals:
+                    zh_v = {}
+                    for loc, val in v.items():
+                        if isinstance(val, list):
+                            zh_v[prompt_dict.mapping_loc_zh_en(loc)] = [prompt_dict.mapping_loc_zh_en(v_i) for v_i in val]
                         else:
-                            new_value = mapping_zh_en.get(v, v)
-                        output[new_key].append(new_value)
-                else:
-                    if key in ["治疗用药名称"]:
-                        new_value = google_translate.translate_text(value)
-                    else:
-                        new_value = mapping_zh_en.get(value, value)
-                    output[new_key] = new_value
-            en_dataset.append({"instruction": instruction, "input": input, "output": json.dumps(output, ensure_ascii=False)})
+                            zh_v[prompt_dict.mapping_loc_zh_en(loc)] = prompt_dict.mapping_loc_zh_en(val)
+                    zh_vals.append(zh_v)
+                output[zh_unit] = zh_vals
+            res_dataset.append({"instruction": instruction, "input": input_text, "output": output})
 
-        en_file.write(json.dumps(en_dataset, indent=4, ensure_ascii=False))
-
-        en_file.flush()
+    output_file_name = file_name.replace("_zh", "_en") if translation_direction == "zh_to_en" else file_name.replace("_en", "_zh")
+    with open(output_file_name, "w", encoding="utf-8") as output_file:
+        output_file.write(json.dumps(res_dataset, indent=4, ensure_ascii=False))
 
 
 def fill_NA_answer(file_name):
@@ -262,13 +270,16 @@ if __name__ == "__main__":
     # json_to_jsonl_or_json( "nex_dataset/train/extract1k_en.jsonl","data/extract1k_en.json")
 
     # json<->json str
-    # transfer_output_format("data/extract1k_en.json")
+    transfer_output_format("data/extract1k_zh.json")
 
     # 检查中文，并且走mapping_zh_en
     # check_ds_zh("data/extract1k_en.json")
 
     # NA填充
     # fill_NA_answer("data/extract1k_en.json")
+
+    # 翻译
+    # translate_dataset("data/extract1k_en.json")
 
     # with open('utils/mapping_answer_zh_en.json', 'r', encoding='utf-8') as f:
     #     mapping = json.load(f)
@@ -308,7 +319,7 @@ if __name__ == "__main__":
         data_list.append(
             {"instruction": "", "input": json_data["originalText"], "output": json.dumps(output, ensure_ascii=False)}
         )
-    with open("data/extract_other2_zh.json",'w',encoding='utf-8') as f:
+    with open("data/extract_other2_zh.json", "w", encoding="utf-8") as f:
         json.dump(data_list, f, indent=4, ensure_ascii=False)
     # TODO 单元层级--prompt ?
     # 翻译中文数据集至英文，Google translate
