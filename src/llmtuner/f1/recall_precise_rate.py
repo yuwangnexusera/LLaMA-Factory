@@ -127,6 +127,7 @@ class F1score:
                 "Endocrine and Immune System Diseases",
             ],
             "Date": ["Admission Date", "Discharge Date", "Medical History Collection Date", "Record Date"],
+            "sywu":["label","entity"]
         }
         if not isinstance(answer_json, dict):
             answer_json = {"sywu": answer_json}
@@ -265,9 +266,10 @@ if __name__ == "__main__":
     f1 = F1score()
     # 示例数据
     generated_answer = [
-        {"entity": "导管消融", "label": "医疗程序"},
-        {"entity": "血流动力学损害的室性心动过速", "label": "疾病"},
-        {"entity": "ventriculartachycardia", "label": "疾病"}
+        {"entity": "狂犬病病毒", "label": "微生物类"},
+        {"entity": "免疫酶技术", "label": "医疗程序"},
+        {"entity": "动物接种试验", "label": "医疗程序"},
+        {"entity": "病毒", "label": "微生物类"},
     ]
     answer_json = [
         {"entity": "血流动力学损害的室性心动过速", "label": "疾病"},
