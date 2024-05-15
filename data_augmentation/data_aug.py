@@ -128,7 +128,7 @@ def insert_mul_en_loc(loc, report):
         Output format: directly output the modified medical report without any explanatory notes."""
     model_name = random.choices(
         [
-            "gpt-4-turbo",
+            "gpt-4o",
             "ERNIE-Bot 4.0",
             "gpt-3.5-turbo",
             "Llama-2-70b-chat",
@@ -138,7 +138,7 @@ def insert_mul_en_loc(loc, report):
         k=1,
     )[0]
     tokenize = TokenCalculate(model_name)
-    new_report = ask_llm_return_str(prompt, model_name)
+    new_report = ask_llm_return_str(prompt, "gpt-4o")
     logger.info(f"input:{tokenize.token_count(prompt)},output:{tokenize.token_count(report)}")
     return new_report
 
@@ -147,7 +147,7 @@ def generate_dataset_by_answer(report_type):
     flag = False
     # 随机取值
     prompt_data = prompt_dict.generate_domain_data(report_type)
-    # model_name  ["ERNIE-Bot 4.0", "gpt-3.5-turbo-1106", "gpt-4-turbo", "gpt-3.5-turbo-free"]
+    # model_name  ["ERNIE-Bot 4.0", "gpt-3.5-turbo-1106", "gpt-4o", "gpt-3.5-turbo-free"]
     if report_type == "出入院记录":
         # 出入院记录拆开生成
         report_type = random.choice(["出院记录", "入院记录", "出入院记录"])
@@ -174,7 +174,7 @@ def generate_dataset_by_answer(report_type):
             flag = False
             break
     if flag:
-        initial_report = generate_recheck(initial_report, report_type, prompt_data, model_name="gpt-4-turbo")
+        initial_report = generate_recheck(initial_report, report_type, prompt_data, model_name="gpt-4o")
         prompt_data["report"] = initial_report
         return prompt_data
     else:
@@ -241,7 +241,7 @@ def insert_en_loc(dataset_path, test_data_path):
     #     test_data = json.load(f)
 
     unit_to_insert = [
-        # "Treatment Drug Plan",
+        "Treatment Drug Plan",
         "Cancer treatment"
     ]
     # 检查哪些单元经常出现可多条
@@ -401,7 +401,7 @@ def insert_loc_in_report(file_name):
                 value_to_insert[key] = val
                 new_answer[key] = val
             #
-            model_name = random.choices(["gpt-3.5-turbo", "gpt-4-turbo", "ERNIE-Bot-turbo"], [0.6, 0.2, 0.2], k=1)[0]
+            model_name = random.choices(["gpt-3.5-turbo", "gpt-4o", "ERNIE-Bot-turbo"], [0.6, 0.2, 0.2], k=1)[0]
             print(f"model_name:{model_name}")
             _reports = []
             with open(file_name, "r", encoding="utf-8") as file:
@@ -418,6 +418,8 @@ def insert_loc_in_report(file_name):
 
 
 if __name__ == "__main__":
+
+    insert_en_loc("data/extract1k_en.json", "nex_dataset/test/extract_with_unit.json")
     # 读取parquet文件
     import pandas
 
@@ -426,7 +428,7 @@ if __name__ == "__main__":
         print(i, df.iloc[i]["report"])
         print(df.iloc[i]["label"])
         print(df.iloc[i]["report"].split("\n\n"))
-    # insert_en_loc("data/extract1k_en.json", "nex_dataset/test/extract_with_unit.json")
+
     print()
     # 加入单元层级
     structure = {

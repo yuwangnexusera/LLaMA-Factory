@@ -270,7 +270,7 @@ if __name__ == "__main__":
     # json_to_jsonl_or_json( "nex_dataset/train/extract1k_en.jsonl","data/extract1k_en.json")
 
     # json<->json str
-    # transfer_output_format("nex_dataset/test/extract_with_unit.json")
+    transfer_output_format("nex_dataset/test/extract_with_unit_zh.json")
 
     # 检查中文，并且走mapping_zh_en
     # check_ds_zh("data/extract1k_en.json")
@@ -279,7 +279,7 @@ if __name__ == "__main__":
     # fill_NA_answer("data/extract1k_en.json")
 
     # 翻译
-    translate_dataset("nex_dataset/test/extract_with_unit_en.json")
+    # translate_dataset("nex_dataset/test/extract_with_unit_en.json")
 
     # with open('utils/mapping_answer_zh_en.json', 'r', encoding='utf-8') as f:
     #     mapping = json.load(f)
