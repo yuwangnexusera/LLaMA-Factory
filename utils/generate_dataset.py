@@ -265,14 +265,12 @@ def split_data_to_unit(file_path,unit_name):
     with open(file_path, "r", encoding="utf-8") as f:
         unit_ds = []
         data = json.load(f)
-        instruction_cancer_treatment = """Your task is to extract 'tumor treatment' information from the input report and output NA for information not mentioned in the report. Directly output the results in json format in accordance with the following requirements: 
-        [{
-        "Treatment Start Date": "'%Y-%m-%d'"
-        "Treatment End Date": "'%Y-%m-%d'"
-        "Specific Tumor Treatment Method":  Optional is['Surgery','Ablation','Pleural perfusion','Pericardial perfusion','Particle implantation','Interventional therapy','Radiotherapy','Concurrent chemoradiotherapy','Chemotherapy','Targeted therapy','Immunotherapy','Anti-angiogenic therapy','Endocrine therapy','Cell therapy','Organ transplantation','Stem cell transplantation']
-        "Treatment Drug Names": List in the form of a list and extract only the names of drugs for therapeutic use.
-        "Surgical Site": Optional is: 'Lung resection','Brain metastasis','Liver metastasis','Other'。
-        }//If there are more than one, continue to list in the same way].  Enter the report:"""
+        instruction_cancer_treatment = """Your task is to extract 'tumor treatment' information from the input report and output NA for information not mentioned in the report. Directly output the results in json format in accordance with the following requirements: \
+        "Treatment Start Date": ""\
+        "Treatment End Date": ""\
+        "Specific Tumor Treatment Method":  Optional is：'Surgery','Ablation','Pleural perfusion','Pericardial perfusion','Particle implantation','Interventional therapy','Radiotherapy','Concurrent chemoradiotherapy','Chemotherapy','Targeted therapy','Immunotherapy','Anti-angiogenic therapy','Endocrine therapy','Cell therapy','Organ transplantation','Stem cell transplantation'.\
+        "Treatment Drug Names": List in the form of a list and extract only the names of drugs for therapeutic use.\
+        "Surgical Site": Optional is: 'Lung resection','Brain metastasis','Liver metastasis','Other'。//If there are more than one, continue to list in the same way.  medical report:"""
         num = 1
         for item in data:
             output = json.loads(item["output"])
