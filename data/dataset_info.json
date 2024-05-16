@@ -443,5 +443,8 @@
   },
   "cancer_treatment":{
     "file_name": "cancer_treatment_1k.json"
+  },
+  "cancer_treatment_en": {
+    "file_name": "cancer_treatment_1k_en.json"
   }
 }

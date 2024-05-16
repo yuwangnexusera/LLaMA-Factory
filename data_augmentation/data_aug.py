@@ -417,119 +417,36 @@ def insert_loc_in_report(file_name):
     return True
 
 
+def check_med_data_report(ori_report, med_data):
+    report = ""
+    prompt = f"""你的任务是检查医疗数据中的每一项是否都在报告中。\
+        医学数据:{med_data}\n
+        医学报告:{ori_report}\n
+        输出格式:{{"report": "医学报告", "data": "医学数据"}}"""
+    res = ask_llm_return_str(prompt,model_name="gpt-4o")
+    return report
+
+
 if __name__ == "__main__":
 
-    insert_en_loc("data/extract1k_en.json", "nex_dataset/test/extract_with_unit.json")
-    # 读取parquet文件
-    import pandas
-
-    df = pandas.read_parquet("c:/Users/Administrator/Documents/结构化/cmeee/validation-cmeee.parquet")
-    for i in range(len(df)):
-        print(i, df.iloc[i]["report"])
-        print(df.iloc[i]["label"])
-        print(df.iloc[i]["report"].split("\n\n"))
+    # insert_en_loc("data/extract1k_en.json", "nex_dataset/test/extract_with_unit.json")
 
     print()
     # 加入单元层级
-    structure = {
-        "日期": {"出院日期": "", "入院日期": "", "病史采集日期": "", "记录日期": ""},
-        "基本信息": {"出生日期": "", "年龄": "", "性别": ""},
-        "疾病": {
-            "疾病首次确诊日期": "",
-            "第一次病理确诊时间（穿刺、术后病理等）": "",
-            "第一次切肺手术时间": "",
-            "第一次影像确诊时间": "",
-            "第一次治疗时间（药物、放疗等）": "",
-            "首发症状时间": "",
-            "疾病名称": "",
-        },
-        "体征数据": {"ECOG": "", "ECOG日期": ""},
-        "诊断": {"诊断医生": ""},
-        "影像学": {"脑转移日期": "", "脑转部位": ""},
-        "病理": {"病理日期": "", "病理类型": ""},
-        "基因检测": {
-            "ALK": "",
-            "MET": "",
-            "RB1": "",
-            "RET": "",
-            "BRAF": "",
-            "BRCA": "",
-            "EGFR": "",
-            "FGFR": "",
-            "KRAS": "",
-            "NTRK": "",
-            "ROS1": "",
-            "TP53": "",
-            "KEAP1": "",
-            "STK11": "",
-            "HER2(ERBB2)": "",
-            "HER3（ERBB3）": "",
-            "HER4（ERBB4）": "",
-            "基因检测日期": "",
-        },
-        "免疫检测": {"IC": "", "CPS": "", "TPS": "", "PDL1": "", "免疫检测日期": ""},
-        "肿瘤治疗": {"手术部位": "", "治疗开始日期": "", "治疗用药名称": "", "治疗结束日期": "", "肿瘤具体治疗方式": ""},
-        "治疗用药方案": {"治疗开始日期": "", "治疗用药名称": "", "治疗结束日期": ""},
-        "合并疾病": {
-            "合并疾病确诊日期": "",
-            "信息来源": "",
-            "疾病名称": "",
-            "传染性疾病": "",
-            "呼吸系统疾病": "",
-            "循环系统疾病": "",
-            "恶性肿瘤情况": "",
-            "消化系统疾病": "",
-            "神经系统疾病": "",
-            "运动系统疾病": "",
-            "泌尿生殖系统疾病": "",
-            "眼耳鼻喉相关疾病": "",
-            "内分泌及免疫系统疾病": "",
-        },
-    }
 
-    # 根据已有报告插入点位进行增强
     # insert_loc_in_report("data_augmentation/dataset_augmentation_append1.json")
     # remove_duplicate()
     # 查看多少个可多条的比例
-    with open('data/extract1k_en.json','r',encoding='utf-8') as f:
+    with open('data/cancer_treatment_1k.json','r',encoding='utf-8') as f:
         data = json.load(f)
         num = 0
         for d in data:
-            for unit,vals in json.loads(d['output']).items():
-                if unit == "Cancer treatment":
-                    if len(vals) > 1:
-                        num+=1
-        print(num)
-    # 文件路径
-    file_path = "data_augmentation/dataset_augmentation_append1.json"
-    report_types = ["出入院记录"]
-    try:
-        with open(file_path, "r", encoding="utf-8") as file:
-            existing_data = json.load(file)
-    except (FileNotFoundError, json.JSONDecodeError):
-        existing_data = {}
-    error_data = []
-    for category in report_types:
-        logger.warning(f"当前‘{category}’共 {len(existing_data.get(category, []))} 条数据")
-        # 计算平均token数
-        avg_token = calculate_avg_token(existing_data.get(category, []))
-        # 每个报告类型生成的报告数
-        for i in range(600):
-            # new_data = generate_noise_report(existing_data[i])
-            try:
-                new_data = generate_dataset_by_answer(category)
-                if not new_data:
-                    continue
-            except Exception as e:
-                logger.error("generate_dataset_by_answer 异常{}".format(e))
-                continue
-
-            if category in existing_data:
-                existing_data[category].append(new_data)
-            else:
-                existing_data[category] = [new_data]
-            # 每条写入
-            with open(file_path, "w", encoding="utf-8") as file:
-                json.dump(existing_data, file, ensure_ascii=False, indent=4)
-                logger.warning(f"当前‘{category}’共 {len(existing_data[category])} 条数据")
-                file.flush()
+            report = d["input"]
+            output = json.loads(d["output"])
+            med_data = []
+            for item in output:
+                # item的value不是NA才赋值
+                
+                med_data.append()
+            msg = check_med_data_report(report,output)
+    

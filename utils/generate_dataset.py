@@ -265,14 +265,14 @@ def split_data_to_unit(file_path,unit_name):
     with open(file_path, "r", encoding="utf-8") as f:
         unit_ds = []
         data = json.load(f)
-        instruction_cancer_treatment = """您的任务是从输入报告中提取‘肿瘤治疗’信息，报告中未提及的信息输出NA。按照以下要求直接输出json格式的结果，输出格式: 
+        instruction_cancer_treatment = """Your task is to extract 'tumor treatment' information from the input report and output NA for information not mentioned in the report. Directly output the results in json format in accordance with the following requirements: 
         [{
-        "治疗开始日期": string  // 输出格式为'%Y-%m-%d'
-        "治疗结束日期": string  // 输出格式为'%Y-%m-%d'
-        "肿瘤具体治疗方式": string  // 可选项为['手术','消融','胸腔灌注','心包灌注','粒子植入','介入治疗','放疗','同步放化疗''化疗','靶向','免疫','抗血管','内分泌','细胞疗法','器官移植','干细胞移植']
-        "治疗用药名称": string  // 以列表形式列出,只提取治疗用药的药品名称。
-        "手术部位": string  // 可选项为'切肺','脑转移','肝转移','其他'。
-        }//如果有多条，继续以相同方式列出]。输入报告："""
+        "Treatment Start Date": "'%Y-%m-%d'"
+        "Treatment End Date": "'%Y-%m-%d'"
+        "Specific Tumor Treatment Method":  Optional is['Surgery','Ablation','Pleural perfusion','Pericardial perfusion','Particle implantation','Interventional therapy','Radiotherapy','Concurrent chemoradiotherapy','Chemotherapy','Targeted therapy','Immunotherapy','Anti-angiogenic therapy','Endocrine therapy','Cell therapy','Organ transplantation','Stem cell transplantation']
+        "Treatment Drug Names": List in the form of a list and extract only the names of drugs for therapeutic use.
+        "Surgical Site": Optional is: 'Lung resection','Brain metastasis','Liver metastasis','Other'。
+        }//If there are more than one, continue to list in the same way].  Enter the report:"""
         num = 1
         for item in data:
             output = json.loads(item["output"])
@@ -288,13 +288,13 @@ def split_data_to_unit(file_path,unit_name):
                     }
                 )
         print(num)
-        with open('data/'+'cancer_treatment_1k'+'.json', "w", encoding="utf-8") as f_new:
+        with open('data/'+'cancer_treatment_1k_en'+'.json', "w", encoding="utf-8") as f_new:
             json.dump(unit_ds, f_new, indent=4, ensure_ascii=False)
 if __name__ == "__main__":
     import os
 
     print(os.getcwd())
-    split_data_to_unit('data/extract1k_zh.json','肿瘤治疗')
+    split_data_to_unit("data/extract1k_en.json", "Cancer treatment")
     # json<->jsonl(baidu)
     # json_to_jsonl_or_json( "nex_dataset/train/extract1k_en.jsonl","data/extract1k_en.json")
 
