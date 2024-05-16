@@ -261,16 +261,45 @@ def json_to_jsonl_or_json(input_file_path, output_file_path):
                 output_file.write(json.dumps(jsonl_data, ensure_ascii=False) + "\n")
                 output_file.flush()
 
-
+def split_data_to_unit(file_path,unit_name):
+    with open(file_path, "r", encoding="utf-8") as f:
+        unit_ds = []
+        data = json.load(f)
+        instruction_cancer_treatment = """您的任务是从输入报告中提取‘肿瘤治疗’信息，报告中未提及的信息输出NA。按照以下要求直接输出json格式的结果，输出格式: 
+        [{
+        "治疗开始日期": string  // 输出格式为'%Y-%m-%d'
+        "治疗结束日期": string  // 输出格式为'%Y-%m-%d'
+        "肿瘤具体治疗方式": string  // 可选项为['手术','消融','胸腔灌注','心包灌注','粒子植入','介入治疗','放疗','同步放化疗''化疗','靶向','免疫','抗血管','内分泌','细胞疗法','器官移植','干细胞移植']
+        "治疗用药名称": string  // 以列表形式列出,只提取治疗用药的药品名称。
+        "手术部位": string  // 可选项为'切肺','脑转移','肝转移','其他'。
+        }//如果有多条，继续以相同方式列出]。输入报告："""
+        num = 1
+        for item in data:
+            output = json.loads(item["output"])
+            unit_to_precess = output.get(unit_name, [])
+            if len(unit_to_precess) >1:
+                num += 1
+            if unit_to_precess:
+                unit_ds.append(
+                    {
+                        "instruction": instruction_cancer_treatment,
+                        "input": item["input"],
+                        "output": json.dumps(unit_to_precess, ensure_ascii=False),
+                    }
+                )
+        print(num)
+        with open('data/'+'cancer_treatment_1k'+'.json', "w", encoding="utf-8") as f_new:
+            json.dump(unit_ds, f_new, indent=4, ensure_ascii=False)
 if __name__ == "__main__":
     import os
 
     print(os.getcwd())
+    split_data_to_unit('data/extract1k_zh.json','肿瘤治疗')
     # json<->jsonl(baidu)
     # json_to_jsonl_or_json( "nex_dataset/train/extract1k_en.jsonl","data/extract1k_en.json")
 
     # json<->json str
-    transfer_output_format("nex_dataset/test/extract_with_unit_zh.json")
+    # transfer_output_format("nex_dataset/test/extract_with_unit_zh.json")
 
     # 检查中文，并且走mapping_zh_en
     # check_ds_zh("data/extract1k_en.json")
