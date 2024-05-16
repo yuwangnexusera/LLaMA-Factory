@@ -435,16 +435,13 @@
   "medical_report_extract1k_en": {
     "file_name": "extract1k_en.json"
   },
-    "medical_report_extract1k_zh": {
-      "file_name": "extract1k_zh.json"
-    },
+  "medical_report_extract1k_zh": {
+    "file_name": "extract1k_zh.json"
+  },
   "medical_report_extract512_en_NA": {
     "file_name": "extract512_en_na.json"
   },
-  "extract_other_zh": {
-    "file_name": "extract_other_zh.json"
-  },
-  "extract_other2_zh": {
-    "file_name": "extract_other2_zh.json"
+  "cancer_treatment":{
+    "file_name": "cancer_treatment_1k.json"
   }
 }
