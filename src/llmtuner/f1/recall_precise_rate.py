@@ -191,6 +191,14 @@ class F1score:
         try:
             for unit_name, answer_unit_value in answer_json.items():
                 generate_unit_value = generated_answer.get(unit_name)
+                # 检查 generate_unit_value 是否为空列表
+                if generate_unit_value == [] and len(answer_unit_value)==1:
+                    # 检查 answer_unit_value 中的所有值是否都为 "NA"
+                    if all(value == "NA" for value in answer_unit_value.values()):
+                        precision = 1
+                        recall = 1
+                        print(f"{unit_name}全部为NA，准确率为1，召回率为1")
+                        continue
                 if generate_unit_value is None:
                     me += len(answer_unit_value) * len(unit_loc_mapping[unit_name])
                     continue
