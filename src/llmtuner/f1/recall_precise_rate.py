@@ -195,9 +195,8 @@ class F1score:
                 if generate_unit_value == [] and len(answer_unit_value)==1:
                     # 检查 answer_unit_value 中的所有值是否都为 "NA"
                     if all(value == "NA" for value in answer_unit_value.values()):
-                        precision = 1
-                        recall = 1
-                        print(f"{unit_name}全部为NA，准确率为1，召回率为1")
+                        ce+=len(unit_loc_mapping[unit_name])
+                        print(f"{unit_name}全部为NA")
                         continue
                 if generate_unit_value is None:
                     me += len(answer_unit_value) * len(unit_loc_mapping[unit_name])

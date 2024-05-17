@@ -226,37 +226,32 @@ def transfer_output_format(file_path):
         with open(file_path, "w", encoding="utf-8") as f_new:
             json.dump(data, f_new, indent=4, ensure_ascii=False)
 
-# 从标注系统的excel中读取
-def process_ds_excel(excel_path,write_path):
+# 从标注系统的excel中读取 ☆☆☆☆☆☆☆
+def process_ds_excel(excel_path,write_path,unit_name):
     df = pd.read_excel(excel_path, na_values=["null"])
+    df = df.drop_duplicates(subset="url")
     ds_list = []
     for index, row in df.iterrows():
         ds_item = {}
-        if row["category"] not in ["门诊病历"]:
+        if row["category"] in ["出入院记录"]:
             continue
         report = row["ocr_result"]
         if pd.isna(row["native_result_custom"]):
             continue
         extract_result = json.loads(row["native_result_custom"])
-        cancer_treatment_unit = extract_result.get("肿瘤治疗",[])
+        cancer_treatment_unit = extract_result.get(unit_name, [])
         if cancer_treatment_unit and isinstance(cancer_treatment_unit,dict):
             cancer_treatment_unit = [cancer_treatment_unit]
         cancer_treatment_list = []
         for item in cancer_treatment_unit:
             cancer_treatment_list.append(
-                {
-                    "手术部位": item.get("手术部位", ""),
-                    "治疗开始日期": item.get("治疗开始日期", ""),
-                    "治疗用药名称": item.get("治疗用药名称", ""),
-                    "治疗结束日期": item.get("治疗结束日期", ""),
-                    "肿瘤具体治疗方式": item.get("肿瘤具体治疗方式", ""),
-                }
+                {loc: item.get(loc, "NA") for loc in prompt_dict._default_unit_locs.get(unit_name, [])}
             )
         ds_list.append({"instruction": "", "input": report, "output": json.dumps(cancer_treatment_list, ensure_ascii=False)})
     with open(write_path, "w", encoding="utf-8") as f:
         json.dump(ds_list, f, indent=4, ensure_ascii=False)
 
-    return 
+    return True
 
 def json_to_jsonl_or_json(input_file_path, output_file_path):
     # Determine input data type based on file extension
@@ -293,6 +288,7 @@ def json_to_jsonl_or_json(input_file_path, output_file_path):
                 output_file.flush()
 
 def split_data_to_unit(file_path,unit_name):
+    '''拆LLM生成的数据'''
     with open(file_path, "r", encoding="utf-8") as f:
         unit_ds = []
         data = json.load(f)
@@ -323,7 +319,7 @@ if __name__ == "__main__":
     import os
 
     print(os.getcwd())
-    process_ds_excel("C:/Users/Administrator/Documents/结构化/ds_image_202405171543.xlsx","data/cancer_treatment_zh_recheck.json")
+    process_ds_excel("C:/Users/Administrator/Documents/结构化/ds_image_202405171543.xlsx","data/cancer_treatment_zh_recheck.json","基本信息")
     # split_data_to_unit("data/extract1k_en.json", "Cancer treatment")
     # json<->jsonl(baidu)
     # json_to_jsonl_or_json( "nex_dataset/train/extract1k_en.jsonl","data/extract1k_en.json")
