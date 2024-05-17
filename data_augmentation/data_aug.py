@@ -4,7 +4,8 @@ import random
 import re
 
 # from langchain_community.chat_models import ChatOpenAI
-
+from langchain.output_parsers import StructuredOutputParser,ResponseSchema
+from langchain_core.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
 import os
 import sys
@@ -40,6 +41,25 @@ def ask_llm_return_str(prompt, model_name):
     except Exception as e:
         logger.error(f"llm_openai.invoke 异常{e}")
     return output.content
+
+
+def ask_llm_return_json(schemas, template, input, model_name):
+    output_parser = StructuredOutputParser.from_response_schemas(schemas)
+    format_instructions = output_parser.get_format_instructions()
+    llm_openai = ChatOpenAI(model=model_name, openai_api_base=conf.OPENAI_API_BASE, temperature=0.9, streaming=True)
+    prompt = PromptTemplate(
+        template=template,
+        input_variables=["input"],
+        partial_variables={"format_instructions": format_instructions},
+    )
+    chain = prompt | llm_openai | output_parser
+    try:
+        logger.info(f"{model_name}：start chain.run")
+        output = chain.invoke({"input": input})
+        logger.info("end chain.run")
+    except Exception as e:
+        logger.error(f"llm_openai.invoke 异常{e}")
+    return output
 
 
 def clean_json_string(s):
@@ -417,14 +437,27 @@ def insert_loc_in_report(file_name):
     return True
 
 
-def check_med_data_report(ori_report, med_data):
-    report = ""
-    prompt = f"""你的任务是检查医疗数据中的每一项是否都在报告中。\
-        医学数据:{med_data}\n
-        医学报告:{ori_report}\n
-        输出格式:{{"report": "医学报告", "data": "医学数据"}}"""
-    res = ask_llm_return_str(prompt,model_name="gpt-4o")
-    return report
+def check_med_data_report(input, med_data,unit):
+
+    template = """你的任务是按照下列要求，对医学报告###unit###数据的准确性检查，和文本表达改写。要求：
+    1. 检查医疗数据：###med_data###中的每一项是否都包含在医疗报告中，如果医疗数据有多组，那么报告中应该有多个记录。如果医疗数据中医疗实体的值不是‘NA’，但在医学报告中缺失，则在医学报告适当位置插入缺失的医疗数据。如果医疗数据中某个实体对应的值为‘NA’，则在医学报告中删除该实体及其对应数据。
+    2. 医疗数据中的各种日期是与###unit###相关的日期，将这些日期与肿瘤治疗方式、手术等实体放在一起描述；
+    3. 对医学报告中的语言表述按照中国肿瘤科临床医学报告进行同义句转写和结构转换。
+    医学报告:{input}\n
+    输出格式:{format_instructions}""".replace(
+        "###med_data###", json.dumps(med_data, ensure_ascii=False).replace("{", "").replace("}", "")
+    ).replace(
+        "###unit###", unit
+    )
+    schemas = [
+        ResponseSchema(
+            name="更新后的报告",
+            description="",
+        )
+    ]
+    model_output = ask_llm_return_json(schemas, template, input, model_name="gpt-4o")
+    new_report = model_output.get("更新后的报告", "Done")
+    return new_report
 
 
 if __name__ == "__main__":
@@ -436,17 +469,24 @@ if __name__ == "__main__":
 
     # insert_loc_in_report("data_augmentation/dataset_augmentation_append1.json")
     # remove_duplicate()
-    # 查看多少个可多条的比例
-    with open('data/cancer_treatment_1k.json','r',encoding='utf-8') as f:
-        data = json.load(f)
-        num = 0
-        for d in data:
+
+    with open("data/cancer_treatment_zh_recheck.json", "r", encoding="utf-8") as f:
+        existing_recheck_data = json.load(f)
+    with open("data/cancer_treatment_1k.json", "r", encoding="utf-8") as f:
+        # 如果断了，从data从len(extract_1k_en_recheck.json)索引开始
+        original_data = json.load(f)
+        recheck_data = []
+        correct_report = 0
+        i = 1
+        for d in original_data[len(existing_recheck_data):]:
+            i+=1
+            logger.info(f"从第{len(original_data)-len(original_data[len(existing_recheck_data):])+1}条开始")
             report = d["input"]
             output = json.loads(d["output"])
-            med_data = []
-            for item in output:
-                # item的value不是NA才赋值
-                
-                med_data.append()
-            msg = check_med_data_report(report,output)
-    
+            if i%4 == 0:
+                output.append(prompt_dict.generate_domain_unit_zh("出入院记录","肿瘤治疗"))
+            new_report = check_med_data_report(report, output,"肿瘤治疗")
+            recheck_data.append({"instruction":"","input": new_report, "output": d["output"]})
+            recheck_data_combined = existing_recheck_data + recheck_data
+            with open("data/cancer_treatment_zh_recheck.json", "w", encoding="utf-8") as f:
+                json.dump(recheck_data_combined, f, ensure_ascii=False, indent=4)

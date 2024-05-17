@@ -496,7 +496,7 @@ def generate_domain_data(report_type):
         "合并疾病":3,
         "治疗用药方案": 3,
         "影像学": 3,
-        "肿瘤治疗":4
+        "肿瘤治疗":3
     }
     # 从相应的报告类型中取出一些unit_name
     selected_data = {}
@@ -541,6 +541,11 @@ def generate_domain_unit_en(report_type,unit_name):
         else:
             en_unit_domain[mapping_loc_zh_en(k_zh)] = mapping_loc_zh_en(v_zh)
     return en_unit_domain
+
+
+def generate_domain_unit_zh(report_type, unit_name):
+    res = generate_domain_data(report_type).get(unit_name, [])
+    return res
 
 
 def get_locVal(report_type, loc):

@@ -7,7 +7,7 @@ import random
 import google_translate
 import sys
 from pypinyin import Style, pinyin
-
+import pandas as pd
 sys.path.append(".")
 from data_augmentation import prompt_dict
 
@@ -226,6 +226,37 @@ def transfer_output_format(file_path):
         with open(file_path, "w", encoding="utf-8") as f_new:
             json.dump(data, f_new, indent=4, ensure_ascii=False)
 
+# 从标注系统的excel中读取
+def process_ds_excel(excel_path,write_path):
+    df = pd.read_excel(excel_path, na_values=["null"])
+    ds_list = []
+    for index, row in df.iterrows():
+        ds_item = {}
+        if row["category"] not in ["门诊病历"]:
+            continue
+        report = row["ocr_result"]
+        if pd.isna(row["native_result_custom"]):
+            continue
+        extract_result = json.loads(row["native_result_custom"])
+        cancer_treatment_unit = extract_result.get("肿瘤治疗",[])
+        if cancer_treatment_unit and isinstance(cancer_treatment_unit,dict):
+            cancer_treatment_unit = [cancer_treatment_unit]
+        cancer_treatment_list = []
+        for item in cancer_treatment_unit:
+            cancer_treatment_list.append(
+                {
+                    "手术部位": item.get("手术部位", ""),
+                    "治疗开始日期": item.get("治疗开始日期", ""),
+                    "治疗用药名称": item.get("治疗用药名称", ""),
+                    "治疗结束日期": item.get("治疗结束日期", ""),
+                    "肿瘤具体治疗方式": item.get("肿瘤具体治疗方式", ""),
+                }
+            )
+        ds_list.append({"instruction": "", "input": report, "output": json.dumps(cancer_treatment_list, ensure_ascii=False)})
+    with open(write_path, "w", encoding="utf-8") as f:
+        json.dump(ds_list, f, indent=4, ensure_ascii=False)
+
+    return 
 
 def json_to_jsonl_or_json(input_file_path, output_file_path):
     # Determine input data type based on file extension
@@ -292,7 +323,8 @@ if __name__ == "__main__":
     import os
 
     print(os.getcwd())
-    split_data_to_unit("data/extract1k_en.json", "Cancer treatment")
+    process_ds_excel("C:/Users/Administrator/Documents/结构化/ds_image_202405171543.xlsx","data/cancer_treatment_zh_recheck.json")
+    # split_data_to_unit("data/extract1k_en.json", "Cancer treatment")
     # json<->jsonl(baidu)
     # json_to_jsonl_or_json( "nex_dataset/train/extract1k_en.jsonl","data/extract1k_en.json")
 
@@ -317,37 +349,37 @@ if __name__ == "__main__":
     #     json.dump(new_data, f_new, indent=4, ensure_ascii=False)
 
     # 读取txt文件写入数据,txt文件中是多个json
-    data_list = []
-    with open(
-        "c:/Users/Administrator/Documents/结构化/subtask1_train/subtask1_train/subtask1_training_part1.txt",
-        "r",
-        encoding="utf-8-sig",
-    ) as f:
-        data1 = f.readlines()
-    with open(
-        "c:/Users/Administrator/Documents/结构化/subtask1_train/subtask1_train/subtask1_training_part2.txt",
-        "r",
-        encoding="utf-8-sig",
-    ) as f:
-        data2 = f.readlines()
-    data = data1 + data2
-    for line in data:
-        # 解析 JSON 格式的数据
-        try:
-            json_data = json.loads(line)
-            output = [
-                {"label_type": x["label_type"], "label_content": json_data["originalText"][x["start_pos"] : x["end_pos"]]}
-                for x in json_data["entities"]
-            ]
-        except:
-            print(line)
-            continue
-        # 将解析后的数据添加到列表中
-        data_list.append(
-            {"instruction": "", "input": json_data["originalText"], "output": json.dumps(output, ensure_ascii=False)}
-        )
-    with open("data/extract_other2_zh.json", "w", encoding="utf-8") as f:
-        json.dump(data_list, f, indent=4, ensure_ascii=False)
+    # data_list = []
+    # with open(
+    #     "c:/Users/Administrator/Documents/结构化/subtask1_train/subtask1_train/subtask1_training_part1.txt",
+    #     "r",
+    #     encoding="utf-8-sig",
+    # ) as f:
+    #     data1 = f.readlines()
+    # with open(
+    #     "c:/Users/Administrator/Documents/结构化/subtask1_train/subtask1_train/subtask1_training_part2.txt",
+    #     "r",
+    #     encoding="utf-8-sig",
+    # ) as f:
+    #     data2 = f.readlines()
+    # data = data1 + data2
+    # for line in data:
+    #     # 解析 JSON 格式的数据
+    #     try:
+    #         json_data = json.loads(line)
+    #         output = [
+    #             {"label_type": x["label_type"], "label_content": json_data["originalText"][x["start_pos"] : x["end_pos"]]}
+    #             for x in json_data["entities"]
+    #         ]
+    #     except:
+    #         print(line)
+    #         continue
+    #     # 将解析后的数据添加到列表中
+    #     data_list.append(
+    #         {"instruction": "", "input": json_data["originalText"], "output": json.dumps(output, ensure_ascii=False)}
+    #     )
+    # with open("data/extract_other2_zh.json", "w", encoding="utf-8") as f:
+    #     json.dump(data_list, f, indent=4, ensure_ascii=False)
     # TODO 单元层级--prompt ?
     # 翻译中文数据集至英文，Google translate
     # translate_zh_dataset("data/extract512_zh_v2.json")
