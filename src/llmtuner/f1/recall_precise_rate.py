@@ -287,8 +287,12 @@ class F1score:
                             error_keys.append({key: "key not exist in answer"})
 
                     # 计算 Precision 和 Recall
-                    precision = ce / (ce + ie + se) if (ce + ie + se) > 0 else 0
-                    recall = ce / (ce + me) if (ce + me) > 0 else 0
+                    if ce==0 and ie==0 and me==0 and se==0:
+                        precision = 1
+                        recall = 1
+                    else:
+                        precision = ce / (ce + ie + se) if (ce + ie + se) > 0 else 0
+                        recall = ce / (ce + me) if (ce + me) > 0 else 0
 
             return {
                 "correct_extraction": ce,
