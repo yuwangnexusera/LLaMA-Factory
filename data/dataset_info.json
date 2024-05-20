@@ -496,7 +496,10 @@
   "cancer_treatment_en": {
     "file_name": "cancer_treatment_1k_en.json"
   },
-    "cancer_treatment_label100": {
+    "cancer_treatment_label": {
       "file_name": "cancer_treatment_zh_label.json"
+    },
+    "pathology_label": {
+      "file_name": "pathology_zh_label.json"
     }
 }
