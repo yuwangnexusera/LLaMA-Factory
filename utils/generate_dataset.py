@@ -319,7 +319,7 @@ if __name__ == "__main__":
     import os
 
     print(os.getcwd())
-    process_ds_excel("C:/Users/Administrator/Documents/结构化/ds_image_202405171543.xlsx","data/pathology_zh.json","病理")
+    process_ds_excel("C:/Users/Administrator/Documents/结构化/ds_image_202405171543.xlsx","data/gene_zh_label.json","基因检测")
     # split_data_to_unit("data/extract1k_en.json", "Cancer treatment")
     # json<->jsonl(baidu)
     # json_to_jsonl_or_json( "nex_dataset/train/extract1k_en.jsonl","data/extract1k_en.json")
