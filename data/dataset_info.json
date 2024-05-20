@@ -490,19 +490,22 @@
   "medical_report_extract512_en_NA": {
     "file_name": "extract512_en_na.json"
   },
-  "cancer_treatment":{
+  "cancer_treatment": {
     "file_name": "cancer_treatment_1k.json"
   },
   "cancer_treatment_en": {
     "file_name": "cancer_treatment_1k_en.json"
   },
-    "cancer_treatment_label": {
-      "file_name": "cancer_treatment_zh_label.json"
-    },
-    "pathology_label": {
-      "file_name": "pathology_zh_label.json"
-    },
-    "gene_label": {
-      "file_name": "gene_zh_label.json"
-    }
+  "cancer_treatment_label": {
+    "file_name": "cancer_treatment_zh_label.json"
+  },
+  "pathology_label": {
+    "file_name": "pathology_zh_label.json"
+  },
+  "gene_label": {
+    "file_name": "gene_zh_label.json"
+  },
+  "drug_label": {
+    "file_name": "drug_zh_label.json"
+  }
 }
