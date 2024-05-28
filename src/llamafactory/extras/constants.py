@@ -22,8 +22,6 @@ FILEEXT2TYPE = {
 
 IGNORE_INDEX = -100
 
-IMAGE_TOKEN = "<image>"
-
 LAYERNORM_NAMES = {"norm", "ln"}
 
 METHODS = ["full", "freeze", "lora"]
@@ -86,6 +84,19 @@ def register_model_group(
         DEFAULT_TEMPLATE[prefix] = template
     if vision:
         VISION_MODELS.add(prefix)
+
+
+register_model_group(
+    models={
+        "Aya-23-8B-Chat": {
+            DownloadSource.DEFAULT: "CohereForAI/aya-23-8B",
+        },
+        "Aya-23-35B-Chat": {
+            DownloadSource.DEFAULT: "CohereForAI/aya-23-35B",
+        },
+    },
+    template="cohere",
+)
 
 
 register_model_group(
@@ -327,6 +338,7 @@ register_model_group(
         },
         "DeepSeek-MoE-16B-v2-Base": {
             DownloadSource.DEFAULT: "deepseek-ai/DeepSeek-V2-Lite",
+            DownloadSource.MODELSCOPE: "deepseek-ai/DeepSeek-V2-Lite",
         },
         "DeepSeek-MoE-236B-Base": {
             DownloadSource.DEFAULT: "deepseek-ai/DeepSeek-V2",
@@ -338,6 +350,7 @@ register_model_group(
         },
         "DeepSeek-MoE-16B-v2-Chat": {
             DownloadSource.DEFAULT: "deepseek-ai/DeepSeek-V2-Lite-Chat",
+            DownloadSource.MODELSCOPE: "deepseek-ai/DeepSeek-V2-Lite-Chat",
         },
         "DeepSeek-MoE-236B-Chat": {
             DownloadSource.DEFAULT: "deepseek-ai/DeepSeek-V2-Chat",
@@ -430,6 +443,12 @@ register_model_group(
             DownloadSource.DEFAULT: "google/gemma-7b-it",
             DownloadSource.MODELSCOPE: "AI-ModelScope/gemma-7b-it",
         },
+        "Gemma-1.1-2B-Chat": {
+            DownloadSource.DEFAULT: "google/gemma-1.1-2b-it",
+        },
+        "Gemma-1.1-7B-Chat": {
+            DownloadSource.DEFAULT: "google/gemma-1.1-7b-it",
+        },
     },
     template="gemma",
 )
@@ -437,15 +456,18 @@ register_model_group(
 
 register_model_group(
     models={
-        "CodeGemma-2B": {
-            DownloadSource.DEFAULT: "google/codegemma-1.1-2b",
-        },
         "CodeGemma-7B": {
             DownloadSource.DEFAULT: "google/codegemma-7b",
         },
         "CodeGemma-7B-Chat": {
-            DownloadSource.DEFAULT: "google/codegemma-1.1-7b-it",
+            DownloadSource.DEFAULT: "google/codegemma-7b-it",
             DownloadSource.MODELSCOPE: "AI-ModelScope/codegemma-7b-it",
+        },
+        "CodeGemma-1.1-2B": {
+            DownloadSource.DEFAULT: "google/codegemma-1.1-2b",
+        },
+        "CodeGemma-1.1-7B-Chat": {
+            DownloadSource.DEFAULT: "google/codegemma-1.1-7b-it",
         },
     },
     template="gemma",
@@ -635,6 +657,12 @@ register_model_group(
             DownloadSource.DEFAULT: "mistralai/Mistral-7B-Instruct-v0.2",
             DownloadSource.MODELSCOPE: "AI-ModelScope/Mistral-7B-Instruct-v0.2",
         },
+        "Mistral-7B-v0.3": {
+            DownloadSource.DEFAULT: "mistralai/Mistral-7B-v0.3",
+        },
+        "Mistral-7B-v0.3-Chat": {
+            DownloadSource.DEFAULT: "mistralai/Mistral-7B-Instruct-v0.3",
+        },
     },
     template="mistral",
 )
@@ -656,6 +684,7 @@ register_model_group(
         },
         "Mixtral-8x22B-v0.1-Chat": {
             DownloadSource.DEFAULT: "mistralai/Mixtral-8x22B-Instruct-v0.1",
+            DownloadSource.MODELSCOPE: "AI-ModelScope/Mixtral-8x22B-Instruct-v0.1",
         },
     },
     template="mistral",
@@ -669,6 +698,9 @@ register_model_group(
         },
         "OLMo-7B": {
             DownloadSource.DEFAULT: "allenai/OLMo-7B-hf",
+        },
+        "OLMo-7B-Chat": {
+            DownloadSource.DEFAULT: "ssec-uw/OLMo-7B-Instruct-hf",
         },
         "OLMo-1.7-7B": {
             DownloadSource.DEFAULT: "allenai/OLMo-1.7-7B-hf",
@@ -685,6 +717,16 @@ register_model_group(
         }
     },
     template="openchat",
+)
+
+
+register_model_group(
+    models={
+        "OpenChat3.6-8B-Chat": {
+            DownloadSource.DEFAULT: "openchat/openchat-3.6-8b-20240522",
+        }
+    },
+    template="openchat-3.6",
 )
 
 
@@ -719,18 +761,23 @@ register_model_group(
     models={
         "PaliGemma-3B-pt-224": {
             DownloadSource.DEFAULT: "google/paligemma-3b-pt-224",
+            DownloadSource.MODELSCOPE: "AI-ModelScope/paligemma-3b-pt-224",
         },
         "PaliGemma-3B-pt-448": {
             DownloadSource.DEFAULT: "google/paligemma-3b-pt-448",
+            DownloadSource.MODELSCOPE: "AI-ModelScope/paligemma-3b-pt-448",
         },
         "PaliGemma-3B-pt-896": {
             DownloadSource.DEFAULT: "google/paligemma-3b-pt-896",
+            DownloadSource.MODELSCOPE: "AI-ModelScope/paligemma-3b-pt-896",
         },
         "PaliGemma-3B-mix-224": {
             DownloadSource.DEFAULT: "google/paligemma-3b-mix-224",
+            DownloadSource.MODELSCOPE: "AI-ModelScope/paligemma-3b-mix-224",
         },
         "PaliGemma-3B-mix-448": {
             DownloadSource.DEFAULT: "google/paligemma-3b-mix-448",
+            DownloadSource.MODELSCOPE: "AI-ModelScope/paligemma-3b-mix-448",
         },
     },
     vision=True,
@@ -753,13 +800,29 @@ register_model_group(
 
 register_model_group(
     models={
-        "Phi3-3.8B-4k-Chat": {
+        "Phi3-4B-4k-Chat": {
             DownloadSource.DEFAULT: "microsoft/Phi-3-mini-4k-instruct",
             DownloadSource.MODELSCOPE: "LLM-Research/Phi-3-mini-4k-instruct",
         },
-        "Phi3-3.8B-128k-Chat": {
+        "Phi3-4B-128k-Chat": {
             DownloadSource.DEFAULT: "microsoft/Phi-3-mini-128k-instruct",
             DownloadSource.MODELSCOPE: "LLM-Research/Phi-3-mini-128k-instruct",
+        },
+        "Phi3-7B-8k-Chat": {
+            DownloadSource.DEFAULT: "microsoft/Phi-3-small-8k-instruct",
+            DownloadSource.MODELSCOPE: "LLM-Research/Phi-3-small-8k-instruct",
+        },
+        "Phi3-7B-128k-Chat": {
+            DownloadSource.DEFAULT: "microsoft/Phi-3-small-128k-instruct",
+            DownloadSource.MODELSCOPE: "LLM-Research/Phi-3-small-128k-instruct",
+        },
+        "Phi3-14B-8k-Chat": {
+            DownloadSource.DEFAULT: "microsoft/Phi-3-medium-4k-instruct",
+            DownloadSource.MODELSCOPE: "LLM-Research/Phi-3-medium-4k-instruct",
+        },
+        "Phi3-14B-128k-Chat": {
+            DownloadSource.DEFAULT: "microsoft/Phi-3-medium-128k-instruct",
+            DownloadSource.MODELSCOPE: "LLM-Research/Phi-3-medium-128k-instruct",
         },
     },
     module="qkv_proj",
