@@ -74,53 +74,64 @@ def mapping_comorbid_disease(comorbid_disease):
     return new_comorbid_disease
 
 if __name__ == "__main__":
-    from selenium import webdriver
-    from selenium.webdriver.common.keys import Keys
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.support.ui import WebDriverWait
-    from selenium.webdriver.support import expected_conditions as EC
-    import time
 
-    # 启动 Chrome 浏览器
-    driver = webdriver.Chrome()
+    import pytesseract
+    from pytesseract import Output
+    import cv2
+    import json
+    import os
+    # 如果Tesseract未添加到系统PATH中，明确指定Tesseract的路径
+    pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+    # 如果Tesseract未添加到系统PATH中，明确指定Tesseract的路径
 
-    try:
-        # 打开目标网页
-        driver.get("https://chatgpt.com/c/3a8f6d61-3b5c-4aad-acb2-58c5ec3d9795")
 
-        # 等待页面加载
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "prompt-textarea")))
+    # 设置TESSDATA_PREFIX环境变量
+    os.environ['TESSDATA_PREFIX'] = r'C:\Program Files\Tesseract-OCR\tessdata'
+    # 加载图像
+    image_path = "C:\\Users\\Administrator\\Documents\\20240526-153512.jpg"  # 替换为您的图像路径
+    image = cv2.imread(image_path)
 
-        # 如果需要登录，找到并填写登录表单
-        username_field = driver.find_element(By.NAME, "username")
-        password_field = driver.find_element(By.NAME, "password")
+    # 设置Tesseract OCR进行中文识别
+    custom_config = r"--oem 3 --psm 6 -l chi_sim"  # 使用简体中文语言包
+    data = pytesseract.image_to_data(image, output_type=Output.DICT, config=custom_config)
 
-        # 输入用户名和密码（替换为你的登录信息）
-        username_field.send_keys("your_username")
-        password_field.send_keys("your_password")
+    # 解析识别结果并保留表格结构
+    table_data = []
+    n_boxes = len(data["level"])
 
-        # 提交登录表单
-        password_field.send_keys(Keys.RETURN)
+    for i in range(n_boxes):
+        if data["text"][i].strip():  # 过滤掉空白文本
+            cell = {
+                "text": data["text"][i],
+                "left": data["left"][i],
+                "top": data["top"][i],
+                "width": data["width"][i],
+                "height": data["height"][i],
+            }
+            table_data.append(cell)
 
-        # 等待登录完成
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "prompt-textarea")))
+    # 按照行和列组织数据
+    rows = {}
+    for cell in table_data:
+        row = cell["top"] // 10  # 根据实际情况调整10的值
+        if row not in rows:
+            rows[row] = []
+        rows[row].append(cell)
 
-        # 找到文本框
-        text_area = driver.find_element(By.ID, "prompt-textarea")
+    # 将数据组织成JSON格式
+    organized_data = []
+    for row in sorted(rows.keys()):
+        sorted_cells = sorted(rows[row], key=lambda x: x["left"])
+        organized_data.append(sorted_cells)
 
-        # 发送消息
-        message = "Hello, ChatGPT!"
-        text_area.send_keys(message)
+    # 输出为JSON格式
+    output_json = json.dumps(organized_data, indent=4, ensure_ascii=False)
+    print(output_json)
 
-        # 模拟按下回车键发送消息
-        text_area.send_keys(Keys.RETURN)
-
-        # 等待一会儿以观察结果
-        time.sleep(5)
-
-    finally:
-        # 关闭浏览器
-        driver.quit()
+    # 将JSON保存到文件
+    output_file_path = "output.json"
+    with open(output_file_path, "w", encoding="utf-8") as f:
+        f.write(output_json)
 
 
 # with open("nex_dataset/test/extract_with_unit.json", "r", encoding="utf-8") as f:

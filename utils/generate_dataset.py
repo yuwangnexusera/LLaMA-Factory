@@ -1,5 +1,5 @@
 import re
-from db_unit_dataset import *
+from utils.ds_label import *
 from playhouse.shortcuts import (
     model_to_dict,
 )
@@ -227,29 +227,6 @@ def transfer_output_format(file_path):
             json.dump(data, f_new, indent=4, ensure_ascii=False)
 
 # 从标注系统的excel中读取 ☆☆☆☆☆☆☆
-def process_ds_excel(excel_path,write_path,unit_name):
-    df = pd.read_excel(excel_path, na_values=["null"])
-    df = df.drop_duplicates(subset="url")
-    ds_list = []
-    for index, row in df.iterrows():
-        ds_item = {}
-        if row["category"] in ["出入院记录"]:
-            continue
-        report = row["ocr_result"]
-        if pd.isna(row["native_result_custom"]):
-            continue
-        extract_result = json.loads(row["native_result_custom"])
-        e_res_unit = extract_result.get(unit_name, [])
-        if e_res_unit and isinstance(e_res_unit, dict):
-            e_res_unit = [e_res_unit]
-        res_list = []
-        for item in e_res_unit:
-            res_list.append({loc: item.get(loc, "NA") for loc in prompt_dict._default_unit_locs.get(unit_name, [])})
-        ds_list.append({"instruction": "", "input": report, "output": json.dumps(res_list, ensure_ascii=False)})
-    with open(write_path, "w", encoding="utf-8") as f:
-        json.dump(ds_list, f, indent=4, ensure_ascii=False)
-
-    return True
 
 def json_to_jsonl_or_json(input_file_path, output_file_path):
     # Determine input data type based on file extension
@@ -317,7 +294,6 @@ if __name__ == "__main__":
     import os
 
     print(os.getcwd())
-    process_ds_excel("C:/Users/Administrator/Documents/结构化/ds_image_202405171543.xlsx","data/drug_zh_label.json","治疗用药方案")
     # split_data_to_unit("data/extract1k_en.json", "Cancer treatment")
     # json<->jsonl(baidu)
     # json_to_jsonl_or_json( "nex_dataset/train/extract1k_en.jsonl","data/extract1k_en.json")
