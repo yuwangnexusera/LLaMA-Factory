@@ -1,0 +1,2 @@
+model_name_or_path: ../download_model/models--aaditya--Llama3-OpenBioLLM-8B
+template: llama3

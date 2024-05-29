@@ -5,6 +5,7 @@ from logging import Logger
 import pandas as pd
 import json
 from utils import ds_label_wrapper 
+from sft_prompt import sft_unit_prompt
 # default-locations包含不绑定报告类型日期的其他点位，包含报告类型日期的将在后续@wy TODO 补充
 class AlignDataset:
     def __init__(self, unit_name):
@@ -40,7 +41,7 @@ class AlignDataset:
                 target_unit_data = [target_unit_data]
             for index, unit_data in enumerate(target_unit_data):
                 res = self.fill_na_by_locs(unit_data)
-                self.unit_ds.append({"instruction":"@wy TODO 微调的prompt","input": data["ocr"], "output": json.dumps(res, ensure_ascii=False)})
+                self.unit_ds.append({"instruction":sft_unit_prompt.get(self.unit_name,""),"input": data["ocr"], "output": json.dumps(res, ensure_ascii=False)})
         return self.unit_ds
 
 
