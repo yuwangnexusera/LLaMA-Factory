@@ -544,8 +544,13 @@ _register_template(
             )
         ]
     ),
-    format_system=EmptyFormatter(slots=[{"bos_token"}]),
-    force_system=True,
+    format_system=StringFormatter(
+        slots=[{"bos_token"}, "<|START_OF_TURN_TOKEN|><|SYSTEM_TOKEN|>{{content}}<|END_OF_TURN_TOKEN|>"]
+    ),
+    default_system=(
+        "You are Command-R, a brilliant, sophisticated, AI-assistant trained to assist human users "
+        "by providing thorough responses. You are trained by Cohere."
+    ),
 )
 
 
@@ -819,6 +824,15 @@ _register_template(
     stop_words=["<|end|>"],
     replace_eos=True,
     force_system=True,
+)
+
+
+_register_template(
+    name="telechat",
+    format_user=StringFormatter(slots=["<_user>{{content}}<_bot>"]),
+    format_system=StringFormatter(slots=["<_system>{{content}}<_end>"]),
+    stop_words=["<_end>"],
+    replace_eos=True,
 )
 
 
