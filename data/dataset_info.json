@@ -550,6 +550,6 @@
     "file_name": "gene_zh_label.json"
   },
   "drug_label": {
-    "file_name": "drug_zh_label.json"
+    "file_name": "drug_treatment_plan_recheck_zh.json"
   }
 }

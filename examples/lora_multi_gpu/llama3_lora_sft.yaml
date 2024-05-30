@@ -16,7 +16,7 @@ lora_rank=8,
 lora_target="all",
 ### ddp
 ddp_timeout: 180000000
-
+deepspeed: examples/deepspeed/ds_z3_config.json
 # resume_from_checkpoint =output_model_dir,
 # use_unsloth=True,   
 # train_on_prompt=True,
