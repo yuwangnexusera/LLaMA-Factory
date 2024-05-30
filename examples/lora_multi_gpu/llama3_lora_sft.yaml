@@ -1,22 +1,21 @@
 ### model
-model_name_or_path: ../download_model/models--aaditya--Llama3-OpenBioLLM-8B
+model_name_or_path: ../download_model/models--shenzhi-wang--Llama3-8B-Chinese-Chat
 
 ### method
 stage: sft
 do_train: true
 do_eval: true
 finetuning_type: lora
-lora_target: q_proj,v_proj
+lora_target: all
 
 ### lora
 
-lora_dropout = 0.05,
-lora_rank=8,
+lora_dropout: 0.05
+#lora_rank: 8,
 # lora_alpha=16,
-lora_target="all",
 ### ddp
 ddp_timeout: 180000000
-deepspeed: examples/deepspeed/ds_z3_config.json
+deepspeed: examples/deepspeed/ds_z3_offload_config.json
 # resume_from_checkpoint =output_model_dir,
 # use_unsloth=True,   
 # train_on_prompt=True,
@@ -41,9 +40,9 @@ plot_loss: true
 overwrite_output_dir: true
 
 ### train
-per_device_train_batch_size: 4
+per_device_train_batch_size: 2
 gradient_accumulation_steps: 1
-learning_rate: 5e-6
+learning_rate: 0.000005
 num_train_epochs: 4.0
 lr_scheduler_type: cosine
 warmup_steps: 0.1
@@ -52,12 +51,9 @@ fp16: true
 
 ### eval
 val_size: 0.1
-per_device_eval_batch_size: 2
+per_device_eval_batch_size: 1
 evaluation_strategy: steps
-eval_steps: 500
-
-### merge
-merged_model_path: ../merged_models/extract_llama3
+eval_steps: 60
 
 ### key
 hf_hub_token: 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
