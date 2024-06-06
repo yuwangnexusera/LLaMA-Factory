@@ -10,7 +10,7 @@ from trl import DPOTrainer
 from trl.trainer import disable_dropout_in_model
 
 from ...extras.constants import IGNORE_INDEX
-from ..utils import create_custom_optimzer, create_custom_scheduler
+from ..utils import create_custom_optimzer, create_custom_scheduler, get_ref_context
 
 
 if TYPE_CHECKING:
@@ -69,6 +69,7 @@ class CustomDPOTrainer(DPOTrainer):
                     self.ref_model = self._prepare_deepspeed(self.ref_model)
             else:
                 self.ref_model = self.accelerator.prepare_model(self.ref_model, evaluation_mode=True)
+                self.ref_model.eval()
 
         if finetuning_args.use_badam:
             from badam import clip_grad_norm_for_sparse_tensor
@@ -91,18 +92,6 @@ class CustomDPOTrainer(DPOTrainer):
         if self.processor is not None:
             output_dir = output_dir if output_dir is not None else self.args.output_dir
             getattr(self.processor, "image_processor").save_pretrained(output_dir)
-
-    def sft_loss(self, batch: Dict[str, "torch.Tensor"], chosen_logits: "torch.FloatTensor") -> "torch.Tensor":
-        r"""
-        Computes supervised cross-entropy loss of given labels under the given logits.
-
-        Returns:
-            A tensor of shape (batch_size,) containing the cross-entropy loss of each samples.
-        """
-        batch_size = batch["input_ids"].size(0) // 2
-        chosen_labels, _ = batch["labels"].split(batch_size, dim=0)
-        chosen_logps = self.get_batch_logps(chosen_logits, chosen_labels, average_log_prob=True)
-        return -chosen_logps
 
     def odds_ratio_loss(self, chosen_logps: "torch.Tensor", rejected_logps: "torch.Tensor") -> "torch.Tensor":
         r"""
@@ -155,9 +144,9 @@ class CustomDPOTrainer(DPOTrainer):
 
     def concatenated_forward(
         self, model: "PreTrainedModel", batch: Dict[str, "torch.Tensor"]
-    ) -> Tuple["torch.Tensor", "torch.Tensor", "torch.Tensor", "torch.Tensor"]:
+    ) -> Tuple["torch.Tensor", "torch.Tensor", "torch.Tensor", "torch.Tensor", "torch.Tensor"]:
         r"""
-        Computes the sum log probabilities of the labels under the given logits if loss_type != IPO.
+        Computes the sum log probabilities of the labels under given logits if loss_type is not IPO, ORPO or SimPO.
 
         Otherwise the average log probabilities.
         """
@@ -166,17 +155,20 @@ class CustomDPOTrainer(DPOTrainer):
 
         all_logits: "torch.Tensor" = model(**batch, return_dict=True, use_cache=False).logits.to(torch.float32)
 
-        all_logps = self.get_batch_logps(
+        all_logps, valid_length = self.get_batch_logps(
             logits=all_logits,
             labels=batch["labels"],
-            average_log_prob=(self.loss_type in ["ipo", "orpo", "simpo"]),
             is_encoder_decoder=self.is_encoder_decoder,
             label_pad_token_id=self.label_pad_token_id,
         )
+        if self.loss_type in ["ipo", "orpo", "simpo"]:
+            all_logps = all_logps / valid_length
+
         batch_size = batch["input_ids"].size(0) // 2
         chosen_logps, rejected_logps = all_logps.split(batch_size, dim=0)
         chosen_logits, rejected_logits = all_logits.split(batch_size, dim=0)
-        return chosen_logps, rejected_logps, chosen_logits, rejected_logits
+        chosen_length, _ = valid_length.split(batch_size, dim=0)
+        return chosen_logps, rejected_logps, chosen_logits, rejected_logits, chosen_logps / chosen_length
 
     def compute_reference_log_probs(
         self, model: "PreTrainedModel", batch: Dict[str, "torch.Tensor"]
@@ -189,7 +181,7 @@ class CustomDPOTrainer(DPOTrainer):
 
         if self.ref_model is None:
             ref_model = model
-            ref_context = self.accelerator.unwrap_model(model).disable_adapter()
+            ref_context = get_ref_context(self.accelerator, model)
         else:
             ref_model = self.ref_model
             ref_context = nullcontext()
@@ -198,6 +190,7 @@ class CustomDPOTrainer(DPOTrainer):
             (
                 reference_chosen_logps,
                 reference_rejected_logps,
+                _,
                 _,
                 _,
             ) = self.concatenated_forward(ref_model, batch)
@@ -219,6 +212,7 @@ class CustomDPOTrainer(DPOTrainer):
             policy_rejected_logps,
             policy_chosen_logits,
             policy_rejected_logits,
+            policy_chosen_logps_avg,
         ) = self.concatenated_forward(model, batch)
 
         reference_chosen_logps, reference_rejected_logps = self.compute_reference_log_probs(model, batch)
@@ -228,7 +222,7 @@ class CustomDPOTrainer(DPOTrainer):
             reference_chosen_logps,
             reference_rejected_logps,
         )
-        sft_loss = self.sft_loss(batch, policy_chosen_logits)  # compute chosen_logps with masks
+        sft_loss = -policy_chosen_logps_avg
         if self.ftx_gamma > 1e-6:
             losses += self.ftx_gamma * sft_loss
 

@@ -1,18 +1,16 @@
 import os
-import signal
 from copy import deepcopy
 from subprocess import Popen, TimeoutExpired
 from typing import TYPE_CHECKING, Any, Dict, Generator, Optional
 
-import psutil
 from transformers.trainer import TRAINING_ARGS_NAME
 
 from ..extras.constants import PEFT_METHODS, TRAINING_STAGES
 from ..extras.misc import is_gpu_or_npu_available, torch_gc
 from ..extras.packages import is_gradio_available
-from .common import DEFAULT_CACHE_DIR, get_module, get_save_dir, load_config
+from .common import DEFAULT_CACHE_DIR, get_save_dir, load_config
 from .locales import ALERTS
-from .utils import gen_cmd, get_eval_results, get_trainer_info, load_args, save_args, save_cmd
+from .utils import abort_leaf_process, gen_cmd, get_eval_results, get_trainer_info, load_args, save_args, save_cmd
 
 
 if is_gradio_available():
@@ -40,8 +38,7 @@ class Runner:
     def set_abort(self) -> None:
         self.aborted = True
         if self.trainer is not None:
-            for children in psutil.Process(self.trainer.pid).children():  # abort the child process
-                os.kill(children.pid, signal.SIGABRT)
+            abort_leaf_process(self.trainer.pid)
 
     def _initialize(self, data: Dict["Component", Any], do_train: bool, from_preview: bool) -> str:
         get = lambda elem_id: data[self.manager.get_elem_by_id(elem_id)]
@@ -64,10 +61,15 @@ class Runner:
             return ALERTS["err_demo"][lang]
 
         if do_train:
+            if not get("train.output_dir"):
+                return ALERTS["err_no_output_dir"][lang]
+
             stage = TRAINING_STAGES[get("train.training_stage")]
-            reward_model = get("train.reward_model")
-            if stage == "ppo" and not reward_model:
+            if stage == "ppo" and not get("train.reward_model"):
                 return ALERTS["err_no_reward_model"][lang]
+        else:
+            if not get("eval.output_dir"):
+                return ALERTS["err_no_output_dir"][lang]
 
         if not from_preview and not is_gpu_or_npu_available():
             gr.Warning(ALERTS["warn_no_cuda"][lang])
@@ -130,6 +132,7 @@ class Runner:
             pure_bf16=(get("train.compute_type") == "pure_bf16"),
             plot_loss=True,
             ddp_timeout=180000000,
+            include_num_input_tokens_seen=True,
         )
 
         # checkpoints
@@ -156,7 +159,7 @@ class Runner:
             args["create_new_adapter"] = get("train.create_new_adapter")
             args["use_rslora"] = get("train.use_rslora")
             args["use_dora"] = get("train.use_dora")
-            args["lora_target"] = get("train.lora_target") or get_module(model_name)
+            args["lora_target"] = get("train.lora_target") or "all"
             args["additional_target"] = get("train.additional_target") or None
 
             if args["use_llama_pro"]:
@@ -198,7 +201,7 @@ class Runner:
         # eval config
         if get("train.val_size") > 1e-6 and args["stage"] != "ppo":
             args["val_size"] = get("train.val_size")
-            args["evaluation_strategy"] = "steps"
+            args["eval_strategy"] = "steps"
             args["eval_steps"] = args["save_steps"]
             args["per_device_eval_batch_size"] = args["per_device_train_batch_size"]
 

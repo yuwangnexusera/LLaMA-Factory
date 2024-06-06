@@ -101,13 +101,17 @@ class ModelArguments:
         default=False,
         metadata={"help": "Whether or not to upcast the output of lm_head in fp32."},
     )
+    train_from_scratch: bool = field(
+        default=False,
+        metadata={"help": "Whether or not to randomly initialize the model weights."},
+    )
     infer_backend: Literal["huggingface", "vllm"] = field(
         default="huggingface",
         metadata={"help": "Backend engine used at inference."},
     )
     vllm_maxlen: int = field(
         default=2048,
-        metadata={"help": "Maximum input length of the vLLM engine."},
+        metadata={"help": "Maximum sequence (prompt + response) length of the vLLM engine."},
     )
     vllm_gpu_util: float = field(
         default=0.9,
@@ -120,6 +124,10 @@ class ModelArguments:
     vllm_max_lora_rank: int = field(
         default=8,
         metadata={"help": "Maximum rank of all LoRAs in the vLLM engine."},
+    )
+    vllm_dtype: Literal["auto", "float16", "bfloat16", "float32"] = field(
+        default="auto",
+        metadata={"help": "Data type for model weights and activations in the vLLM engine."},
     )
     offload_folder: str = field(
         default="offload",
@@ -145,9 +153,9 @@ class ModelArguments:
         default=1,
         metadata={"help": "The file shard size (in GB) of the exported model."},
     )
-    export_device: Literal["cpu", "cuda"] = field(
+    export_device: Literal["cpu", "auto"] = field(
         default="cpu",
-        metadata={"help": "The device used in model export, use cuda to avoid addmm errors."},
+        metadata={"help": "The device used in model export, use `auto` to accelerate exporting."},
     )
     export_quantization_bit: Optional[int] = field(
         default=None,
