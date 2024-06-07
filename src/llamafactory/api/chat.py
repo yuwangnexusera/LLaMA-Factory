@@ -1,3 +1,5 @@
+import base64
+import io
 import json
 import os
 import uuid
@@ -5,7 +7,7 @@ from typing import TYPE_CHECKING, AsyncGenerator, Dict, List, Optional, Tuple
 
 from ..data import Role as DataRole
 from ..extras.logging import get_logger
-from ..extras.packages import is_fastapi_available, is_pillow_available
+from ..extras.packages import is_fastapi_available, is_pillow_available, is_requests_available
 from .common import dictify, jsonify
 from .protocol import (
     ChatCompletionMessage,
@@ -27,8 +29,11 @@ if is_fastapi_available():
 
 
 if is_pillow_available():
-    import requests
     from PIL import Image
+
+
+if is_requests_available():
+    import requests
 
 
 if TYPE_CHECKING:
@@ -83,9 +88,12 @@ def _process_request(
                     input_messages.append({"role": ROLE_MAPPING[message.role], "content": input_item.text})
                 else:
                     image_url = input_item.image_url.url
-                    if os.path.isfile(image_url):
+                    if image_url.startswith("data:image"):  # base64 image
+                        image_data = base64.b64decode(image_url.split(",", maxsplit=1)[1])
+                        image_path = io.BytesIO(image_data)
+                    elif os.path.isfile(image_url):  # local file
                         image_path = open(image_url, "rb")
-                    else:
+                    else:  # web uri
                         image_path = requests.get(image_url, stream=True).raw
 
                     image = Image.open(image_path).convert("RGB")
