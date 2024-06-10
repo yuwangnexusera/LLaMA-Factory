@@ -1,6 +1,6 @@
 import pandas as pd
 import os
-from f1
+from llamafactory.f1 import F1score
 '''
 1、从recheck_ds整理的SFT数据中获取
 2、SFT时调用标注的prompt
