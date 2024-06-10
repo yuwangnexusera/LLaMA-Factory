@@ -8,7 +8,9 @@ from utils import ds_label_wrapper
 from sft_prompt import sft_unit_prompt
 # default-locations包含不绑定报告类型日期的其他点位，包含报告类型日期的将在后续@wy TODO 补充
 class AlignDataset:
-
+    '''
+        读取数据库，取 native_result_custom 中的数据,补全所有点位(空的填入NA)，填入方式prompt_dict
+    '''
     def __init__(self, unit_name, ds_num, save_path):
         self.unit_name = unit_name
         self.ds_num = ds_num
@@ -22,6 +24,8 @@ class AlignDataset:
         for ds in ds_objs:
             if ds.native_result_custom:
                 self.ds.append({"ocr": ds.ocr_result, "result": ds.native_result_custom})
+                if len(self.ds)>=self.ds_num:
+                    break
 
     def fill_na_by_locs(self, unit_data):
         # 对单个对象内进行填充
@@ -58,7 +62,7 @@ if __name__=='__main__':
 
     unit = "治疗用药方案"
     en_unit = "drug_treatment_plan"
-    alignor = AlignDataset(unit, 100, f"data/{en_unit}_recheck_zh.json")
+    alignor = AlignDataset(unit, 1, f"data/{en_unit}_sft_zh.json")
     res = alignor.extract_specified_values()
     alignor.save()
     print("@syu:")
