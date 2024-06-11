@@ -38,22 +38,26 @@ class AlignDataset:
                 self.ds.append({"ocr": ds.ocr_result, "result": ds.native_result_custom})
                 # if len(self.ds)>=self.ds_num:
                 #     break
+        print(len(self.ds))
 
     def extract_specified_values(self):
-
-        extracted_values = []
-
         for data in self.ds:
+            unit_ds = []
             output = data["result"]
-            target_unit_data = output.get(self.unit_name, None)
-            if target_unit_data is not None:
-                if isinstance(target_unit_data, dict):
-                    target_unit_data = [target_unit_data]
-            else:
-                continue
+            target_unit_data = output.get(self.unit_name, [{}])
+            if isinstance(target_unit_data, dict):
+                target_unit_data = [target_unit_data]
             for index, unit_data in enumerate(target_unit_data):
                 res = self.fill_na_by_locs(unit_data)
-                self.unit_ds.append({"instruction":sft_unit_prompt.get(self.unit_name,""),"input": data["ocr"], "output": json.dumps(res, ensure_ascii=False)})
+                # 单元答案[{}]
+                unit_ds.append(res)
+            self.unit_ds.append(
+                {
+                    "instruction": sft_unit_prompt.get(self.unit_name, ""),
+                    "input": data["ocr"],
+                    "output": json.dumps(unit_ds, ensure_ascii=False),
+                }
+            )
         return self.unit_ds
 
     def load_test_ds(self):
@@ -63,26 +67,23 @@ class AlignDataset:
                 self.test_ds.append({"ocr": ds.ocr_result, "result": ds.native_result_custom})
 
     def extract_test(self):
-
-        extracted_values = []
-
         for data in self.test_ds:
+            unit_ds = []
             output = data["result"]
-            target_unit_data = output.get(self.unit_name, None)
-            if target_unit_data is not None:
-                if isinstance(target_unit_data, dict):
-                    target_unit_data = [target_unit_data]
-            else:
-                continue
+            target_unit_data = output.get(self.unit_name, [{}])
+            if isinstance(target_unit_data, dict):
+                target_unit_data = [target_unit_data]
             for index, unit_data in enumerate(target_unit_data):
                 res = self.fill_na_by_locs(unit_data)
-                self.test_unit_ds.append(
-                    {
-                        "instruction": sft_unit_prompt.get(self.unit_name, ""),
-                        "input": data["ocr"],
-                        "output": json.dumps(res, ensure_ascii=False),
-                    }
-                )
+                # 单元答案[{}]
+                unit_ds.append(res)
+            self.test_unit_ds.append(
+                {
+                    "instruction": sft_unit_prompt.get(self.unit_name, ""),
+                    "input": data["ocr"],
+                    "output": json.dumps(unit_ds, ensure_ascii=False),
+                }
+            )
         return self.test_unit_ds
 
     def save(self):

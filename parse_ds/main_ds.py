@@ -9,7 +9,7 @@ unit = "病理"
 en_unit = mapping.get(unit)
 sft_path = f"data/{en_unit}_sft_zh.json"
 rlhf_path = sft_path.replace('sft', 'rlhf')
-alignor = AlignDataset(unit, 1000, sft_path)
+alignor = AlignDataset(unit, 2000, sft_path)
 # TODO 记得去掉-NA
 res = alignor.extract_specified_values()
 alignor.save()
