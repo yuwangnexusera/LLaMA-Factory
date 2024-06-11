@@ -14,8 +14,8 @@ alignor = AlignDataset(unit, 2000, sft_path)
 res = alignor.extract_specified_values()
 alignor.save()
 # 测试集的更新
-# alignor.extract_test()
-# alignor.save_test()
+alignor.extract_test()
+alignor.save_test()
 # rlhf
 # rlhf = RLHF_Dataset(rlhf_path)
 print("@syu:")

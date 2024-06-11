@@ -45,6 +45,8 @@ class AlignDataset:
             unit_ds = []
             output = data["result"]
             target_unit_data = output.get(self.unit_name, [{}])
+            if not target_unit_data:
+                target_unit_data = [{}]
             if isinstance(target_unit_data, dict):
                 target_unit_data = [target_unit_data]
             for index, unit_data in enumerate(target_unit_data):
@@ -71,12 +73,16 @@ class AlignDataset:
             unit_ds = []
             output = data["result"]
             target_unit_data = output.get(self.unit_name, [{}])
+            if not target_unit_data:
+                target_unit_data = [{}]
             if isinstance(target_unit_data, dict):
                 target_unit_data = [target_unit_data]
             for index, unit_data in enumerate(target_unit_data):
                 res = self.fill_na_by_locs(unit_data)
                 # 单元答案[{}]
                 unit_ds.append(res)
+            if unit_ds==[]:
+                print()
             self.test_unit_ds.append(
                 {
                     "instruction": sft_unit_prompt.get(self.unit_name, ""),
