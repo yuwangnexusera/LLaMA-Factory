@@ -1,5 +1,3 @@
-
-
 # overall_version： 来源于客户需求：如 ss肺癌-V2 ss肺癌-V3 —— 不单独管理，程序员添加
 # disease：疾病库，树形结构，每个客户结构不一样
 # promptwork：prompt模板库，多种疾病共用一套模板
@@ -71,3 +69,16 @@ class ds_image(BaseModel):
     dept_belong_id = BigIntegerField()
     update_datetime = DateTimeField()
     create_datetime = DateTimeField()
+
+
+class ds_dataset(BaseModel):
+    id = AutoField()
+    name = CharField()
+    stage = IntegerField()
+    status = IntegerField()
+    description = TextField()
+
+class ds_patient(BaseModel):
+    id = AutoField()
+    dataset_id = IntegerField()
+    status = IntegerField()
