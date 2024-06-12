@@ -84,25 +84,6 @@ def merge_loss_data(data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     return merged_data
 
 
-def gen_loss_plot(trainer_log: List[Dict[str, Any]]) -> "matplotlib.figure.Figure":
-    plt.close("all")
-    plt.switch_backend("agg")
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    steps, losses = [], []
-    for log in trainer_log:
-        if log.get("loss", None):
-            steps.append(log["current_steps"])
-            losses.append(log["loss"])
-
-    ax.plot(steps, losses, color="#1f77b4", alpha=0.4, label="original")
-    ax.plot(steps, smooth(losses), color="#1f77b4", label="smoothed")
-    ax.legend()
-    ax.set_xlabel("step")
-    ax.set_ylabel("loss")
-    return fig
-
-
 def plot_loss(save_dictionary: os.PathLike, keys: List[str] = ["loss"]) -> None:
     r"""
     Plots loss curves and saves the image.
