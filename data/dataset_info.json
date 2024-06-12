@@ -550,8 +550,8 @@
   "pathology_label_rlhf_sft": {
     "file_name": "Pathology/sft_zh.json"
   },
-  "pathology_label_rlhf": {
-    "file_name": "Pathology/rlhf_zh.json"
+  "pathology_label_dpo": {
+    "file_name": "Pathology/dpo_zh.json"
   },
   "pathology_label_sft": {
     "file_name": "Pathology/all_zh.json"

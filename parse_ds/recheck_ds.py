@@ -1,5 +1,6 @@
 import sys
 import os
+
 sys.path.append(".")
 from data_augmentation import prompt_dict
 from logging import Logger
@@ -35,6 +36,7 @@ class AlignDataset:
             if ds.native_result_custom:
                 self.ds.append({"ocr": ds.ocr_result, "result": ds.native_result_custom})
         print(len(self.ds))
+
     def remove_duplicates(self, json_list):
 
         # 将每个JSON对象转换为字符串，并使用集合去重
@@ -55,7 +57,7 @@ class AlignDataset:
         return ret_dict
 
     # TODO 去除同一组中重复的数据
-    def parse_sft_rlhf(self,all_path):
+    def parse_sft_rlhf(self, all_path):
         # 读取all_path的json列表数据
         with open(all_path, "r", encoding="utf-8") as f:
             unit_json = json.load(f)
@@ -66,14 +68,14 @@ class AlignDataset:
         # 计算60%和40%的数量
         total_len = len(unit_json)
         sft_len = int(total_len * 0.6)
-        
+
         # 分割数据集
         sft_data = unit_json[:sft_len]
-        rlhf_data = unit_json[sft_len:]
+        dpo_data = unit_json[sft_len:]
 
         # 准备返回的SFT数据和RLHF数据
         sft_return = []
-        rlhf_return = []
+        dpo_return = []
 
         # 处理SFT数据
         for sft in sft_data:
@@ -83,14 +85,19 @@ class AlignDataset:
             sft_return.append({"instruction": instruction, "input": input_data, "output": chosen})
 
         # 处理RLHF数据
-        for rlhf in rlhf_data:
-            instruction = rlhf["instruction"]
-            input_data = rlhf["input"]
-            chosen = rlhf["output"]
+        for dpo in dpo_data:
+            instruction = dpo["instruction"]
+            input_data = dpo["input"]
+            chosen = dpo["output"]
             rejected = ""  # 如果有实际的rejected数据可以在这里填入
-            rlhf_return.append({"instruction": instruction, "input": input_data, "chosen": chosen, "rejected": rejected})
-
-        return sft_return, rlhf_return
+            dpo_return.append(
+                {
+                    "conversations": {"from": "human", "value": instruction + input_data},
+                    "chosen": {"from": "gpt", "value": chosen},
+                    "rejected": {"from": "gpt", "value": rejected},
+                }
+            )
+        return sft_return, dpo_return
 
     def unit_values(self):
         # 存入 _all数据集
@@ -117,7 +124,7 @@ class AlignDataset:
         return self.unit_ds
 
     def save(self, path, sft_unit_ds):
-        '''保存到json文件'''
+        """保存到json文件"""
         # 获取目录路径
         directory = os.path.dirname(path)
         # 如果目录不存在，则创建目录

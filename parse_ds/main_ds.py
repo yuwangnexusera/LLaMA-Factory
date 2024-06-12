@@ -10,14 +10,14 @@ unit = "病理"
 en_unit = mapping.get(unit)
 all_path = f"data/{en_unit}/all_zh.json"
 sft_path = f"data/{en_unit}/sft_zh.json"
-rlhf_path = f"data/{en_unit}/rlhf_zh.json"
+dpo_path = f"data/{en_unit}/dpo_zh.json"
 test_path = f"data/{en_unit}/test_zh.json"
 alignor = AlignDataset(unit,"train")
 
 # 6：4分割all数据集，仅在RLHF时开启
-sft,rlhf = alignor.parse_sft_rlhf(all_path)
+sft,dpo = alignor.parse_sft_rlhf(all_path)
 alignor.save(sft_path,sft)
-alignor.save(rlhf_path,rlhf)
+alignor.save(dpo_path, dpo)
 # TODO 记得去掉-NA
 
 print("@syu:")
