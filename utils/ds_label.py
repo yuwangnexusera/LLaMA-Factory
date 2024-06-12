@@ -15,7 +15,7 @@ from datetime import datetime
 from peewee import *
 from playhouse.shortcuts import ReconnectMixin
 
-from utils.conf import db_conf_med_bookcase as db_conf
+from utils.conf import db_conf
 
 
 class ReconnectMySQLDatabase(ReconnectMixin, MySQLDatabase):

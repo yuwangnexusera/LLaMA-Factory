@@ -547,40 +547,13 @@
     },
     "folder": "python"
   },
-  "medical_report_category": {
-    "file_name": "category_en.json"
+  "pathology_label_rlhf_sft": {
+    "file_name": "Pathology/sft_zh.json"
   },
-  "medical_report_extract": {
-    "file_name": "extract100_zh.json"
+  "pathology_label_rlhf": {
+    "file_name": "Pathology/rlhf_zh.json"
   },
-  "medical_report_extract512": {
-    "file_name": "extract512_zh.json"
-  },
-  "medical_report_extract1k_en": {
-    "file_name": "extract1k_en.json"
-  },
-  "medical_report_extract1k_zh": {
-    "file_name": "extract1k_zh.json"
-  },
-  "medical_report_extract512_en_NA": {
-    "file_name": "extract512_en_na.json"
-  },
-  "cancer_treatment": {
-    "file_name": "cancer_treatment_1k.json"
-  },
-  "cancer_treatment_en": {
-    "file_name": "cancer_treatment_1k_en.json"
-  },
-  "cancer_treatment_label": {
-    "file_name": "cancer_treatment_zh_label.json"
-  },
-  "pathology_label": {
-    "file_name": "Pathology_sft_zh.json"
-  },
-  "gene_label": {
-    "file_name": "gene_zh_label.json"
-  },
-  "drug_label": {
-    "file_name": "drug_treatment_plan_recheck_zh.json"
+  "pathology_label_sft": {
+    "file_name": "Pathology/all_zh.json"
   }
 }
