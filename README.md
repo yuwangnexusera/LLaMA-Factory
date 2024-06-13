@@ -259,6 +259,7 @@ You also can add a custom chat template to [template.py](src/llamafactory/data/t
 - [Cosmopedia (en)](https://huggingface.co/datasets/HuggingFaceTB/cosmopedia)
 - [STEM (zh)](https://huggingface.co/datasets/hfl/stem_zh_instruction)
 - [Ruozhiba (zh)](https://huggingface.co/datasets/hfl/ruozhiba_gpt4_turbo)
+- [Neo-sft (zh)](https://huggingface.co/datasets/m-a-p/neo_sft_phase2)
 - [LLaVA mixed (en&zh)](https://huggingface.co/datasets/BUAADreamer/llava-en-zh-300k)
 - [Open Assistant (de)](https://huggingface.co/datasets/mayflowergmbh/oasst_de)
 - [Dolly 15k (de)](https://huggingface.co/datasets/mayflowergmbh/dolly-15k_de)
@@ -405,7 +406,7 @@ Please refer to [data/README.md](data/README.md) for checking the details about 
 Use the following 3 commands to run LoRA **fine-tuning**, **inference** and **merging** of the Llama3-8B-Instruct model, respectively.
 
 ```bash
-llamafactory-cli train examples/lora_single_gpu/llama3_lora_sft.yaml
+llamafactory-cli train examples/train_lora/llama3_lora_sft.yaml
 llamafactory-cli chat examples/inference/llama3_lora_sft.yaml
 llamafactory-cli export examples/merge_lora/llama3_lora_sft.yaml
 ```
@@ -422,6 +423,8 @@ llamafactory-cli webui
 ```
 
 ### Build Docker
+
+#### Use Docker
 
 ```bash
 docker build -f ./Dockerfile \
@@ -442,8 +445,12 @@ docker run -it --gpus=all \
     llamafactory:latest
 ```
 
-> [!TIP]
-> Use Docker Compose to build image via `docker-compose up -d`.
+#### Use Docker Compose
+
+```bash
+docker-compose up -d
+docker-compose exec llamafactory bash
+```
 
 <details><summary>Details about volume</summary>
 
