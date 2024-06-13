@@ -3,14 +3,14 @@ import os
 
 sys.path.append(".")
 from data_augmentation import prompt_dict
-from logging import Logger
+import logging
 import pandas as pd
 import json
 from utils import ds_label_wrapper
 from sft_prompt import sft_unit_prompt
 import random
 
-
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 # default-locations包含不绑定报告类型日期的其他点位，包含报告类型日期的将在后续@wy TODO 补充
 class AlignDataset:
     """
@@ -134,8 +134,25 @@ class AlignDataset:
         pd.DataFrame(sft_unit_ds).to_json(path, orient="records", force_ascii=False, lines=False)
 
     # TODO 报告的信息组
-
+    def dates_info(self):
+        date_info_list = []
+        date_keys = prompt_dict._default_unit_locs.get("日期")
+        all_data = self.ds
+        for d_obj in all_data:
+            date_dict = {}
+            native_custom = d_obj["result"]
+            for unit,loc_list in native_custom.items():
+                for sin_native_custom in loc_list:
+                    if sin_native_custom=="":
+                        sin_native_custom = {}
+                    for d_k in date_keys:
+                        if d_k not in date_dict or (date_dict[d_k] =="NA" and date_dict[d_k]):
+                            date_dict[d_k] = sin_native_custom.get(d_k,"NA")
+            date_info_list.append({"instruction": sft_unit_prompt.get("日期", ""), "input": d_obj["ocr"], "output": json.dumps(date_dict, ensure_ascii=False)})
+        return date_info_list
 
 if __name__ == "__main__":
 
     unit = "病理"
+    alignor = AlignDataset("","train")
+    alignor.dates_info()

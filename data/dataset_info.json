@@ -551,13 +551,46 @@
     },
     "folder": "python"
   },
-  "pathology_label_rlhf_sft": {
+  "pathology_rlhf_sft": {
     "file_name": "Pathology/sft_zh.json"
   },
-  "pathology_label_dpo": {
+  "pathology_dpo": {
     "file_name": "Pathology/dpo_zh.json"
   },
-  "pathology_label_sft": {
+  "pathology_sft": {
     "file_name": "Pathology/all_zh.json"
+  },
+  "basic_information_sft": {
+    "file_name": "Basic Information/all_zh.json"
+  },
+  "cancer_treatment_sft": {
+    "file_name": "Cancer treatment/all_zh.json"
+  },
+  "comorbid_disease_sft": {
+    "file_name": "Comorbid Disease/all_zh.json"
+  },
+  "date_unit_sft": {
+    "file_name": "date_unit/all_zh.json"
+  },
+  "diagnosis_sft": {
+    "file_name": "Diagnosis/all_zh.json"
+  },
+  "disease_sft": {
+    "file_name": "Disease/all_zh.json"
+  },
+  "genetic_testing_sft": {
+    "file_name": "Genetic Testing/all_zh.json"
+  },
+  "imaging_sft": {
+    "file_name": "Imaging/all_zh.json"
+  },
+  "immunization_sft": {
+    "file_name": "Immune Testing/all_zh.json"
+  },
+  "symptom_sft": {
+    "file_name": "Symptom/all_zh.json"
+  },
+  "treatment_drug_plan_sft": {
+    "file_name": "Treatment Drug Plan/all_zh.json"
   }
 }
