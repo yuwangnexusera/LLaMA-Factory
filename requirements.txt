@@ -19,3 +19,5 @@ packaging
 pyyaml
 modelscope
 pypinyin
+google-cloud-translate
+peewee

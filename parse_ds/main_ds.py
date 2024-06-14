@@ -14,13 +14,13 @@ for u in unit:
     all_path = f"data/{en_unit}/all_zh.json"
     sft_path = f"data/{en_unit}/sft_zh.json"
     dpo_path = f"data/{en_unit}/dpo_zh.json"
-    alignor = AlignDataset(u,"test")
+    alignor = AlignDataset(u,"train")
     unit_res = alignor.unit_values()   
-    alignor.save(test_path, unit_res)
+    alignor.save(all_path, unit_res)
 # 报告日期
-alignor = AlignDataset("", "test")
-date_res = alignor.dates_info()
-alignor.save(f"data/date_unit/test_zh.json", date_res)
+# alignor = AlignDataset("", "test")
+# date_res = alignor.dates_info()
+# alignor.save(f"data/date_unit/test_zh.json", date_res)
 # 500条做基因检测
 # 6：4分割all数据集，仅在RLHF时开启
 # sft,dpo = alignor.parse_sft_rlhf(all_path)

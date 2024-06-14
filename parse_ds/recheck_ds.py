@@ -35,7 +35,6 @@ class AlignDataset:
         for ds in ds_objs:
             if ds.native_result_custom:
                 self.ds.append({"ocr": ds.ocr_result, "result": ds.native_result_custom})
-        print(len(self.ds))
 
     def remove_duplicates(self, json_list):
 
@@ -105,11 +104,13 @@ class AlignDataset:
         for data in self.ds:
             unit_ds = []
             output = data["result"]
-            target_unit_data = output.get(self.unit_name, [{}])
-            if not target_unit_data:
-                target_unit_data = [{}]
+            target_unit_data = output.get(self.unit_name)
+            if target_unit_data is None:
+                continue
             if isinstance(target_unit_data, dict):
                 target_unit_data = [target_unit_data]
+            elif target_unit_data == [""] or target_unit_data == [] or target_unit_data == "":
+                target_unit_data = [{}]
             for index, unit_data in enumerate(target_unit_data):
                 res = self.fill_na_by_locs(unit_data)
                 # 单元答案[{}]
@@ -131,7 +132,8 @@ class AlignDataset:
         if not os.path.exists(directory):
             os.makedirs(directory)
         # 将数据保存到JSON文件
-        pd.DataFrame(sft_unit_ds).to_json(path, orient="records", force_ascii=False, lines=False)
+        pd.DataFrame(sft_unit_ds).to_json(path, orient="records", force_ascii=False, lines=False, indent=4)
+        logging.info(f"{len(sft_unit_ds)},{self.unit_name} saved to {path}.")
 
     # TODO 报告的信息组
     def dates_info(self):
