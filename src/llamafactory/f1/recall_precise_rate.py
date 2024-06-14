@@ -6,7 +6,9 @@ import numpy as np
 from typing import List, Tuple
 from pypinyin import pinyin, Style
 from datetime import datetime
-
+import sys
+sys.path.append(".")
+from data_augmentation import prompt_dict
 
 class F1score:
 
@@ -93,9 +95,7 @@ class F1score:
         return indexed_scores
 
     def labor_recall_precise(self, generated_answer, answer_json, include_na_in_total=False):
-        unit_loc_mapping = {
-            # (同样的unit_loc_mapping字典)
-        }
+        unit_loc_mapping = prompt_dict._default_unit_locs
         if not isinstance(answer_json, dict):
             answer_json = {"sywu": answer_json}
         if not isinstance(generated_answer, dict):
@@ -223,11 +223,20 @@ if __name__ == "__main__":
 
     # 示例用法
     answer_json = {
-        "疾病": [{"疾病名称": "小细胞癌", "首次确诊日期": "7-1"}],
+        "治疗用药方案": [
+            {"治疗开始日期": "2021-03-16", "治疗用药名称": ["阿来替尼"], "治疗用药是否为建议": "否", "治疗结束日期": "NA"},
+            {
+                "治疗开始日期": "2021-08-06",
+                "治疗用药名称": ["培美曲塞", "顺铂"],
+                "治疗用药是否为建议": "否",
+                "治疗结束日期": "NA",
+            },
+        ],
     }
-    generated_answer = {
-        "疾病": [{"疾病名称": "小细胞肺癌", "首次确诊日期": "07-01"}],
-    }
+    generate_output = json.loads(
+            '[{"治疗开始日期": "2021-03-16", "治疗用药名称": ["阿来替尼"], "治疗用药是否为建议": "否", "治疗结束日期": "NA"}, {"治疗开始日期": "2021-08-27", "治疗用药名称": ["培美曲塞", "顺铂"], "治疗用药是否为建议": "否", "治疗结束日期": "NA"}, {"治疗开始日期": "2021-08-06", "治疗用药名称": ["培美曲塞", "顺铂"], "治疗用药是否为建议": "否", "治疗结束日期": "NA"}]'
+        )
+    generated_answer = {"治疗用药方案": generate_output}
 
     f1 = F1score()
     result = f1.labor_recall_precise(generated_answer, answer_json)
