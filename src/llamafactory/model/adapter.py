@@ -1,3 +1,17 @@
+# Copyright 2024 the LlamaFactory team.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import re
 from typing import TYPE_CHECKING
 
@@ -165,8 +179,16 @@ def _setup_lora_tuning(
         else:
             adapter_to_merge = model_args.adapter_name_or_path
 
+        init_kwargs = {
+            "subfolder": model_args.adapter_folder,
+            "offload_folder": model_args.offload_folder,
+            "cache_dir": model_args.cache_dir,
+            "revision": model_args.model_revision,
+            "token": model_args.hf_hub_token,
+        }
+
         for adapter in adapter_to_merge:
-            model: "LoraModel" = PeftModel.from_pretrained(model, adapter, offload_folder=model_args.offload_folder)
+            model: "LoraModel" = PeftModel.from_pretrained(model, adapter, **init_kwargs)
             model = model.merge_and_unload()
 
         if len(adapter_to_merge) > 0:
@@ -176,12 +198,7 @@ def _setup_lora_tuning(
             if model_args.use_unsloth:
                 model = load_unsloth_peft_model(config, model_args, is_trainable=is_trainable)
             else:
-                model = PeftModel.from_pretrained(
-                    model,
-                    adapter_to_resume,
-                    is_trainable=is_trainable,
-                    offload_folder=model_args.offload_folder,
-                )
+                model = PeftModel.from_pretrained(model, adapter_to_resume, is_trainable=is_trainable, **init_kwargs)
 
         logger.info("Loaded adapter(s): {}".format(",".join(model_args.adapter_name_or_path)))
 
@@ -228,6 +245,14 @@ def _setup_lora_tuning(
         if model_args.use_unsloth:
             model = get_unsloth_peft_model(model, model_args, peft_kwargs)
         else:
+            if finetuning_args.pissa_init:
+                if finetuning_args.pissa_iter == -1:
+                    logger.info("Using PiSSA initialization.")
+                    peft_kwargs["init_lora_weights"] = "pissa"
+                else:
+                    logger.info("Using PiSSA initialization with FSVD steps {}.".format(finetuning_args.pissa_iter))
+                    peft_kwargs["init_lora_weights"] = "pissa_niter_{}".format(finetuning_args.pissa_iter)
+
             lora_config = LoraConfig(
                 task_type=TaskType.CAUSAL_LM,
                 inference_mode=False,

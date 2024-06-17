@@ -1,3 +1,20 @@
+# Copyright 2024 HuggingFace Inc. and the LlamaFactory team.
+#
+# This code is inspired by the HuggingFace's TRL library.
+# https://github.com/huggingface/trl/blob/v0.8.0/trl/trainer/kto_trainer.py
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import warnings
 from collections import defaultdict
 from contextlib import nullcontext
@@ -97,8 +114,8 @@ class CustomKTOTrainer(KTOTrainer):
 
     def _save(self, output_dir: Optional[str] = None, state_dict: Optional[Dict[str, "torch.Tensor"]] = None) -> None:
         super()._save(output_dir, state_dict)
+        output_dir = output_dir if output_dir is not None else self.args.output_dir
         if self.processor is not None:
-            output_dir = output_dir if output_dir is not None else self.args.output_dir
             getattr(self.processor, "image_processor").save_pretrained(output_dir)
 
     def forward(
