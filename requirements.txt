@@ -21,3 +21,4 @@ modelscope
 pypinyin
 google-cloud-translate
 peewee
+faker
