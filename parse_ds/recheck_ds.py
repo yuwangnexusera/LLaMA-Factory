@@ -66,7 +66,7 @@ class AlignDataset:
 
         # 计算60%和40%的数量
         total_len = len(unit_json)
-        sft_len = int(total_len * 0.6)
+        sft_len = int(total_len * 0)
 
         # 分割数据集
         sft_data = unit_json[:sft_len]
@@ -91,7 +91,7 @@ class AlignDataset:
             rejected = ""  # 如果有实际的rejected数据可以在这里填入
             dpo_return.append(
                 {
-                    "conversations": {"from": "human", "value": instruction + input_data},
+                    "conversations": [{"from": "human", "value": instruction + input_data}],
                     "chosen": {"from": "gpt", "value": chosen},
                     "rejected": {"from": "gpt", "value": rejected},
                 }
