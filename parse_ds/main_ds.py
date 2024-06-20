@@ -17,9 +17,9 @@ with open("utils/mapping_answer_zh_en.json", "r", encoding="utf-8") as f:
 #     alignor = AlignDataset(u,"train")
 #     unit_res = alignor.unit_values()
 #     alignor.save(all_path, unit_res)
-alignor = AlignDataset("治疗用药方案", "train")
+alignor = AlignDataset("治疗用药方案", "test")
 date_res = alignor.unit_values()
-alignor.save(f"data/Treatment Drug Plan/all_zh.json", date_res)
+alignor.save(f"data/Treatment Drug Plan/test_zh.json", date_res)
 # 500条做基因检测
 # DPO 6：4分割all数据集，仅在RLHF时开启
 zh_unit = "治疗用药方案"
