@@ -17,18 +17,18 @@ with open("utils/mapping_answer_zh_en.json", "r", encoding="utf-8") as f:
 #     alignor = AlignDataset(u,"train")
 #     unit_res = alignor.unit_values()
 #     alignor.save(all_path, unit_res)
-alignor = AlignDataset("治疗用药方案", "test")
+alignor = AlignDataset("治疗用药方案", "train")
 date_res = alignor.unit_values()
-alignor.save(f"data/Treatment Drug Plan/test_zh.json", date_res)
+alignor.save(f"data/Treatment Drug Plan/all_zh.json", date_res)
 # 500条做基因检测
 # DPO 6：4分割all数据集，仅在RLHF时开启
-# zh_unit = "治疗用药方案"
-# en_unit = mapping.get(zh_unit)
-# sft_path = f"data/{en_unit}/sft_zh.json"
-# dpo_path = f"data/{en_unit}/dpo_zh.json"
-# sft,dpo = alignor.parse_sft_rlhf("data/Treatment Drug Plan/all_zh.json")
-# alignor.save(sft_path,sft)
-# alignor.save(dpo_path, dpo)
+zh_unit = "治疗用药方案"
+en_unit = mapping.get(zh_unit)
+sft_path = f"data/{en_unit}/sft_zh.json"
+dpo_path = f"data/{en_unit}/dpo_zh.json"
+sft,dpo = alignor.parse_sft_rlhf("data/Treatment Drug Plan/all_zh.json")
+alignor.save(sft_path,sft)
+alignor.save(dpo_path, dpo)
 # TODO 记得去掉-NA，患者是否进行基因检测 NA->否
 
 print("@syu:")
