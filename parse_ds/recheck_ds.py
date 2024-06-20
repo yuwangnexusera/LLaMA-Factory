@@ -91,7 +91,7 @@ class AlignDataset:
             rejected = ""  # 如果有实际的rejected数据可以在这里填入
             dpo_return.append(
                 {
-                    "conversations": [{"from": "human", "value": instruction + input_data}],
+                    "conversations": {"from": "human", "value": instruction + input_data},
                     "chosen": {"from": "gpt", "value": chosen},
                     "rejected": {"from": "gpt", "value": rejected},
                 }
