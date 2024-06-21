@@ -112,7 +112,6 @@ def create_app(chat_model: "ChatModel") -> "FastAPI":
 
     return app
 
-
 def run_api() -> None:
     chat_model = ChatModel()
     app = create_app(chat_model)
