@@ -83,7 +83,7 @@ class MultimodalInputItem(BaseModel):
 class ChatMessage(BaseModel):
     role: Role
     content: Optional[Union[str, List[MultimodalInputItem]]] = None
-    tool_calls: Optional[List[FunctionCall]] = None
+    # tool_calls: Optional[List[FunctionCall]] = None
 
 
 class ChatCompletionMessage(BaseModel):
@@ -95,12 +95,12 @@ class ChatCompletionMessage(BaseModel):
 class ChatCompletionRequest(BaseModel):
     model: str
     messages: List[ChatMessage]
-    tools: Optional[List[FunctionAvailable]] = None
+    # tools: Optional[List[FunctionAvailable]] = None
     do_sample: bool = True
-    temperature: Optional[float] = None
-    top_p: Optional[float] = None
+    temperature: Optional[float] = 0.7
+    top_p: Optional[float] = 0.8
     n: int = 1
-    max_tokens: Optional[int] = None
+    max_tokens: Optional[int] = 512
     stop: Optional[Union[str, List[str]]] = None
     stream: bool = False
 
