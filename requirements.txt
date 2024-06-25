@@ -24,3 +24,4 @@ google-cloud-translate
 peewee
 faker
 numpy<2.0.0
+deepspeed

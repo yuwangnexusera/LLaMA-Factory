@@ -6,7 +6,7 @@ stage: pt
 do_train: true
 finetuning_type: lora
 lora_target: all
-
+deepspeed: examples/deepspeed/ds_z3_config.json
 ### dataset
 dataset: c4_demo
 cutoff_len: 1024
