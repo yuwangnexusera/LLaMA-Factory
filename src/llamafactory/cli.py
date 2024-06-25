@@ -75,6 +75,7 @@ class Command(str, Enum):
 
 def main():
     command = sys.argv.pop(1) if len(sys.argv) != 1 else Command.HELP
+    print(f"sys.argv:{sys.argv}")
     if command == Command.API:
         run_api()
     elif command == Command.CHAT:
@@ -91,7 +92,7 @@ def main():
             master_addr = os.environ.get("MASTER_ADDR", "127.0.0.1")
             master_port = os.environ.get("MASTER_PORT", str(random.randint(20001, 29999)))
             logger.info("Initializing distributed tasks at: {}:{}".format(master_addr, master_port))
-            process = subprocess.run(
+            subprocess.run(
                 (
                     "torchrun --nnodes {nnodes} --node_rank {node_rank} --nproc_per_node {nproc_per_node} "
                     "--master_addr {master_addr} --master_port {master_port} {file_name} {args}"
@@ -106,7 +107,6 @@ def main():
                 ),
                 shell=True,
             )
-            sys.exit(process.returncode)
         else:
             run_exp()
     elif command == Command.WEBDEMO:

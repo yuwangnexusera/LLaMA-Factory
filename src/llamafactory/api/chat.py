@@ -16,7 +16,6 @@ import base64
 import io
 import json
 import os
-import re
 import uuid
 from typing import TYPE_CHECKING, AsyncGenerator, Dict, List, Optional, Tuple
 
@@ -105,14 +104,15 @@ def _process_request(
                     input_messages.append({"role": ROLE_MAPPING[message.role], "content": input_item.text})
                 else:
                     image_url = input_item.image_url.url
-                    if re.match(r"^data:image\/(png|jpg|jpeg|gif|bmp);base64,(.+)$", image_url):  # base64 image
-                        image_stream = io.BytesIO(base64.b64decode(image_url.split(",", maxsplit=1)[1]))
+                    if image_url.startswith("data:image"):  # base64 image
+                        image_data = base64.b64decode(image_url.split(",", maxsplit=1)[1])
+                        image_path = io.BytesIO(image_data)
                     elif os.path.isfile(image_url):  # local file
-                        image_stream = open(image_url, "rb")
+                        image_path = open(image_url, "rb")
                     else:  # web uri
-                        image_stream = requests.get(image_url, stream=True).raw
+                        image_path = requests.get(image_url, stream=True).raw
 
-                    image = Image.open(image_stream).convert("RGB")
+                    image = Image.open(image_path).convert("RGB")
         else:
             input_messages.append({"role": ROLE_MAPPING[message.role], "content": message.content})
 
@@ -215,7 +215,8 @@ async def create_stream_chat_completion_response(
         top_p=request.top_p,
         max_new_tokens=request.max_tokens,
         stop=request.stop,
-    ):
+    ):  
+        print(new_token,end="")
         if len(new_token) != 0:
             yield _create_stream_chat_completion_chunk(
                 completion_id=completion_id, model=request.model, delta=ChatCompletionMessage(content=new_token)

@@ -27,10 +27,10 @@ if TYPE_CHECKING:
 
 def preprocess_pretrain_dataset(
     examples: Dict[str, List[Any]], tokenizer: "PreTrainedTokenizer", data_args: "DataArguments"
-) -> Dict[str, List[Any]]:
+) -> Dict[str, List[List[int]]]:
     # build grouped texts with format `X1 X2 X3 ...` if packing is enabled
     eos_token = "<|end_of_text|>" if data_args.template == "llama3" else tokenizer.eos_token
-    text_examples = [messages[0]["content"] + eos_token for messages in examples["_prompt"]]
+    text_examples = [messages[0]["content"] + eos_token for messages in examples["prompt"]]
 
     if not data_args.packing:
         if data_args.template == "gemma":

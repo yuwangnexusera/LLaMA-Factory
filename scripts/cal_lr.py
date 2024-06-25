@@ -25,7 +25,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 from transformers import DataCollatorForLanguageModeling, DataCollatorForSeq2Seq
 
-from llamafactory.data import get_dataset, get_template_and_fix_tokenizer
+from llamafactory.data import get_dataset
 from llamafactory.extras.constants import IGNORE_INDEX
 from llamafactory.hparams import get_train_args
 from llamafactory.model import load_tokenizer
@@ -43,8 +43,7 @@ def calculate_lr(
     dataset_dir: str = "data",
     template: str = "default",
     cutoff_len: int = 1024,  # i.e. maximum input length during training
-    is_mistral_or_gemma: bool = False,  # mistral and gemma models opt for a smaller learning rate,
-    packing: bool = False,
+    is_mistral: bool = False,  # mistral model uses a smaller learning rate,
 ):
     r"""
     Calculates the optimal learning rate for 7B/13B models using LLaMA's hyper-parameters.
@@ -58,22 +57,19 @@ def calculate_lr(
             dataset_dir=dataset_dir,
             template=template,
             cutoff_len=cutoff_len,
-            packing=packing,
             output_dir="dummy_dir",
             overwrite_cache=True,
-            do_train=True,
         )
     )
     tokenizer_module = load_tokenizer(model_args)
     tokenizer = tokenizer_module["tokenizer"]
-    template = get_template_and_fix_tokenizer(tokenizer, data_args)
-    trainset = get_dataset(template, model_args, data_args, training_args, stage, **tokenizer_module)["train_dataset"]
+    trainset = get_dataset(model_args, data_args, training_args, stage, **tokenizer_module)
     if stage == "pt":
         data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
     elif stage == "sft":
         data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, label_pad_token_id=IGNORE_INDEX)
     else:
-        raise NotImplementedError("Stage does not supported: {}.".format(stage))
+        raise NotImplementedError
 
     dataloader = DataLoader(trainset, batch_size, shuffle=False, collate_fn=data_collator, pin_memory=True)
     valid_tokens, total_tokens = 0, 0
@@ -85,7 +81,7 @@ def calculate_lr(
     valid_ratio = valid_tokens / total_tokens
     batch_valid_len = batch_max_len * valid_ratio
     lr = BASE_LR * math.sqrt(batch_valid_len / BASE_BS)  # lr ~ sqrt(batch_size)
-    lr = lr / 6.0 if is_mistral_or_gemma else lr
+    lr = lr / 6.0 if is_mistral else lr
     print(
         "Optimal learning rate is {:.2e} for valid ratio% {:.2f} and effective batch size {:.2f}".format(
             lr, valid_ratio * 100, batch_valid_len

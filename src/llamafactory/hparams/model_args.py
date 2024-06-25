@@ -15,11 +15,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from dataclasses import asdict, dataclass, field, fields
-from typing import Any, Dict, Literal, Optional, Union
+from dataclasses import asdict, dataclass, field
+from typing import TYPE_CHECKING, Any, Dict, Literal, Optional, Union
 
-import torch
 from typing_extensions import Self
+
+
+if TYPE_CHECKING:
+    import torch
 
 
 @dataclass
@@ -74,10 +77,6 @@ class ModelArguments:
         default=True,
         metadata={"help": "Whether or not to use memory-efficient model loading."},
     )
-    quantization_method: Literal["bitsandbytes", "hqq", "eetq"] = field(
-        default="bitsandbytes",
-        metadata={"help": "Quantization method to use for on-the-fly quantization."},
-    )
     quantization_bit: Optional[int] = field(
         default=None,
         metadata={"help": "The number of bits to quantize the model using bitsandbytes."},
@@ -114,9 +113,9 @@ class ModelArguments:
         default=False,
         metadata={"help": "Whether or not to use unsloth's optimization for the LoRA training."},
     )
-    enable_liger_kernel: bool = field(
+    visual_inputs: bool = field(
         default=False,
-        metadata={"help": "Whether or not to enable liger kernel for faster training."},
+        metadata={"help": "Whethor or not to use multimodal LLM that accepts visual inputs."},
     )
     moe_aux_loss_coef: Optional[float] = field(
         default=None,
@@ -137,14 +136,6 @@ class ModelArguments:
     train_from_scratch: bool = field(
         default=False,
         metadata={"help": "Whether or not to randomly initialize the model weights."},
-    )
-    image_resolution: int = field(
-        default=512,
-        metadata={"help": "Keeps the height or width of image below this resolution."},
-    )
-    video_fps: float = field(
-        default=2.0,
-        metadata={"help": "The frames to sample per second for video training."},
     )
     infer_backend: Literal["huggingface", "vllm"] = field(
         default="huggingface",
@@ -226,36 +217,26 @@ class ModelArguments:
         default=False,
         metadata={"help": "For debugging purposes, print the status of the parameters in the model."},
     )
-    compute_dtype: Optional[torch.dtype] = field(
-        default=None,
-        init=False,
-        metadata={"help": "Torch data type for computing model outputs, derived from `fp/bf16`. Do not specify it."},
-    )
-    device_map: Optional[Union[str, Dict[str, Any]]] = field(
-        default=None,
-        init=False,
-        metadata={"help": "Device map for model placement, derived from training stage. Do not specify it."},
-    )
-    model_max_length: Optional[int] = field(
-        default=None,
-        init=False,
-        metadata={"help": "The maximum input length for model, derived from `cutoff_len`. Do not specify it."},
-    )
-    block_diag_attn: bool = field(
-        default=False,
-        init=False,
-        metadata={"help": "Whether use block diag attention or not, derived from `neat_packing`. Do not specify it."},
-    )
 
     def __post_init__(self):
+        self.compute_dtype: Optional["torch.dtype"] = None
+        self.device_map: Optional[Union[str, Dict[str, Any]]] = None
+        self.model_max_length: Optional[int] = None
+
         if self.split_special_tokens and self.use_fast_tokenizer:
             raise ValueError("`split_special_tokens` is only supported for slow tokenizers.")
+
+        if self.visual_inputs and self.use_unsloth:
+            raise ValueError("Unsloth does not support MLLM yet. Stay tuned.")
 
         if self.adapter_name_or_path is not None:  # support merging multiple lora weights
             self.adapter_name_or_path = [path.strip() for path in self.adapter_name_or_path.split(",")]
 
         if self.new_special_tokens is not None:  # support multiple special tokens
             self.new_special_tokens = [token.strip() for token in self.new_special_tokens.split(",")]
+
+        assert self.quantization_bit in [None, 8, 4], "We only accept 4-bit or 8-bit quantization."
+        assert self.export_quantization_bit in [None, 8, 4, 3, 2], "We only accept 2/3/4/8-bit quantization."
 
         if self.export_quantization_bit is not None and self.export_quantization_dataset is None:
             raise ValueError("Quantization dataset is necessary for exporting.")
@@ -264,16 +245,11 @@ class ModelArguments:
         return asdict(self)
 
     @classmethod
-    def copyfrom(cls, old_arg: "Self", **kwargs) -> "Self":
+    def copyfrom(cls, old_arg: Self, **kwargs) -> Self:
         arg_dict = old_arg.to_dict()
         arg_dict.update(**kwargs)
-        for attr in fields(cls):
-            if not attr.init:
-                arg_dict.pop(attr.name)
-
         new_arg = cls(**arg_dict)
         new_arg.compute_dtype = old_arg.compute_dtype
         new_arg.device_map = old_arg.device_map
         new_arg.model_max_length = old_arg.model_max_length
-        new_arg.block_diag_attn = old_arg.block_diag_attn
         return new_arg

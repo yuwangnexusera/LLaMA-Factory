@@ -19,13 +19,12 @@ from transformers import AutoConfig, AutoModelForCausalLM, AutoModelForVision2Se
 from trl import AutoModelForCausalLMWithValueHead
 
 from ..extras.logging import get_logger
-from ..extras.misc import count_parameters, skip_check_imports, try_download_model_from_ms
+from ..extras.misc import count_parameters, try_download_model_from_ms
 from .adapter import init_adapter
 from .model_utils.misc import register_autoclass
 from .model_utils.mod import convert_pretrained_model_to_mod, load_mod_pretrained_model
 from .model_utils.unsloth import load_unsloth_pretrained_model
 from .model_utils.valuehead import load_valuehead_params
-from .model_utils.visual import get_image_seqlen
 from .patcher import patch_config, patch_model, patch_tokenizer, patch_valuehead_model
 
 
@@ -49,7 +48,6 @@ def _get_init_kwargs(model_args: "ModelArguments") -> Dict[str, Any]:
 
     Note: including inplace operation of model_args.
     """
-    skip_check_imports()
     model_args.model_name_or_path = try_download_model_from_ms(model_args)
     return {
         "trust_remote_code": True,
@@ -66,7 +64,6 @@ def load_tokenizer(model_args: "ModelArguments") -> "TokenizerModule":
     Note: including inplace operation of model_args.
     """
     init_kwargs = _get_init_kwargs(model_args)
-    config = load_config(model_args)
     try:
         tokenizer = AutoTokenizer.from_pretrained(
             model_args.model_name_or_path,
@@ -95,22 +92,17 @@ def load_tokenizer(model_args: "ModelArguments") -> "TokenizerModule":
 
     patch_tokenizer(tokenizer)
 
-    try:
-        processor = AutoProcessor.from_pretrained(model_args.model_name_or_path, **init_kwargs)
-        setattr(processor, "tokenizer", tokenizer)
-        setattr(processor, "image_seqlen", get_image_seqlen(config))
-        setattr(processor, "image_resolution", model_args.image_resolution)
-        setattr(processor, "video_fps", model_args.video_fps)
-        if getattr(config, "model_type", None) == "qwen2_vl":
-            setattr(processor, "video_factor", 2)
-        else:
-            setattr(processor, "video_factor", 1)
-    except Exception:
-        processor = None
-
-    # Avoid load tokenizer, see:
-    # https://github.com/huggingface/transformers/blob/v4.40.0/src/transformers/models/auto/processing_auto.py#L324
-    if "Processor" not in processor.__class__.__name__:
+    if model_args.visual_inputs:
+        try:
+            processor = AutoProcessor.from_pretrained(model_args.model_name_or_path, **init_kwargs)
+            setattr(processor, "tokenizer", tokenizer)
+        except Exception:
+            raise ValueError(
+                "This multimodal LLM is not supported.\n"
+                "Download LLaVA-1.5 models from: https://huggingface.co/llava-hf\n"
+                "Download Yi-VL models from: https://huggingface.co/BUAADreamer"
+            )
+    else:
         processor = None
 
     return {"tokenizer": tokenizer, "processor": processor}
@@ -152,16 +144,12 @@ def load_model(
 
         if model_args.mixture_of_depths == "load":
             model = load_mod_pretrained_model(**init_kwargs)
+        elif model_args.visual_inputs:
+            model = AutoModelForVision2Seq.from_pretrained(**init_kwargs)
+        elif model_args.train_from_scratch:
+            model = AutoModelForCausalLM.from_config(config)
         else:
-            if type(config) in AutoModelForVision2Seq._model_mapping.keys():  # assume built-in models
-                load_class = AutoModelForVision2Seq
-            else:
-                load_class = AutoModelForCausalLM
-
-            if model_args.train_from_scratch:
-                model = load_class.from_config(config)
-            else:
-                model = load_class.from_pretrained(**init_kwargs)
+            model = AutoModelForCausalLM.from_pretrained(**init_kwargs)
 
         if model_args.mixture_of_depths == "convert":
             model = convert_pretrained_model_to_mod(model, config, model_args)
@@ -198,11 +186,11 @@ def load_model(
 
     trainable_params, all_param = count_parameters(model)
     if is_trainable:
-        param_stats = "trainable params: {:,} || all params: {:,} || trainable%: {:.4f}".format(
+        param_stats = "trainable params: {:d} || all params: {:d} || trainable%: {:.4f}".format(
             trainable_params, all_param, 100 * trainable_params / all_param
         )
     else:
-        param_stats = "all params: {:,}".format(all_param)
+        param_stats = "all params: {:d}".format(all_param)
 
     logger.info(param_stats)
 

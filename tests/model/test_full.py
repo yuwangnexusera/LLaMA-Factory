@@ -16,7 +16,8 @@ import os
 
 import torch
 
-from llamafactory.train.test_utils import load_infer_model, load_train_model
+from llamafactory.hparams import get_infer_args, get_train_args
+from llamafactory.model import load_model, load_tokenizer
 
 
 TINY_LLAMA = os.environ.get("TINY_LLAMA", "llamafactory/tiny-random-Llama-3")
@@ -45,14 +46,20 @@ INFER_ARGS = {
 
 
 def test_full_train():
-    model = load_train_model(**TRAIN_ARGS)
+    model_args, _, _, finetuning_args, _ = get_train_args(TRAIN_ARGS)
+    tokenizer_module = load_tokenizer(model_args)
+    model = load_model(tokenizer_module["tokenizer"], model_args, finetuning_args, is_trainable=True)
+
     for param in model.parameters():
         assert param.requires_grad is True
         assert param.dtype == torch.float32
 
 
 def test_full_inference():
-    model = load_infer_model(**INFER_ARGS)
+    model_args, _, finetuning_args, _ = get_infer_args(INFER_ARGS)
+    tokenizer_module = load_tokenizer(model_args)
+    model = load_model(tokenizer_module["tokenizer"], model_args, finetuning_args, is_trainable=False)
+
     for param in model.parameters():
         assert param.requires_grad is False
         assert param.dtype == torch.float16

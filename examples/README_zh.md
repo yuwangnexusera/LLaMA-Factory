@@ -33,19 +33,6 @@ llamafactory-cli train examples/train_lora/llama3_lora_sft.yaml
 
 ```bash
 llamafactory-cli train examples/train_lora/llava1_5_lora_sft.yaml
-llamafactory-cli train examples/train_lora/qwen2vl_lora_sft.yaml
-```
-
-#### DPO/ORPO/SimPO 训练
-
-```bash
-llamafactory-cli train examples/train_lora/llama3_lora_dpo.yaml
-```
-
-#### 多模态 DPO/ORPO/SimPO 训练
-
-```bash
-llamafactory-cli train examples/train_lora/qwen2vl_lora_dpo.yaml
 ```
 
 #### 奖励模型训练
@@ -58,6 +45,12 @@ llamafactory-cli train examples/train_lora/llama3_lora_reward.yaml
 
 ```bash
 llamafactory-cli train examples/train_lora/llama3_lora_ppo.yaml
+```
+
+#### DPO/ORPO/SimPO 训练
+
+```bash
+llamafactory-cli train examples/train_lora/llama3_lora_dpo.yaml
 ```
 
 #### KTO 训练
@@ -101,10 +94,10 @@ FORCE_TORCHRUN=1 llamafactory-cli train examples/train_lora/llama3_lora_sft_ds3.
 
 ### QLoRA 微调
 
-#### 基于 4/8 比特 Bitsandbytes/HQQ/EETQ 量化进行指令监督微调（推荐）
+#### 基于 4/8 比特 Bitsandbytes 量化进行指令监督微调（推荐）
 
 ```bash
-llamafactory-cli train examples/train_qlora/llama3_lora_sft_otfq.yaml
+llamafactory-cli train examples/train_qlora/llama3_lora_sft_bitsandbytes.yaml
 ```
 
 #### 基于 4/8 比特 GPTQ 量化进行指令监督微调
@@ -138,12 +131,6 @@ FORCE_TORCHRUN=1 llamafactory-cli train examples/train_full/llama3_full_sft_ds3.
 ```bash
 FORCE_TORCHRUN=1 NNODES=2 RANK=0 MASTER_ADDR=192.168.0.1 MASTER_PORT=29500 llamafactory-cli train examples/train_full/llama3_full_sft_ds3.yaml
 FORCE_TORCHRUN=1 NNODES=2 RANK=1 MASTER_ADDR=192.168.0.1 MASTER_PORT=29500 llamafactory-cli train examples/train_full/llama3_full_sft_ds3.yaml
-```
-
-#### 多模态指令监督微调
-
-```bash
-FORCE_TORCHRUN=1 llamafactory-cli train examples/train_full/qwen2vl_full_sft.yaml
 ```
 
 #### 批量预测并计算 BLEU 和 ROUGE 分数
@@ -200,12 +187,6 @@ llamafactory-cli train examples/extras/galore/llama3_full_sft.yaml
 
 ```bash
 llamafactory-cli train examples/extras/badam/llama3_full_sft.yaml
-```
-
-#### 使用 Adam-mini 进行全参数训练
-
-```bash
-llamafactory-cli train examples/extras/adam_mini/qwen2_full_sft.yaml
 ```
 
 #### LoRA+ 微调

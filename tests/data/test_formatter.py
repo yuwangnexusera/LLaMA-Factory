@@ -28,7 +28,7 @@ def test_string_formatter():
 
 
 def test_function_formatter():
-    formatter = FunctionFormatter(slots=[], tool_format="default")
+    formatter = FunctionFormatter(slots=["Action: {{name}}\nAction Input: {{arguments}}\n"])
     tool_calls = json.dumps({"name": "tool_name", "arguments": {"foo": "bar", "size": 10}})
     assert formatter.apply(content=tool_calls) == [
         """Action: tool_name\nAction Input: {\"foo\": \"bar\", \"size\": 10}\n"""
@@ -36,7 +36,7 @@ def test_function_formatter():
 
 
 def test_multi_function_formatter():
-    formatter = FunctionFormatter(slots=[], tool_format="default")
+    formatter = FunctionFormatter(slots=["Action: {{name}}\nAction Input: {{arguments}}\n"])
     tool_calls = json.dumps([{"name": "tool_name", "arguments": {"foo": "bar", "size": 10}}] * 2)
     assert formatter.apply(content=tool_calls) == [
         """Action: tool_name\nAction Input: {\"foo\": \"bar\", \"size\": 10}\n""",
@@ -69,9 +69,9 @@ def test_default_tool_formatter():
         "  - bar (number): bar_desc\n\n"
         "Use the following format if using a tool:\n"
         "```\n"
-        "Action: tool name (one of [test_tool])\n"
+        "Action: tool name (one of [test_tool]).\n"
         "Action Input: the input to the tool, in a JSON format representing the kwargs "
-        """(e.g. ```{"input": "hello world", "num_beams": 5}```)\n"""
+        """(e.g. ```{"input": "hello world", "num_beams": 5}```).\n"""
         "```\n"
     ]
 

@@ -160,10 +160,13 @@ cython_debug/
 .idea/
 
 # custom .gitignore
-ms_cache/
-hf_cache/
 cache/
 config/
 saves/
 output/
 wandb/
+
+cache/
+
+
+utils/M400806-7257e31dba3d.json

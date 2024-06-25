@@ -15,20 +15,15 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Dict, List, Optional, Sequence, Tuple, Union
 
-from transformers.utils.versions import require_version
-
 from ..extras.logging import get_logger
-from .data_utils import Role
+from .data_utils import Role, infer_max_len
 from .formatter import EmptyFormatter, FunctionFormatter, StringFormatter, ToolFormatter
-from .mm_plugin import get_mm_plugin
 
 
 if TYPE_CHECKING:
     from transformers import PreTrainedTokenizer
 
-    from ..hparams import DataArguments
     from .formatter import SLOTS, Formatter
-    from .mm_plugin import BasePlugin
 
 
 logger = get_logger(__name__)
@@ -46,40 +41,43 @@ class Template:
     format_prefix: "Formatter"
     default_system: str
     stop_words: List[str]
+    image_token: str
     efficient_eos: bool
     replace_eos: bool
-    mm_plugin: "BasePlugin"
 
     def encode_oneturn(
         self,
         tokenizer: "PreTrainedTokenizer",
-        messages: Sequence[Dict[str, str]],
+        messages: List[Dict[str, str]],
         system: Optional[str] = None,
         tools: Optional[str] = None,
+        cutoff_len: int = 1_000_000,
+        reserved_label_len: int = 1,
     ) -> Tuple[List[int], List[int]]:
         r"""
         Returns a single pair of token ids representing prompt and response respectively.
         """
-        encoded_messages = self._encode(tokenizer, messages, system, tools)
+        encoded_pairs = self._encode(tokenizer, messages, system, tools, cutoff_len, reserved_label_len)
         prompt_ids = []
-        for encoded_ids in encoded_messages[:-1]:
-            prompt_ids += encoded_ids
-
-        answer_ids = encoded_messages[-1]
+        for query_ids, resp_ids in encoded_pairs[:-1]:
+            prompt_ids += query_ids + resp_ids
+        prompt_ids = prompt_ids + encoded_pairs[-1][0]
+        answer_ids = encoded_pairs[-1][1]
         return prompt_ids, answer_ids
 
     def encode_multiturn(
         self,
         tokenizer: "PreTrainedTokenizer",
-        messages: Sequence[Dict[str, str]],
+        messages: List[Dict[str, str]],
         system: Optional[str] = None,
         tools: Optional[str] = None,
-    ) -> List[Tuple[List[int], List[int]]]:
+        cutoff_len: int = 1_000_000,
+        reserved_label_len: int = 1,
+    ) -> Sequence[Tuple[List[int], List[int]]]:
         r"""
         Returns multiple pairs of token ids representing prompts and responses respectively.
         """
-        encoded_messages = self._encode(tokenizer, messages, system, tools)
-        return [(encoded_messages[i], encoded_messages[i + 1]) for i in range(0, len(encoded_messages), 2)]
+        return self._encode(tokenizer, messages, system, tools, cutoff_len, reserved_label_len)
 
     def extract_tool(self, content: str) -> Union[str, List[Tuple[str, str]]]:
         r"""
@@ -90,14 +88,16 @@ class Template:
     def _encode(
         self,
         tokenizer: "PreTrainedTokenizer",
-        messages: Sequence[Dict[str, str]],
+        messages: List[Dict[str, str]],
         system: Optional[str],
         tools: Optional[str],
-    ) -> List[List[int]]:
+        cutoff_len: int,
+        reserved_label_len: int,
+    ) -> Sequence[Tuple[List[int], List[int]]]:
         r"""
         Encodes formatted inputs to pairs of token ids.
-        Turn 0: prefix + system + query        resp
-        Turn t: sep + query                    resp
+        Turn 0: system + query        resp
+        Turn t: sep + query           resp
         """
         system = system or self.default_system
         encoded_messages = []
@@ -106,9 +106,10 @@ class Template:
 
             if i == 0:
                 elements += self.format_prefix.apply()
-                if system or tools:
-                    tool_text = self.format_tools.apply(content=tools)[0] if tools else ""
-                    elements += self.format_system.apply(content=(system + tool_text))
+
+            if i == 0 and (system or tools):
+                tool_text = self.format_tools.apply(content=tools)[0] if tools else ""
+                elements += self.format_system.apply(content=(system + tool_text))
 
             if i > 0 and i % 2 == 0:
                 elements += self.format_separator.apply()
@@ -126,9 +127,11 @@ class Template:
 
             encoded_messages.append(self._convert_elements_to_ids(tokenizer, elements))
 
-        return encoded_messages
+        return self._make_pairs(encoded_messages, cutoff_len, reserved_label_len)
 
-    def _convert_elements_to_ids(self, tokenizer: "PreTrainedTokenizer", elements: "SLOTS") -> List[int]:
+    def _convert_elements_to_ids(
+        self, tokenizer: "PreTrainedTokenizer", elements: List[Union[str, Dict[str, str]]]
+    ) -> List[int]:
         r"""
         Converts elements to token ids.
         """
@@ -149,32 +152,60 @@ class Template:
 
         return token_ids
 
+    def _make_pairs(
+        self,
+        encoded_messages: Sequence[List[int]],
+        cutoff_len: int,
+        reserved_label_len: int,
+    ) -> Sequence[Tuple[List[int], List[int]]]:
+        encoded_pairs = []
+        total_length = 0
+        for i in range(0, len(encoded_messages), 2):
+            if total_length >= cutoff_len:
+                break
+
+            max_source_len, max_target_len = infer_max_len(
+                source_len=len(encoded_messages[i]),
+                target_len=len(encoded_messages[i + 1]),
+                max_len=(cutoff_len - total_length),
+                reserved_label_len=reserved_label_len,
+            )
+            source_ids = encoded_messages[i][:max_source_len]
+            target_ids = encoded_messages[i + 1][:max_target_len]
+            total_length += len(source_ids) + len(target_ids)
+            encoded_pairs.append((source_ids, target_ids))
+
+        return encoded_pairs
+
 
 @dataclass
 class Llama2Template(Template):
     def _encode(
         self,
         tokenizer: "PreTrainedTokenizer",
-        messages: Sequence[Dict[str, str]],
+        messages: List[Dict[str, str]],
         system: str,
         tools: str,
-    ) -> List[List[int]]:
+        cutoff_len: int,
+        reserved_label_len: int,
+    ) -> Sequence[Tuple[List[int], List[int]]]:
         r"""
         Encodes formatted inputs to pairs of token ids.
-        Turn 0: prefix + system + query        resp
-        Turn t: sep + query                    resp
+        Turn 0: system + query        resp
+        Turn t: sep + query           resp
         """
         system = system or self.default_system
         encoded_messages = []
         for i, message in enumerate(messages):
             elements = []
 
-            system_text = ""
             if i == 0:
                 elements += self.format_prefix.apply()
-                if system or tools:
-                    tool_text = self.format_tools.apply(content=tools)[0] if tools else ""
-                    system_text = self.format_system.apply(content=(system + tool_text))[0]
+
+            system_text = ""
+            if i == 0 and (system or tools):
+                tool_text = self.format_tools.apply(content=tools)[0] if tools else ""
+                system_text = self.format_system.apply(content=(system + tool_text))[0]
 
             if i > 0 and i % 2 == 0:
                 elements += self.format_separator.apply()
@@ -192,7 +223,7 @@ class Llama2Template(Template):
 
             encoded_messages.append(self._convert_elements_to_ids(tokenizer, elements))
 
-        return encoded_messages
+        return self._make_pairs(encoded_messages, cutoff_len, reserved_label_len)
 
 
 TEMPLATES: Dict[str, Template] = {}
@@ -209,10 +240,10 @@ def _register_template(
     format_separator: Optional["Formatter"] = None,
     format_prefix: Optional["Formatter"] = None,
     default_system: str = "",
-    stop_words: Sequence[str] = [],
+    stop_words: List[str] = [],
+    image_token: str = "<image>",
     efficient_eos: bool = False,
     replace_eos: bool = False,
-    mm_plugin: "BasePlugin" = get_mm_plugin(name="base"),
 ) -> None:
     r"""
     Registers a chat template.
@@ -244,7 +275,9 @@ def _register_template(
     template_class = Llama2Template if name.startswith("llama2") else Template
     default_user_formatter = StringFormatter(slots=["{{content}}"])
     default_assistant_formatter = StringFormatter(slots=["{{content}}"] + eos_slots)
-    default_function_formatter = FunctionFormatter(slots=eos_slots, tool_format="default")
+    default_function_formatter = FunctionFormatter(
+        slots=["Action: {{name}}\nAction Input: {{arguments}}\n"] + eos_slots
+    )
     default_tool_formatter = ToolFormatter(tool_format="default")
     default_separator_formatter = EmptyFormatter()
     default_prefix_formatter = EmptyFormatter()
@@ -259,9 +292,9 @@ def _register_template(
         format_prefix=format_prefix or default_prefix_formatter,
         default_system=default_system,
         stop_words=stop_words,
+        image_token=image_token,
         efficient_eos=efficient_eos,
         replace_eos=replace_eos,
-        mm_plugin=mm_plugin,
     )
 
 
@@ -315,15 +348,14 @@ def _get_jinja_template(template: "Template", tokenizer: "PreTrainedTokenizer") 
         jinja_template += "{% set system_message = '" + _jinja_escape(template.default_system) + "' %}"
 
     jinja_template += (
-        "{% if messages[0]['role'] == 'system' %}{% set loop_messages = messages[1:] %}"
-        "{% set system_message = messages[0]['content'] %}{% else %}{% set loop_messages = messages %}{% endif %}"
+        "{% if messages[0]['role'] == 'system' %}{% set system_message = messages[0]['content'] %}{% endif %}"
     )
 
     system_message = _convert_slots_to_jinja(template.format_system.apply(), tokenizer, placeholder="system_message")
     if not isinstance(template, Llama2Template):
         jinja_template += "{% if system_message is defined %}{{ " + system_message + " }}{% endif %}"
 
-    jinja_template += "{% for message in loop_messages %}"
+    jinja_template += "{% for message in messages %}"
     jinja_template += "{% set content = message['content'] %}"
     if isinstance(template, Llama2Template):
         jinja_template += "{% if loop.index0 == 0 and system_message is defined %}"
@@ -344,27 +376,21 @@ def _get_jinja_template(template: "Template", tokenizer: "PreTrainedTokenizer") 
     return jinja_template
 
 
-def get_template_and_fix_tokenizer(tokenizer: "PreTrainedTokenizer", data_args: "DataArguments") -> "Template":
-    if data_args.template in ["llava", "paligemma", "qwen2_vl"]:
-        require_version(
-            "transformers>=4.45.0.dev0", "To fix: pip install git+https://github.com/huggingface/transformers.git"
-        )
-
-    if data_args.template is None:
+def get_template_and_fix_tokenizer(
+    tokenizer: "PreTrainedTokenizer",
+    name: Optional[str] = None,
+    tool_format: Optional[str] = None,
+) -> Template:
+    if name is None:
         template = TEMPLATES["empty"]  # placeholder
     else:
-        template = TEMPLATES.get(data_args.template, None)
+        template = TEMPLATES.get(name, None)
         if template is None:
-            raise ValueError("Template {} does not exist.".format(data_args.template))
+            raise ValueError("Template {} does not exist.".format(name))
 
-    if data_args.train_on_prompt and template.efficient_eos:
-        raise ValueError("Current template does not support `train_on_prompt`.")
-
-    if data_args.tool_format is not None:
-        logger.info("Using tool format: {}.".format(data_args.tool_format))
-        eos_slots = [] if template.efficient_eos else [{"eos_token"}]
-        template.format_function = FunctionFormatter(slots=eos_slots, tool_format=data_args.tool_format)
-        template.format_tools = ToolFormatter(tool_format=data_args.tool_format)
+    if tool_format is not None:
+        logger.info("Using tool format: {}.".format(tool_format))
+        template.format_tools = ToolFormatter(tool_format=tool_format)
 
     stop_words = template.stop_words
     if template.replace_eos:
@@ -480,11 +506,10 @@ _register_template(
     format_user=StringFormatter(slots=[{"token": "<|user|>"}, "\n", "{{content}}", {"token": "<|assistant|>"}]),
     format_assistant=StringFormatter(slots=["\n", "{{content}}"]),
     format_system=StringFormatter(slots=[{"token": "<|system|>"}, "\n", "{{content}}"]),
-    format_function=FunctionFormatter(slots=[], tool_format="glm4"),
+    format_function=FunctionFormatter(slots=["{{name}}\n{{arguments}}"]),
     format_observation=StringFormatter(
         slots=[{"token": "<|observation|>"}, "\n", "{{content}}", {"token": "<|assistant|>"}]
     ),
-    format_tools=ToolFormatter(tool_format="glm4"),
     format_prefix=EmptyFormatter(slots=[{"token": "[gMASK]"}, {"token": "sop"}]),
     stop_words=["<|user|>", "<|observation|>"],
     efficient_eos=True,
@@ -517,23 +542,6 @@ _register_template(
 _register_template(
     name="codegeex2",
     format_prefix=EmptyFormatter(slots=[{"token": "[gMASK]"}, {"token": "sop"}]),
-)
-
-
-_register_template(
-    name="codegeex4",
-    format_user=StringFormatter(slots=["<|user|>\n{{content}}<|assistant|>\n"]),
-    format_system=StringFormatter(slots=["<|system|>\n{{content}}"]),
-    format_function=FunctionFormatter(slots=[], tool_format="glm4"),
-    format_observation=StringFormatter(slots=["<|observation|>\n{{content}}<|assistant|>\n"]),
-    format_tools=ToolFormatter(tool_format="glm4"),
-    format_prefix=EmptyFormatter(slots=["[gMASK]<sop>"]),
-    default_system=(
-        "你是一位智能编程助手，你叫CodeGeeX。你会为用户回答关于编程、代码、计算机方面的任何问题，"
-        "并提供格式规范、可以执行、准确安全的代码，并在必要时提供详细的解释。"
-    ),
-    stop_words=["<|user|>", "<|observation|>"],
-    efficient_eos=True,
 )
 
 
@@ -588,7 +596,6 @@ _register_template(
 _register_template(
     name="deepseek",
     format_user=StringFormatter(slots=["User: {{content}}\n\nAssistant:"]),
-    format_system=StringFormatter(slots=["{{content}}\n\n"]),
     format_prefix=EmptyFormatter(slots=[{"bos_token"}]),
 )
 
@@ -596,21 +603,22 @@ _register_template(
 _register_template(
     name="deepseekcoder",
     format_user=StringFormatter(slots=["### Instruction:\n{{content}}\n### Response:"]),
-    format_assistant=StringFormatter(slots=["\n{{content}}\n<|EOT|>"]),
-    format_separator=EmptyFormatter(slots=["\n"]),
-    format_prefix=EmptyFormatter(slots=[{"bos_token"}]),
+    format_assistant=StringFormatter(slots=["\n", "{{content}}"]),
+    format_separator=EmptyFormatter(slots=["\n<|EOT|>\n"]),
     default_system=(
-        "You are an AI programming assistant, utilizing the DeepSeek Coder model, "
-        "developed by DeepSeek Company, and you only answer questions related to computer science. "
+        "You are an AI programming assistant, utilizing the Deepseek Coder model, "
+        "developed by Deepseek Company, and you only answer questions related to computer science. "
         "For politically sensitive questions, security and privacy issues, "
-        "and other non-computer science questions, you will refuse to answer.\n"
+        "and other non-computer science questions, you will refuse to answer\n"
     ),
+    stop_words=["<|EOT|>"],
+    efficient_eos=True,
 )
 
 
 _register_template(
     name="default",
-    format_user=StringFormatter(slots=["Human: {{content}}\nAssistant:"]),
+    format_user=StringFormatter(slots=["Human: {{content}}\nAssistant: "]),
     format_system=StringFormatter(slots=["{{content}}\n"]),
     format_separator=EmptyFormatter(slots=["\n"]),
 )
@@ -654,7 +662,7 @@ _register_template(
     format_user=StringFormatter(slots=["<|user|>\n{{content}}<|assistant|>"]),
     format_assistant=StringFormatter(slots=["\n{{content}}"]),
     format_system=StringFormatter(slots=["<|system|>\n{{content}}"]),
-    format_function=FunctionFormatter(slots=[], tool_format="glm4"),
+    format_function=FunctionFormatter(slots=["{{name}}\n{{arguments}}"]),
     format_observation=StringFormatter(slots=["<|observation|>\n{{content}}<|assistant|>"]),
     format_tools=ToolFormatter(tool_format="glm4"),
     format_prefix=EmptyFormatter(slots=["[gMASK]<sop>"]),
@@ -726,17 +734,6 @@ _register_template(
 
 
 _register_template(
-    name="llava",
-    format_user=StringFormatter(slots=["USER: {{content}} ASSISTANT:"]),
-    default_system=(
-        "A chat between a curious user and an artificial intelligence assistant. "
-        "The assistant gives helpful, detailed, and polite answers to the user's questions."
-    ),
-    mm_plugin=get_mm_plugin(name="llava", image_token="<image>"),
-)
-
-
-_register_template(
     name="mistral",
     format_user=StringFormatter(slots=["[INST] {{content}} [/INST]"]),
     format_prefix=EmptyFormatter(slots=[{"bos_token"}]),
@@ -781,19 +778,6 @@ _register_template(
 
 
 _register_template(
-    name="paligemma",
-    format_user=StringFormatter(slots=["<start_of_turn>user\n{{content}}<end_of_turn>\n<start_of_turn>model\n"]),
-    format_observation=StringFormatter(
-        slots=["<start_of_turn>tool\n{{content}}<end_of_turn>\n<start_of_turn>model\n"]
-    ),
-    format_separator=EmptyFormatter(slots=["<end_of_turn>\n"]),
-    format_prefix=EmptyFormatter(slots=[{"bos_token"}]),
-    efficient_eos=True,
-    mm_plugin=get_mm_plugin(name="paligemma", image_token="<image>"),
-)
-
-
-_register_template(
     name="phi",
     format_user=StringFormatter(slots=["<|user|>\n{{content}}<|end|>\n<|assistant|>\n"]),
     format_system=StringFormatter(slots=["<|system|>\n{{content}}<|end|>\n"]),
@@ -811,33 +795,6 @@ _register_template(
     format_observation=StringFormatter(slots=["<|im_start|>tool\n{{content}}<|im_end|>\n<|im_start|>assistant\n"]),
     format_separator=EmptyFormatter(slots=["\n"]),
     default_system="You are a helpful assistant.",
-    stop_words=["<|im_end|>"],
-    replace_eos=True,
-)
-
-
-_register_template(
-    name="qwen2_vl",
-    format_user=StringFormatter(slots=["<|im_start|>user\n{{content}}<|im_end|>\n<|im_start|>assistant\n"]),
-    format_system=StringFormatter(slots=["<|im_start|>system\n{{content}}<|im_end|>\n"]),
-    format_observation=StringFormatter(slots=["<|im_start|>tool\n{{content}}<|im_end|>\n<|im_start|>assistant\n"]),
-    format_separator=EmptyFormatter(slots=["\n"]),
-    default_system="You are a helpful assistant.",
-    stop_words=["<|im_end|>"],
-    replace_eos=True,
-    mm_plugin=get_mm_plugin(name="qwen2_vl", image_token="<|image_pad|>", video_token="<|video_pad|>"),
-)
-
-
-_register_template(
-    name="sailor",
-    format_user=StringFormatter(slots=["<|im_start|>question\n{{content}}<|im_end|>\n<|im_start|>answer\n"]),
-    format_system=StringFormatter(slots=["<|im_start|>system\n{{content}}<|im_end|>\n"]),
-    format_separator=EmptyFormatter(slots=["\n"]),
-    default_system=(
-        "You are an AI assistant named Sailor created by Sea AI Lab. "
-        "Your answer should be friendly, unbiased, faithful, informative and detailed."
-    ),
     stop_words=["<|im_end|>"],
     replace_eos=True,
 )
@@ -940,7 +897,6 @@ _register_template(
     ),
     stop_words=["###"],
     efficient_eos=True,
-    mm_plugin=get_mm_plugin(name="llava", image_token="<image>"),
 )
 
 
@@ -955,7 +911,8 @@ _register_template(
 
 _register_template(
     name="zephyr",
-    format_user=StringFormatter(slots=["<|user|>\n{{content}}", {"eos_token"}, "<|assistant|>\n"]),
+    format_user=StringFormatter(slots=["<|user|>\n{{content}}", {"eos_token"}, "<|assistant|>"]),
+    format_assistant=StringFormatter(slots=["\n{{content}}", {"eos_token"}]),
     format_system=StringFormatter(slots=["<|system|>\n{{content}}", {"eos_token"}]),
     default_system="You are Zephyr, a helpful assistant.",
 )

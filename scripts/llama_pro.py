@@ -19,7 +19,7 @@
 import json
 import os
 from collections import OrderedDict
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 import fire
 import torch
@@ -47,8 +47,8 @@ def block_expansion(
     model_name_or_path: str,
     output_dir: str,
     num_expand: int,
-    shard_size: str = "2GB",
-    save_safetensors: bool = True,
+    shard_size: Optional[str] = "2GB",
+    save_safetensors: Optional[bool] = False,
 ):
     r"""
     Performs block expansion for LLaMA, Mistral, Qwen1.5 or Yi models.

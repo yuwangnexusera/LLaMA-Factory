@@ -28,22 +28,17 @@ def find_all_linear_modules(model: "PreTrainedModel", freeze_vision_tower: bool)
     r"""
     Finds all available modules to apply lora or galore.
     """
-    model_type = getattr(model.config, "model_type", None)
     forbidden_modules = {"lm_head"}
-    if model_type == "chatglm":
+
+    if model.config.model_type == "chatglm":
         forbidden_modules.add("output_layer")
-    elif model_type == "internlm2":
+    elif model.config.model_type == "internlm2":
         forbidden_modules.add("output")
-    elif model_type in ["llava", "paligemma"]:
+    elif model.config.model_type in ["llava", "paligemma"]:
         forbidden_modules.add("multi_modal_projector")
-    elif model_type == "qwen2_vl":
-        forbidden_modules.add("merger")
 
     if freeze_vision_tower:
-        if model_type == "qwen2_vl":
-            forbidden_modules.add("visual")
-        else:
-            forbidden_modules.add("vision_tower")
+        forbidden_modules.add("vision_tower")
 
     module_names = set()
     for name, module in model.named_modules():

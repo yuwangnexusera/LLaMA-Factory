@@ -36,19 +36,15 @@ def quantize_loftq(
     lora_alpha: int = None,
     lora_rank: int = 16,
     lora_dropout: float = 0,
-    lora_target: tuple = ("q_proj", "v_proj"),
+    lora_target: str = "q_proj,v_proj",
     save_safetensors: bool = True,
 ):
     r"""
     Initializes LoRA weights with LoRA-fine-tuning-aware Quantization (LoftQ)
     Usage: python loftq_init.py --model_name_or_path path_to_model --output_dir output_dir
     """
-    if isinstance(lora_target, str):
-        lora_target = [name.strip() for name in lora_target.split(",")]
-
     tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, trust_remote_code=True)
     model = AutoModelForCausalLM.from_pretrained(model_name_or_path, trust_remote_code=True, torch_dtype="auto")
-
     loftq_config = LoftQConfig(loftq_bits=loftq_bits, loftq_iter=loftq_iter)
     lora_config = LoraConfig(
         task_type=TaskType.CAUSAL_LM,
@@ -56,7 +52,7 @@ def quantize_loftq(
         r=lora_rank,
         lora_alpha=lora_alpha if lora_alpha is not None else lora_rank * 2,
         lora_dropout=lora_dropout,
-        target_modules=lora_target,
+        target_modules=[name.strip() for name in lora_target.split(",")],
         init_lora_weights="loftq",
         loftq_config=loftq_config,
     )
@@ -67,7 +63,7 @@ def quantize_loftq(
     loftq_dir = os.path.join(output_dir, "loftq_init")
 
     # Save LoftQ model
-    setattr(peft_model.peft_config["default"], "base_model_name_or_path", os.path.abspath(output_dir))
+    setattr(peft_model.peft_config["default"], "base_model_name_or_path", output_dir)
     setattr(peft_model.peft_config["default"], "init_lora_weights", True)  # don't apply loftq again
     peft_model.save_pretrained(loftq_dir, safe_serialization=save_safetensors)
     print("Adapter weights saved in {}".format(loftq_dir))

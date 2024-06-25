@@ -13,15 +13,16 @@
 # limitations under the License.
 
 import os
+from typing import Dict
 
 import pytest
+import torch
+from transformers import AutoModelForCausalLM
+from trl import AutoModelForCausalLMWithValueHead
 
-from llamafactory.train.test_utils import (
-    compare_model,
-    load_infer_model,
-    load_reference_model,
-    patch_valuehead_model,
-)
+from llamafactory.extras.misc import get_current_device
+from llamafactory.hparams import get_infer_args
+from llamafactory.model import load_model, load_tokenizer
 
 
 TINY_LLAMA = os.environ.get("TINY_LLAMA", "llamafactory/tiny-random-Llama-3")
@@ -35,19 +36,45 @@ INFER_ARGS = {
 }
 
 
+def compare_model(model_a: "torch.nn.Module", model_b: "torch.nn.Module"):
+    state_dict_a = model_a.state_dict()
+    state_dict_b = model_b.state_dict()
+    assert set(state_dict_a.keys()) == set(state_dict_b.keys())
+    for name in state_dict_a.keys():
+        assert torch.allclose(state_dict_a[name], state_dict_b[name], rtol=1e-4, atol=1e-5)
+
+
 @pytest.fixture
 def fix_valuehead_cpu_loading():
-    patch_valuehead_model()
+    def post_init(self: "AutoModelForCausalLMWithValueHead", state_dict: Dict[str, "torch.Tensor"]):
+        state_dict = {k[7:]: state_dict[k] for k in state_dict.keys() if k.startswith("v_head.")}
+        self.v_head.load_state_dict(state_dict, strict=False)
+        del state_dict
+
+    AutoModelForCausalLMWithValueHead.post_init = post_init
 
 
 def test_base():
-    model = load_infer_model(**INFER_ARGS)
-    ref_model = load_reference_model(TINY_LLAMA)
+    model_args, _, finetuning_args, _ = get_infer_args(INFER_ARGS)
+    tokenizer_module = load_tokenizer(model_args)
+    model = load_model(tokenizer_module["tokenizer"], model_args, finetuning_args, is_trainable=False)
+
+    ref_model = AutoModelForCausalLM.from_pretrained(
+        TINY_LLAMA, torch_dtype=torch.float16, device_map=get_current_device()
+    )
     compare_model(model, ref_model)
 
 
 @pytest.mark.usefixtures("fix_valuehead_cpu_loading")
 def test_valuehead():
-    model = load_infer_model(add_valuehead=True, **INFER_ARGS)
-    ref_model = load_reference_model(TINY_LLAMA_VALUEHEAD, add_valuehead=True)
+    model_args, _, finetuning_args, _ = get_infer_args(INFER_ARGS)
+    tokenizer_module = load_tokenizer(model_args)
+    model = load_model(
+        tokenizer_module["tokenizer"], model_args, finetuning_args, is_trainable=False, add_valuehead=True
+    )
+
+    ref_model: "AutoModelForCausalLMWithValueHead" = AutoModelForCausalLMWithValueHead.from_pretrained(
+        TINY_LLAMA_VALUEHEAD, torch_dtype=torch.float16, device_map=get_current_device()
+    )
+    ref_model.v_head = ref_model.v_head.to(torch.float16)
     compare_model(model, ref_model)

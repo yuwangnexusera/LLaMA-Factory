@@ -38,10 +38,6 @@ def _get_package_version(name: str) -> "Version":
         return version.parse("0.0.0")
 
 
-def is_pyav_available():
-    return _is_package_available("av")
-
-
 def is_fastapi_available():
     return _is_package_available("fastapi")
 
@@ -74,11 +70,6 @@ def is_starlette_available():
     return _is_package_available("sse_starlette")
 
 
-@lru_cache
-def is_transformers_version_greater_than_4_43():
-    return _get_package_version("transformers") >= version.parse("4.43.0")
-
-
 def is_uvicorn_available():
     return _is_package_available("uvicorn")
 
@@ -90,8 +81,3 @@ def is_vllm_available():
 @lru_cache
 def is_vllm_version_greater_than_0_5():
     return _get_package_version("vllm") >= version.parse("0.5.0")
-
-
-@lru_cache
-def is_vllm_version_greater_than_0_5_1():
-    return _get_package_version("vllm") >= version.parse("0.5.1")

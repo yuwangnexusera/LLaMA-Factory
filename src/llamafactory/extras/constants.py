@@ -47,8 +47,6 @@ FILEEXT2TYPE = {
 
 IGNORE_INDEX = -100
 
-IMAGE_PLACEHOLDER = "<image>"
-
 LAYERNORM_NAMES = {"norm", "ln"}
 
 LLAMABOARD_CONFIG = "llamaboard_config.yaml"
@@ -80,22 +78,7 @@ TRAINING_STAGES = {
 
 STAGES_USE_PAIR_DATA = {"rm", "dpo"}
 
-SUPPORTED_CLASS_FOR_BLOCK_DIAG_ATTN = {
-    "cohere",
-    "falcon",
-    "gemma",
-    "gemma2",
-    "llama",
-    "mistral",
-    "phi",
-    "phi3",
-    "qwen2",
-    "starcoder2",
-}
-
 SUPPORTED_CLASS_FOR_S2ATTN = {"llama"}
-
-VIDEO_PLACEHOLDER = "<video>"
 
 V_HEAD_WEIGHTS_NAME = "value_head.bin"
 
@@ -300,17 +283,6 @@ register_model_group(
         },
     },
     template="llama2_zh",
-)
-
-
-register_model_group(
-    models={
-        "CodeGeeX4-9B-Chat": {
-            DownloadSource.DEFAULT: "THUDM/codegeex4-all-9b",
-            DownloadSource.MODELSCOPE: "ZhipuAI/codegeex4-all-9b",
-        },
-    },
-    template="codegeex4",
 )
 
 
@@ -535,30 +507,6 @@ register_model_group(
         "Gemma-1.1-7B-Chat": {
             DownloadSource.DEFAULT: "google/gemma-1.1-7b-it",
         },
-        "Gemma-2-2B": {
-            DownloadSource.DEFAULT: "google/gemma-2-2b",
-            DownloadSource.MODELSCOPE: "LLM-Research/gemma-2-2b",
-        },
-        "Gemma-2-9B": {
-            DownloadSource.DEFAULT: "google/gemma-2-9b",
-            DownloadSource.MODELSCOPE: "LLM-Research/gemma-2-9b",
-        },
-        "Gemma-2-27B": {
-            DownloadSource.DEFAULT: "google/gemma-2-27b",
-            DownloadSource.MODELSCOPE: "LLM-Research/gemma-2-27b",
-        },
-        "Gemma-2-2B-Chat": {
-            DownloadSource.DEFAULT: "google/gemma-2-2b-it",
-            DownloadSource.MODELSCOPE: "LLM-Research/gemma-2-2b-it",
-        },
-        "Gemma-2-9B-Chat": {
-            DownloadSource.DEFAULT: "google/gemma-2-9b-it",
-            DownloadSource.MODELSCOPE: "LLM-Research/gemma-2-9b-it",
-        },
-        "Gemma-2-27B-Chat": {
-            DownloadSource.DEFAULT: "google/gemma-2-27b-it",
-            DownloadSource.MODELSCOPE: "LLM-Research/gemma-2-27b-it",
-        },
     },
     template="gemma",
 )
@@ -623,25 +571,6 @@ register_model_group(
         "InternLM2-20B-Chat": {
             DownloadSource.DEFAULT: "internlm/internlm2-chat-20b",
             DownloadSource.MODELSCOPE: "Shanghai_AI_Laboratory/internlm2-chat-20b",
-        },
-    },
-    template="intern2",
-)
-
-
-register_model_group(
-    models={
-        "InternLM2.5-7B": {
-            DownloadSource.DEFAULT: "internlm/internlm2_5-7b",
-            DownloadSource.MODELSCOPE: "Shanghai_AI_Laboratory/internlm2_5-7b",
-        },
-        "InternLM2.5-7B-Chat": {
-            DownloadSource.DEFAULT: "internlm/internlm2_5-7b-chat",
-            DownloadSource.MODELSCOPE: "Shanghai_AI_Laboratory/internlm2_5-7b-chat",
-        },
-        "InternLM2.5-7B-1M-Chat": {
-            DownloadSource.DEFAULT: "internlm/internlm2_5-7b-chat-1m",
-            DownloadSource.MODELSCOPE: "Shanghai_AI_Laboratory/internlm2_5-7b-chat-1m",
         },
     },
     template="intern2",
@@ -753,35 +682,6 @@ register_model_group(
 
 register_model_group(
     models={
-        "LLaMA3.1-8B": {
-            DownloadSource.DEFAULT: "meta-llama/Meta-Llama-3.1-8B",
-            DownloadSource.MODELSCOPE: "LLM-Research/Meta-Llama-3.1-8B",
-        },
-        "LLaMA3.1-70B": {
-            DownloadSource.DEFAULT: "meta-llama/Meta-Llama-3.1-70B",
-            DownloadSource.MODELSCOPE: "LLM-Research/Meta-Llama-3.1-70B",
-        },
-        "LLaMA3.1-405B": {
-            DownloadSource.DEFAULT: "meta-llama/Meta-Llama-3.1-405B",
-        },
-        "LLaMA3.1-8B-Chat": {
-            DownloadSource.DEFAULT: "meta-llama/Meta-Llama-3.1-8B-Instruct",
-            DownloadSource.MODELSCOPE: "LLM-Research/Meta-Llama-3.1-8B-Instruct",
-        },
-        "LLaMA3.1-70B-Chat": {
-            DownloadSource.DEFAULT: "meta-llama/Meta-Llama-3.1-70B-Instruct",
-            DownloadSource.MODELSCOPE: "LLM-Research/Meta-Llama-3.1-70B-Instruct",
-        },
-        "LLaMA3.1-405B-Chat": {
-            DownloadSource.DEFAULT: "meta-llama/Meta-Llama-3.1-405B-Instruct",
-        },
-    },
-    template="llama3",
-)
-
-
-register_model_group(
-    models={
         "LLaVA1.5-7B-Chat": {
             DownloadSource.DEFAULT: "llava-hf/llava-1.5-7b-hf",
         },
@@ -789,7 +689,7 @@ register_model_group(
             DownloadSource.DEFAULT: "llava-hf/llava-1.5-13b-hf",
         },
     },
-    template="llava",
+    template="vicuna",
     vision=True,
 )
 
@@ -832,11 +732,6 @@ register_model_group(
         },
         "Mistral-7B-v0.3-Chat": {
             DownloadSource.DEFAULT: "mistralai/Mistral-7B-Instruct-v0.3",
-            DownloadSource.MODELSCOPE: "LLM-Research/Mistral-7B-Instruct-v0.3",
-        },
-        "Mistral-Nemo-Chat": {
-            DownloadSource.DEFAULT: "mistralai/Mistral-Nemo-Instruct-2407",
-            DownloadSource.MODELSCOPE: "AI-ModelScope/Mistral-Nemo-Instruct-2407",
         },
     },
     template="mistral",
@@ -934,28 +829,27 @@ register_model_group(
 
 register_model_group(
     models={
-        "PaliGemma-3B-pt-224-Chat": {
+        "PaliGemma-3B-pt-224": {
             DownloadSource.DEFAULT: "google/paligemma-3b-pt-224",
             DownloadSource.MODELSCOPE: "AI-ModelScope/paligemma-3b-pt-224",
         },
-        "PaliGemma-3B-pt-448-Chat": {
+        "PaliGemma-3B-pt-448": {
             DownloadSource.DEFAULT: "google/paligemma-3b-pt-448",
             DownloadSource.MODELSCOPE: "AI-ModelScope/paligemma-3b-pt-448",
         },
-        "PaliGemma-3B-pt-896-Chat": {
+        "PaliGemma-3B-pt-896": {
             DownloadSource.DEFAULT: "google/paligemma-3b-pt-896",
             DownloadSource.MODELSCOPE: "AI-ModelScope/paligemma-3b-pt-896",
         },
-        "PaliGemma-3B-mix-224-Chat": {
+        "PaliGemma-3B-mix-224": {
             DownloadSource.DEFAULT: "google/paligemma-3b-mix-224",
             DownloadSource.MODELSCOPE: "AI-ModelScope/paligemma-3b-mix-224",
         },
-        "PaliGemma-3B-mix-448-Chat": {
+        "PaliGemma-3B-mix-448": {
             DownloadSource.DEFAULT: "google/paligemma-3b-mix-448",
             DownloadSource.MODELSCOPE: "AI-ModelScope/paligemma-3b-mix-448",
         },
     },
-    template="paligemma",
     vision=True,
 )
 
@@ -1249,18 +1143,6 @@ register_model_group(
             DownloadSource.DEFAULT: "Qwen/Qwen2-57B-A14B",
             DownloadSource.MODELSCOPE: "qwen/Qwen2-57B-A14B",
         },
-        "Qwen2-Math-1.5B": {
-            DownloadSource.DEFAULT: "Qwen/Qwen2-Math-1.5B",
-            DownloadSource.MODELSCOPE: "qwen/Qwen2-Math-1.5B",
-        },
-        "Qwen2-Math-7B": {
-            DownloadSource.DEFAULT: "Qwen/Qwen2-Math-7B",
-            DownloadSource.MODELSCOPE: "qwen/Qwen2-Math-7B",
-        },
-        "Qwen2-Math-72B": {
-            DownloadSource.DEFAULT: "Qwen/Qwen2-Math-72B",
-            DownloadSource.MODELSCOPE: "qwen/Qwen2-Math-72B",
-        },
         "Qwen2-0.5B-Chat": {
             DownloadSource.DEFAULT: "Qwen/Qwen2-0.5B-Instruct",
             DownloadSource.MODELSCOPE: "qwen/Qwen2-0.5B-Instruct",
@@ -1280,18 +1162,6 @@ register_model_group(
         "Qwen2-MoE-57B-Chat": {
             DownloadSource.DEFAULT: "Qwen/Qwen2-57B-A14B-Instruct",
             DownloadSource.MODELSCOPE: "qwen/Qwen2-57B-A14B-Instruct",
-        },
-        "Qwen2-Math-1.5B-Chat": {
-            DownloadSource.DEFAULT: "Qwen/Qwen2-Math-1.5B-Instruct",
-            DownloadSource.MODELSCOPE: "qwen/Qwen2-Math-1.5B-Instruct",
-        },
-        "Qwen2-Math-7B-Chat": {
-            DownloadSource.DEFAULT: "Qwen/Qwen2-Math-7B-Instruct",
-            DownloadSource.MODELSCOPE: "qwen/Qwen2-Math-7B-Instruct",
-        },
-        "Qwen2-Math-72B-Chat": {
-            DownloadSource.DEFAULT: "Qwen/Qwen2-Math-72B-Instruct",
-            DownloadSource.MODELSCOPE: "qwen/Qwen2-Math-72B-Instruct",
         },
         "Qwen2-0.5B-int8-Chat": {
             DownloadSource.DEFAULT: "Qwen/Qwen2-0.5B-Instruct-GPTQ-Int8",
@@ -1331,34 +1201,6 @@ register_model_group(
         },
     },
     template="qwen",
-)
-
-
-register_model_group(
-    models={
-        "Qwen2VL-2B-Chat": {
-            DownloadSource.DEFAULT: "Qwen/Qwen2-VL-2B-Instruct",
-            DownloadSource.MODELSCOPE: "qwen/Qwen2-VL-2B-Instruct",
-        },
-        "Qwen2VL-7B-Chat": {
-            DownloadSource.DEFAULT: "Qwen/Qwen2-VL-7B-Instruct",
-            DownloadSource.MODELSCOPE: "qwen/Qwen2-VL-7B-Instruct",
-        },
-        "Qwen2VL-2B-int8-Chat": {
-            DownloadSource.DEFAULT: "Qwen/Qwen2-VL-2B-Instruct-GPTQ-Int8",
-        },
-        "Qwen2VL-2B-int4-Chat": {
-            DownloadSource.DEFAULT: "Qwen/Qwen2-VL-2B-Instruct-AWQ",
-        },
-        "Qwen2VL-7B-int8-Chat": {
-            DownloadSource.DEFAULT: "Qwen/Qwen2-VL-7B-Instruct-GPTQ-Int8",
-        },
-        "Qwen2VL-7B-int4-Chat": {
-            DownloadSource.DEFAULT: "Qwen/Qwen2-VL-7B-Instruct-AWQ",
-        },
-    },
-    template="qwen2_vl",
-    vision=True,
 )
 
 
@@ -1406,10 +1248,6 @@ register_model_group(
 
 register_model_group(
     models={
-        "TeleChat-1B-Chat": {
-            DownloadSource.DEFAULT: "Tele-AI/TeleChat-1B",
-            DownloadSource.MODELSCOPE: "TeleAI/TeleChat-1B",
-        },
         "TeleChat-7B-Chat": {
             DownloadSource.DEFAULT: "Tele-AI/telechat-7B",
             DownloadSource.MODELSCOPE: "TeleAI/telechat-7B",
@@ -1632,18 +1470,6 @@ register_model_group(
         "Yi-1.5-34B-Chat": {
             DownloadSource.DEFAULT: "01-ai/Yi-1.5-34B-Chat",
             DownloadSource.MODELSCOPE: "01ai/Yi-1.5-34B-Chat",
-        },
-        "Yi-Coder-1.5B": {
-            DownloadSource.DEFAULT: "01-ai/Yi-Coder-1.5B",
-        },
-        "Yi-Coder-9B": {
-            DownloadSource.DEFAULT: "01-ai/Yi-Coder-9B",
-        },
-        "Yi-Coder-1.5B-Chat": {
-            DownloadSource.DEFAULT: "01-ai/Yi-Coder-1.5B-Chat",
-        },
-        "Yi-Coder-9B-Chat": {
-            DownloadSource.DEFAULT: "01-ai/Yi-Coder-9B-Chat",
         },
     },
     template="yi",
