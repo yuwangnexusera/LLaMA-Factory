@@ -26,4 +26,4 @@ def _model_list() -> List[str]:
     model_list = []
     for model_name,confs in MODEL_MAPPING.items():
         model_list.append({"model_name": model_name, "reletive_path": confs["model_path"]})
-    return jsonify(model_list)
+    return model_list
