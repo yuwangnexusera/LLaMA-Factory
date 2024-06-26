@@ -208,15 +208,14 @@ async def create_stream_chat_completion_response(
     async for new_token in chat_model.astream_chat(
         input_messages,
         system,
-        tools,
+        # tools,
         image,
-        do_sample=request.do_sample,
+        # do_sample=request.do_sample,
         temperature=request.temperature,
         top_p=request.top_p,
         max_new_tokens=request.max_tokens,
         stop=request.stop,
     ):  
-        print(new_token,end="")
         if len(new_token) != 0:
             yield _create_stream_chat_completion_chunk(
                 completion_id=completion_id, model=request.model, delta=ChatCompletionMessage(content=new_token)

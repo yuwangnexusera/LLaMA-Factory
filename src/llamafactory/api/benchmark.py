@@ -62,7 +62,7 @@ def ie_unit_benchmark(request: "BenchmarkRequest", chat_model: ChatModel):
         with open(test_path_mapping.get(unit_name), "r", encoding="utf-8") as file:
             data = json.load(file)
             for index, report in enumerate(data):
-                if len(model_correct_answer[unit_name]) > request.samples:
+                if len(model_correct_answer[unit_name]) >= request.samples:
                     break
                 messages = []
                 content = report.get("input", "")
@@ -76,22 +76,21 @@ def ie_unit_benchmark(request: "BenchmarkRequest", chat_model: ChatModel):
                     repetition_penalty=request.repetition_penalty,
                     length_penalty=request.length_penalty,
                 ):
-                    print(new_text, end="")
                     response += new_text
                 try:
                     if "```json" in response:
                         response = response.replace("```json", "").replace("```", "")
                     generated_answer = json.loads(response)
+                    report_eval_metrics = f1_cal.labor_recall_precise(
+                        {unit_name: generated_answer}, {unit_name: json.loads(report.get("output"))}
+                    )
                 except Exception as e:
-                    generated_answer = {}
-                    continue
-                report_eval_metrics = f1_cal.labor_recall_precise(
-                    {unit_name: generated_answer}, {unit_name: json.loads(report.get("output"))}
-                )
+                    generated_answer = response #非json直接返回
+
                 model_correct_answer[unit_name].append(
                     {
                         f"report_{index}": content,
-                        "response": generated_answer,
+                        "generate": generated_answer,
                         "answer": json.loads(report.get("output")),
                     }
                 )
@@ -104,4 +103,4 @@ def ie_unit_benchmark(request: "BenchmarkRequest", chat_model: ChatModel):
             for key in eval_metrics:
                 eval_metrics[key] = eval_metrics[key] / len(model_correct_answer[unit_name])
             evaluation_criteria[unit_name] = eval_metrics
-    return BenchmarkResponse(evaluation_criteria=evaluation_criteria, model_correct_answer=model_correct_answer, error_details={})
+    return BenchmarkResponse(evaluation_criteria=evaluation_criteria, model_correct_answer=model_correct_answer, error_details={"":"TODO"})

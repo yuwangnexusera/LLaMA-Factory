@@ -95,6 +95,7 @@ class F1score:
         return indexed_scores
 
     def labor_recall_precise(self, generated_answer, answer_json, include_na_in_total=False):
+        '''输入格式{"单元名":[]}'''
         unit_loc_mapping = prompt_dict._default_unit_locs
         if not isinstance(answer_json, dict):
             answer_json = {"sywu": answer_json}
@@ -108,14 +109,12 @@ class F1score:
         try:
             for unit_name, answer_unit_value in answer_json.items():
                 generate_unit_value = generated_answer.get(unit_name)
-                if generate_unit_value == [] and len(answer_unit_value) == 1:
-                    if all(value == "NA" for value in answer_unit_value.values()):
-                        ce += len(unit_loc_mapping[unit_name])
-                        print(f"{unit_name}全部为NA")
-                        continue
                 if generate_unit_value is None:
                     me += len(answer_unit_value) * len(unit_loc_mapping[unit_name])
                     continue
+                if generate_unit_value == []:
+                    generate_unit_value = [{loc:"NA" for loc in unit_loc_mapping[unit_name]}]
+                    print(f"{unit_name}全部为NA")
                 length_gap = len(answer_unit_value) - len(generate_unit_value)
                 if length_gap > 0:
                     me += length_gap * len(unit_loc_mapping[unit_name])
