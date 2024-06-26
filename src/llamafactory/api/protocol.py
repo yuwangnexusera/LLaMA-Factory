@@ -35,9 +35,9 @@ class Finish(str, Enum):
 
 
 class ModelCard(BaseModel):
-    model_name: str = "qwen2-7b-chat"
+    model_alias: str = "qwen2-7b-chat"
     template: str = "qwen"
-    reletive_path: str 
+    model_name_or_path: str
     hf_path: str
     ms_path: str
 
@@ -169,7 +169,7 @@ class ScoreEvaluationResponse(BaseModel):
 
 
 class LoadModelRequest(BaseModel):
-    relative_path: str = "../models/qwen/Qwen2-7B-Instruct"
+    model_name_or_path: str = "../models/qwen/Qwen2-7B-Instruct"
     # do_sample: bool = True
     # adapter_name_or_path: str = "output_model_dir"
     template: str = "qwen"
