@@ -84,7 +84,7 @@ def create_app() -> "FastAPI":
     async def list_models():
         model_list = _model_list()
         return ModelList(data=model_list)
-    
+
     @app.post(
         "/v1/model/load",
         response_model=LoadModelResponse,
@@ -99,6 +99,23 @@ def create_app() -> "FastAPI":
         except Exception as err:
             return LoadModelResponse(status="failed", message=str(err))
     # benchmark接口 TODO 错误原因，模型答案，标准答案
+    @app.post(
+        "/v1/model/benchmark",
+        description="benchmark，模型答案，标准答案",
+        response_model=ChatCompletionResponse,
+        status_code=status.HTTP_200_OK,
+        dependencies=[Depends(verify_api_key)],
+    )
+    async def create_chat_completion(request: ChatCompletionRequest):
+        if not app.state.chat_model.engine.can_generate:
+            raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Not allowed")
+
+        if request.stream:
+            generate = create_stream_chat_completion_response(request, app.state.chat_model)
+            return EventSourceResponse(generate, media_type="text/event-stream")
+        else:
+            return await create_chat_completion_response(request, app.state.chat_model)
+
     @app.post(
         "/v1/chat/completions",
         response_model=ChatCompletionResponse,

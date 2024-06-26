@@ -150,7 +150,7 @@ class ScoreEvaluationResponse(BaseModel):
 
 
 class LoadModelRequest(BaseModel):
-    model_name: str
+    model_name_or_path: str = "qwen2-7b-chat"
     # do_sample: bool = True
     # adapter_name_or_path: str = "output_model_dir"
     # template: str = "template"
