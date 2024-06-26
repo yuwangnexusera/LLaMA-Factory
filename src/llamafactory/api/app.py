@@ -83,7 +83,7 @@ def create_app() -> "FastAPI":
     )
     async def list_models():
         model_list = _model_list()
-        return model_list
+        return ModelList(data=model_list)
 
     @app.post(
         "/v1/chat/completions",
