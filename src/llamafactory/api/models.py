@@ -1,13 +1,12 @@
-
 from typing import  List
 
 from ..data import Role as DataRole
 from ..extras.logging import get_logger
 from .common import dictify, jsonify
 from .protocol import (
-    Role
+    Role,
+    ModelList,
 )
-
 
 
 logger = get_logger(__name__)
@@ -22,7 +21,7 @@ MODEL_MAPPING = {
     "qwen2-7B-chat": {"model_name": "qwen2-7b-chat", "model_path": "../models/qwen/Qwen2-7B-Instruct", "template": "qwen2"}
 }
 
-def _model_list() -> List[str]:
+def _model_list() -> List[dict]:
     model_list = []
     for model_name,confs in MODEL_MAPPING.items():
         model_list.append({"model_name": model_name, "reletive_path": confs["model_path"]})
