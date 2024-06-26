@@ -115,7 +115,7 @@ def create_app() -> "FastAPI":
 
     @app.post(
         "/v1/model/load",
-        load_args=LoadModelResponse,
+        response_model=LoadModelResponse,
         status_code=status.HTTP_200_OK,
         dependencies=[Depends(verify_api_key)],
     )
