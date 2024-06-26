@@ -38,3 +38,7 @@ MODEL_MAPPING = [
 def _model_list() -> List[dict]:
     model_list = MODEL_MAPPING
     return model_list
+
+# TODO 配置模型MODEL_MAPPING放到配置文件,可以修改
+
+# TODO 下载模型
