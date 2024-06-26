@@ -18,7 +18,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, Field
 from typing_extensions import Literal
-
+from ....parse_ds import sft_prompt
 
 @unique
 class Role(str, Enum):
@@ -129,6 +129,24 @@ class ChatCompletionResponse(BaseModel):
     usage: ChatCompletionResponseUsage
 
 
+class BenchmarkResponse(BaseModel):
+    evaluation_criteria: Union[dict, str]
+    model_correct_answer:dict= {}
+    error_details : Union[dict, str]
+
+
+class BenchmarkRequest(BaseModel):
+    benchmark: str = "Structured medical records"
+    test_unit: List[str] = ["治疗用药方案"]
+    # test_prompt:str = "可不填,用默认微调的prompt"
+    samples: int = 1
+    temperature: float = 0.7
+    top_p: float = 0.7
+    max_new_tokens: int = 1024
+    repetition_penalty: float = 1.2
+    length_penalty: float = 1.1
+
+
 class ChatCompletionStreamResponse(BaseModel):
     id: str
     object: Literal["chat.completion.chunk"] = "chat.completion.chunk"
@@ -153,11 +171,11 @@ class LoadModelRequest(BaseModel):
     model_name_or_path: str = "qwen2-7b-chat"
     # do_sample: bool = True
     # adapter_name_or_path: str = "output_model_dir"
-    # template: str = "template"
+    template: str = "qwen2"
     # finetuning_type: str = "lora"
     # use_unsloth: bool = True
-    temperature: float = 0.01
-    top_p: float = 0.8
+    temperature: float = 0.7
+    top_p: float = 0.7
     max_new_tokens: int = 1024
     repetition_penalty: float = 1.2
     length_penalty: float = 1.1

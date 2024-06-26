@@ -17,7 +17,7 @@ from contextlib import asynccontextmanager
 from typing import Optional
 
 from typing_extensions import Annotated
-
+from .benchmark import ie_unit_benchmark
 from ..chat import ChatModel
 from ..extras.misc import torch_gc
 from ..extras.packages import is_fastapi_available, is_starlette_available, is_uvicorn_available
@@ -36,6 +36,8 @@ from .protocol import (
     ScoreEvaluationResponse,
     LoadModelRequest,
     LoadModelResponse,
+    BenchmarkRequest,
+    BenchmarkResponse
 )
 from .common import dictify, jsonify
 
@@ -102,6 +104,16 @@ def create_app() -> "FastAPI":
     @app.post(
         "/v1/model/benchmark",
         description="benchmark，模型答案，标准答案",
+        response_model=BenchmarkResponse,
+        status_code=status.HTTP_200_OK,
+        dependencies=[Depends(verify_api_key)],
+    )
+    async def benchmark_test(request: BenchmarkRequest):
+    
+        return ie_unit_benchmark(request, app.state.chat_model)
+
+    @app.post(
+        "/v1/model/chat",
         response_model=ChatCompletionResponse,
         status_code=status.HTTP_200_OK,
         dependencies=[Depends(verify_api_key)],
@@ -116,33 +128,17 @@ def create_app() -> "FastAPI":
         else:
             return await create_chat_completion_response(request, app.state.chat_model)
 
-    @app.post(
-        "/v1/chat/completions",
-        response_model=ChatCompletionResponse,
-        status_code=status.HTTP_200_OK,
-        dependencies=[Depends(verify_api_key)],
-    )
-    async def create_chat_completion(request: ChatCompletionRequest):
-        if not app.state.chat_model.engine.can_generate:
-            raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Not allowed")
+    # @app.post(
+    #     "/v1/score/evaluation",
+    #     response_model=ScoreEvaluationResponse,
+    #     status_code=status.HTTP_200_OK,
+    #     dependencies=[Depends(verify_api_key)],
+    # )
+    # async def create_score_evaluation(request: ScoreEvaluationRequest):
+    #     if app.state.chat_model.engine.can_generate:
+    #         raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Not allowed")
 
-        if request.stream:
-            generate = create_stream_chat_completion_response(request, app.state.chat_model)
-            return EventSourceResponse(generate, media_type="text/event-stream")
-        else:
-            return await create_chat_completion_response(request, app.state.chat_model)
-
-    @app.post(
-        "/v1/score/evaluation",
-        response_model=ScoreEvaluationResponse,
-        status_code=status.HTTP_200_OK,
-        dependencies=[Depends(verify_api_key)],
-    )
-    async def create_score_evaluation(request: ScoreEvaluationRequest):
-        if app.state.chat_model.engine.can_generate:
-            raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Not allowed")
-
-        return await create_score_evaluation_response(request, app.state.chat_model)
+    #     return await create_score_evaluation_response(request, app.state.chat_model)
 
     return app
 
