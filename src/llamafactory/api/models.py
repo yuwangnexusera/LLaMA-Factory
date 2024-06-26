@@ -18,17 +18,23 @@ ROLE_MAPPING = {
     Role.TOOL: DataRole.OBSERVATION.value,
 }
 # 调用名：配置
-MODEL_MAPPING = {
-    "qwen2-7B-chat": {
+MODEL_MAPPING = [
+    {
+        "model_name": "qwen2-7B-chat",
+        "template": "qwen",
+        "reletive_path": "../models/qwen/Qwen2-7B-Instruct",
         "hf_path": "Qwen/Qwen2-7B-Instruct",
         "ms_path": "qwen/Qwen2-7B-Instruct",
-        "model_path": "../models/qwen/Qwen2-7B-Instruct",
-        "template": "qwen2",
-    }
-}
+    },
+    {
+        "model_name": "llama3-8B-chat",
+        "template": "llama3",
+        "reletive_path": "../models/qwen/Qwen2-7B-Instruct",
+        "hf_path": "Qwen/Qwen2-7B-Instruct",
+        "ms_path": "qwen/Qwen2-7B-Instruct",
+    },
+]
 
 def _model_list() -> List[dict]:
-    model_list = []
-    for model_name,confs in MODEL_MAPPING.items():
-        model_list.append({model_name: confs})
+    model_list = MODEL_MAPPING
     return model_list
