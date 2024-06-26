@@ -120,14 +120,17 @@ def create_app() -> "FastAPI":
         dependencies=[Depends(verify_api_key)],
     )
     async def create_chat_completion(request: ChatCompletionRequest):
-        if not app.state.chat_model.engine.can_generate:
-            raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Not allowed")
+        try:
+            if not app.state.chat_model.engine.can_generate:
+                raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Not allowed")
 
-        if request.stream:
-            generate = create_stream_chat_completion_response(request, app.state.chat_model)
-            return EventSourceResponse(generate, media_type="text/event-stream")
-        else:
-            return await create_chat_completion_response(request, app.state.chat_model)
+            if request.stream:
+                generate = create_stream_chat_completion_response(request, app.state.chat_model)
+                return EventSourceResponse(generate, media_type="text/event-stream")
+            else:
+                return await create_chat_completion_response(request, app.state.chat_model)
+        except Exception as err:
+            return ChatCompletionResponse(id=err+"模型可能未加载.....",)
 
     # @app.post(
     #     "/v1/score/evaluation",
