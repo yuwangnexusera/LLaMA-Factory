@@ -41,7 +41,7 @@ test_path_mapping = {
 def ie_unit_benchmark(request: "BenchmarkRequest", chat_model: ChatModel):
     f1_cal = F1score()
     # 如果有prompt,就使用新传入的,若没有,使用默认的
-    unit_names = request.unit_names
+    unit_names = request.test_unit
     evaluation_criteria = {}  # 评估指标
     model_correct_answer = {}  # 模型回答与正确答案
     error_details = {}
