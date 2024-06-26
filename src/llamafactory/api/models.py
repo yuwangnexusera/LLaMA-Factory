@@ -29,9 +29,9 @@ MODEL_MAPPING = [
     {
         "model_name": "llama3-8B-chat",
         "template": "llama3",
-        "reletive_path": "../models/qwen/Qwen2-7B-Instruct",
-        "hf_path": "Qwen/Qwen2-7B-Instruct",
-        "ms_path": "qwen/Qwen2-7B-Instruct",
+        "reletive_path": "../models/shenzhi-wang/Llama3-8B-Chinese-Chat",
+        "hf_path": "shenzhi-wang/Llama3-8B-Chinese-Chat",
+        "ms_path": "",
     },
 ]
 
