@@ -37,14 +37,12 @@ class Finish(str, Enum):
 
 
 class ModelCard(BaseModel):
-    id: str
-    object: Literal["model"] = "model"
-    created: int = Field(default_factory=lambda: int(time.time()))
-    owned_by: Literal["owner"] = "owner"
+    model_name: str = "qwen2-7b-chat"
+    reletive_path: str 
+    owned_by: Literal["owner"] = ""
 
 
 class ModelList(BaseModel):
-    object: Literal["list"] = "list"
     data: List[ModelCard] = []
 
 
@@ -139,7 +137,6 @@ class ChatCompletionStreamResponse(BaseModel):
     model: str
     choices: List[ChatCompletionStreamResponseChoice]
 
-
 class ScoreEvaluationRequest(BaseModel):
     model: str
     messages: List[str]
@@ -151,3 +148,21 @@ class ScoreEvaluationResponse(BaseModel):
     object: Literal["score.evaluation"] = "score.evaluation"
     model: str
     scores: List[float]
+
+
+class LoadModelRequest(BaseModel):
+    model_name_or_path: str
+    do_sample: bool = True
+    # adapter_name_or_path: str = "output_model_dir"
+    # template: str = "template"
+    # finetuning_type: str = "lora"
+    # use_unsloth: bool = True
+    temperature: float = 0.01
+    top_p: float = 0.8
+    max_new_tokens: int = 1024
+    repetition_penalty: float = 1.2
+    length_penalty: float = 1.1
+
+class LoadModelResponse(BaseModel):
+    status: Literal["success", "failed"]
+    message: str
