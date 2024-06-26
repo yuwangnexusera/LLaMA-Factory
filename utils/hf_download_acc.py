@@ -4,7 +4,7 @@ os.system("pip install -U huggingface_hub hf_transfer")
 os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
 
 # 设置保存的路径
-local_dir = "download_model/"
+local_dir = "../models"
 
 # 设置仓库id
 model_id = "shenzhi-wang/Llama3-8B-Chinese-Chat"

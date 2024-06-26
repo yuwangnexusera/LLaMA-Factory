@@ -36,7 +36,10 @@ class Finish(str, Enum):
 
 class ModelCard(BaseModel):
     model_name: str = "qwen2-7b-chat"
+    template: str = "qwen"
     reletive_path: str 
+    hf_path: str
+    ms_path: str
 
 
 class ModelList(BaseModel):
@@ -169,7 +172,7 @@ class LoadModelRequest(BaseModel):
     model_name_or_path: str = "qwen2-7b-chat"
     # do_sample: bool = True
     # adapter_name_or_path: str = "output_model_dir"
-    template: str = "qwen2"
+    template: str = "qwen"
     # finetuning_type: str = "lora"
     # use_unsloth: bool = True
     temperature: float = 0.7
