@@ -18,8 +18,6 @@ from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, Field
 from typing_extensions import Literal
-from ....parse_ds import sft_prompt
-
 @unique
 class Role(str, Enum):
     USER = "user"
