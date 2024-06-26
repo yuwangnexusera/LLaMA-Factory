@@ -37,7 +37,7 @@ from .protocol import (
     LoadModelRequest,
     LoadModelResponse,
     BenchmarkRequest,
-    BenchmarkResponse
+    BenchmarkResponse,
 )
 from .common import dictify, jsonify
 
@@ -93,13 +93,14 @@ def create_app() -> "FastAPI":
         status_code=status.HTTP_200_OK,
         dependencies=[Depends(verify_api_key)],
     )
-    async def load_model(load_args:LoadModelRequest):
+    async def load_model(load_args: LoadModelRequest):
         torch_gc()
         try:
             app.state.chat_model = ChatModel(dictify(load_args))
             return LoadModelResponse(status="success", message=f"{load_args.model_name_or_path}Model loaded")
         except Exception as err:
             return LoadModelResponse(status="failed", message=str(err))
+
     # benchmark接口 TODO 错误原因，模型答案，标准答案
     @app.post(
         "/v1/model/benchmark",
