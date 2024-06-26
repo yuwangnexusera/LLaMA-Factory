@@ -75,7 +75,6 @@ class Command(str, Enum):
 
 def main():
     command = sys.argv.pop(1) if len(sys.argv) != 1 else Command.HELP
-    print(f"sys.argv:{sys.argv}")
     if command == Command.API:
         run_api()
     elif command == Command.CHAT:

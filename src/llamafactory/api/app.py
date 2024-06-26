@@ -26,6 +26,7 @@ from .chat import (
     create_score_evaluation_response,
     create_stream_chat_completion_response,
 )
+from .models import _model_list
 from .protocol import (
     ChatCompletionRequest,
     ChatCompletionResponse,
@@ -33,8 +34,10 @@ from .protocol import (
     ModelList,
     ScoreEvaluationRequest,
     ScoreEvaluationResponse,
+    LoadModelRequest,
+    LoadModelResponse,
 )
-
+from .common import dictify, jsonify
 
 if is_fastapi_available():
     from fastapi import Depends, FastAPI, HTTPException, status
@@ -56,7 +59,7 @@ async def lifespan(app: "FastAPI"):  # collects GPU memory
     torch_gc()
 
 
-def create_app(chat_model: "ChatModel") -> "FastAPI":
+def create_app() -> "FastAPI":
     app = FastAPI(lifespan=lifespan)
     app.add_middleware(
         CORSMiddleware,
@@ -79,8 +82,8 @@ def create_app(chat_model: "ChatModel") -> "FastAPI":
         dependencies=[Depends(verify_api_key)],
     )
     async def list_models():
-        model_card = ModelCard(id="gpt-3.5-turbo")
-        return ModelList(data=[model_card])
+        model_list = _model_list()
+        return model_list
 
     @app.post(
         "/v1/chat/completions",
@@ -89,14 +92,14 @@ def create_app(chat_model: "ChatModel") -> "FastAPI":
         dependencies=[Depends(verify_api_key)],
     )
     async def create_chat_completion(request: ChatCompletionRequest):
-        if not chat_model.engine.can_generate:
+        if not app.state.chat_model.engine.can_generate:
             raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Not allowed")
 
         if request.stream:
-            generate = create_stream_chat_completion_response(request, chat_model)
+            generate = create_stream_chat_completion_response(request, app.state.chat_model)
             return EventSourceResponse(generate, media_type="text/event-stream")
         else:
-            return await create_chat_completion_response(request, chat_model)
+            return await create_chat_completion_response(request, app.state.chat_model)
 
     @app.post(
         "/v1/score/evaluation",
@@ -105,16 +108,30 @@ def create_app(chat_model: "ChatModel") -> "FastAPI":
         dependencies=[Depends(verify_api_key)],
     )
     async def create_score_evaluation(request: ScoreEvaluationRequest):
-        if chat_model.engine.can_generate:
+        if app.state.chat_model.engine.can_generate:
             raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Not allowed")
 
-        return await create_score_evaluation_response(request, chat_model)
+        return await create_score_evaluation_response(request, app.state.chat_model)
+
+    @app.post(
+        "/v1/model/load",
+        load_args=LoadModelResponse,
+        status_code=status.HTTP_200_OK,
+        dependencies=[Depends(verify_api_key)],
+    )
+    async def load_model(load_args:LoadModelRequest):
+        torch_gc()
+        try:
+            app.state.chat_model = ChatModel(dictify(load_args))
+            return LoadModelResponse()
+        except Exception as err:
+            return LoadModelResponse(message=str(err))
 
     return app
 
+
 def run_api() -> None:
-    chat_model = ChatModel()
-    app = create_app(chat_model)
+    app = create_app()
     api_host = os.environ.get("API_HOST", "0.0.0.0")
     api_port = int(os.environ.get("API_PORT", "8000"))
     print("Visit http://localhost:{}/docs for API document.".format(api_port))
