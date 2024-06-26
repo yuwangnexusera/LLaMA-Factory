@@ -68,7 +68,8 @@ def ie_unit_benchmark(request: "BenchmarkRequest", chat_model: ChatModel):
                 content = report.get("input", "")
                 messages.append({"role": "user", "content": prompt})
                 response = ""
-                for new_text in chat_model.stream_chat(messages):  # TODO 补上推理超参数
+                for new_text in chat_model.stream_chat(
+                    messages, request.temperature, request.top_p, request.max_new_tokens, request.repetition_penalty,request.length_penalty):  # TODO 补上推理超参数
                     print(new_text, end="")
                     response += new_text
                 try:

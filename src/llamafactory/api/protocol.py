@@ -140,8 +140,8 @@ class BenchmarkRequest(BaseModel):
     test_unit: List[str] = ["治疗用药方案"]
     # test_prompt:str = "可不填,用默认微调的prompt"
     samples: int = 1
-    temperature: float = 0.7
-    top_p: float = 0.7
+    temperature: float = 0.01
+    top_p: float = 0.8
     max_new_tokens: int = 1024
     repetition_penalty: float = 1.2
     length_penalty: float = 1.1
