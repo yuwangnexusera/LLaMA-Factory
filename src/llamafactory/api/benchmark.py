@@ -54,7 +54,7 @@ def ie_unit_benchmark(request: "BenchmarkRequest", chat_model: ChatModel):
             "precision": 0,
             "recall": 0,
         }  # 单元的评估指标
-        prompt = sft_unit_prompt.get(unit_name) 
+        prompt = sft_unit_prompt.get(unit_name)
         if unit_name not in test_path_mapping:
             continue
         if unit_name not in model_correct_answer:
@@ -69,7 +69,13 @@ def ie_unit_benchmark(request: "BenchmarkRequest", chat_model: ChatModel):
                 messages.append({"role": "user", "content": prompt + content})
                 response = ""
                 for new_text in chat_model.stream_chat(
-                    messages, request.temperature, request.top_p, request.max_new_tokens, request.repetition_penalty,request.length_penalty):  # TODO 补上推理超参数
+                    messages=messages,
+                    temperature=request.temperature,
+                    top_p=request.top_p,
+                    max_new_tokens=request.max_new_tokens,
+                    repetition_penalty=request.repetition_penalty,
+                    length_penalty=request.length_penalty,
+                ):
                     print(new_text, end="")
                     response += new_text
                 try:
