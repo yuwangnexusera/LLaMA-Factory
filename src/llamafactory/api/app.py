@@ -97,7 +97,7 @@ def create_app() -> "FastAPI":
         torch_gc()
         try:
             app.state.chat_model = ChatModel(dictify(load_args))
-            return LoadModelResponse(status="success", message="Model loaded")
+            return LoadModelResponse(status=f"{load_args.model_name_or_path}success", message="Model loaded")
         except Exception as err:
             return LoadModelResponse(status="failed", message=str(err))
     # benchmark接口 TODO 错误原因，模型答案，标准答案
@@ -109,7 +109,7 @@ def create_app() -> "FastAPI":
         dependencies=[Depends(verify_api_key)],
     )
     async def benchmark_test(request: BenchmarkRequest):
-    
+
         return ie_unit_benchmark(request, app.state.chat_model)
 
     @app.post(
