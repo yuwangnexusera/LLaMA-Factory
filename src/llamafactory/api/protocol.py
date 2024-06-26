@@ -150,8 +150,8 @@ class ScoreEvaluationResponse(BaseModel):
 
 
 class LoadModelRequest(BaseModel):
-    model_name_or_path: str
-    do_sample: bool = True
+    model_name: str
+    # do_sample: bool = True
     # adapter_name_or_path: str = "output_model_dir"
     # template: str = "template"
     # finetuning_type: str = "lora"

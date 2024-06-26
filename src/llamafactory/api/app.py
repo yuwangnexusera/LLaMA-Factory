@@ -84,7 +84,21 @@ def create_app() -> "FastAPI":
     async def list_models():
         model_list = _model_list()
         return ModelList(data=model_list)
-
+    
+    @app.post(
+        "/v1/model/load",
+        response_model=LoadModelResponse,
+        status_code=status.HTTP_200_OK,
+        dependencies=[Depends(verify_api_key)],
+    )
+    async def load_model(load_args:LoadModelRequest):
+        torch_gc()
+        try:
+            app.state.chat_model = ChatModel(dictify(load_args))
+            return LoadModelResponse(status="success", message="Model loaded")
+        except Exception as err:
+            return LoadModelResponse(status="failed", message=str(err))
+    # benchmark接口 TODO 错误原因，模型答案，标准答案
     @app.post(
         "/v1/chat/completions",
         response_model=ChatCompletionResponse,
@@ -112,20 +126,6 @@ def create_app() -> "FastAPI":
             raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Not allowed")
 
         return await create_score_evaluation_response(request, app.state.chat_model)
-
-    @app.post(
-        "/v1/model/load",
-        response_model=LoadModelResponse,
-        status_code=status.HTTP_200_OK,
-        dependencies=[Depends(verify_api_key)],
-    )
-    async def load_model(load_args:LoadModelRequest):
-        torch_gc()
-        try:
-            app.state.chat_model = ChatModel(dictify(load_args))
-            return LoadModelResponse()
-        except Exception as err:
-            return LoadModelResponse(message=str(err))
 
     return app
 
