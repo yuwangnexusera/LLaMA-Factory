@@ -39,7 +39,6 @@ class Finish(str, Enum):
 class ModelCard(BaseModel):
     model_name: str = "qwen2-7b-chat"
     reletive_path: str 
-    owned_by: Literal["owner"] = ""
 
 
 class ModelList(BaseModel):
