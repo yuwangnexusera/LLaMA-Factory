@@ -102,5 +102,5 @@ def ie_unit_benchmark(request: "BenchmarkRequest", chat_model: ChatModel):
                 eval_metrics["recall"] += report_eval_metrics.get("recall", 0)
             for key in eval_metrics:
                 eval_metrics[key] = eval_metrics[key] / len(model_correct_answer[unit_name])
-            evaluation_criteria[unit_name] = eval_metrics
+        evaluation_criteria[unit_name] = eval_metrics
     return BenchmarkResponse(evaluation_criteria=evaluation_criteria, model_correct_answer=model_correct_answer, error_details={"":"TODO"})

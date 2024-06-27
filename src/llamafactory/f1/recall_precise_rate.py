@@ -46,10 +46,11 @@ class F1score:
                     return f"{int(month):02d}-{int(day):02d}"
         return date_str
 
-    def normalize_value(self, value):
+    def normalize_value(self, value): 
+        '''针对英文数据的时候使用'''
         if isinstance(value, str):
-            value = value.lower()
-            if value in self.reverse_mapping:
+            value = value.lower() if value !="NA" else value
+            if value in self.reverse_mapping: #同义词转换
                 return self.reverse_mapping[value]
             normalized_date = self.normalize_date(value)
             if normalized_date != value:
@@ -121,13 +122,13 @@ class F1score:
                     print(f"{unit_name}缺少{length_gap}条数据")
                 elif length_gap < 0:
                     se += abs(length_gap) * len(unit_loc_mapping[unit_name])
-                if unit_name == "Date":
+                if unit_name == "Date" or unit_name=="日期":
                     if isinstance(answer_unit_value, dict):
                         answer_unit_value = [answer_unit_value]
                     if isinstance(generate_unit_value, dict):
                         generate_unit_value = [generate_unit_value]
-                similarity_tuple_list = self.sort_similarity_matrix(answer_unit_value, generate_unit_value)
-                compared_generate_index = set()
+                similarity_tuple_list = self.sort_similarity_matrix(answer_unit_value, generate_unit_value) #计算相似度
+                compared_generate_index = set() #已对比过的json对象
                 compared_answer_index = set()
                 for similarity, (answer_index, generate_index) in similarity_tuple_list:
                     if generate_index in compared_generate_index or answer_index in compared_answer_index:
@@ -136,24 +137,24 @@ class F1score:
                     compared_answer_index.add(answer_index)
                     answer_unit_value_dict = answer_unit_value[answer_index]
                     generate_unit_value_dict = generate_unit_value[generate_index]
-
+                    # 数据处理
                     for k_g, v_g in generate_unit_value_dict.items():
                         v_g = str(v_g) if isinstance(v_g, int) else v_g
-                        if v_g == "" or v_g == []:
-                            v_g = "na"
+                        if v_g == "" or v_g == [] or v_g == ["NA"]:
+                            v_g = "NA"
                         if isinstance(v_g, list):
                             v_g = list(map(self.normalize_value, v_g))
                         else:
                             v_g = self.normalize_value(v_g)
-                        if k_g in ["Diagnosing Doctor"]:
+                        if k_g in ["Diagnosing Doctor"]: #诊断医生的拼音转换
                             pinyin_list_g = pinyin(v_g, style=Style.NORMAL)
                             v_g = "".join(word[0] for word in pinyin_list_g)
                         generate_unit_value_dict[k_g] = v_g
 
                     for k_a, v_a in answer_unit_value_dict.items():
                         v_a = str(v_a) if isinstance(v_a, int) else v_a
-                        if v_a == "" or v_a == []:
-                            v_a = "na"
+                        if v_a == "" or v_a == [] or v_a == ["NA"]:
+                            v_a = "NA"
                         if isinstance(v_a, list):
                             v_a = list(map(self.normalize_value, v_a))
                         else:
@@ -163,12 +164,13 @@ class F1score:
                             v_a = "".join(word[0] for word in pinyin_list_a)
                         answer_unit_value_dict[k_a] = v_a
 
+                    # 对比
                     for k_a, v_a in answer_unit_value_dict.items():
                         v_a = v_a[0] if isinstance(v_a, list) and len(v_a) == 1 else v_a
 
-                        if k_a not in generate_unit_value_dict:
+                        if k_a not in generate_unit_value_dict and v_a != "NA":
                             me += 1
-                            error_keys.append({k_a: "key not exist in generate"})
+                            error_keys.append({k_a: "key not recall in generate"})
                             continue
                         v_g = generate_unit_value_dict[k_a]
 
@@ -179,7 +181,7 @@ class F1score:
                                 error_keys.append({k_a: {"answer": v_a, "generate": v_g}})
                             else:
                                 ce += 1
-                        elif v_a != "na" and v_g == "na":
+                        elif v_a != "NA" and v_g == "NA":
                             me += 1
                             error_keys.append({k_a: {"answer": v_a, "generate": v_g}})
                         elif v_a != v_g:
@@ -191,8 +193,7 @@ class F1score:
                     for key in generate_unit_value_dict.keys():
                         if key not in answer_unit_value_dict.keys():
                             se += 1
-                            error_keys.append({key: "key not exist in answer"})
-
+                            error_keys.append({key: "key not exist in answer,supurious!"})
             precision = ce / (ce + ie + se) if (ce + ie + se) > 0 else 0
             recall = ce / (ce + me) if (ce + me) > 0 else 0
 
