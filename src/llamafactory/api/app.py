@@ -40,9 +40,10 @@ from .protocol import (
     BenchmarkResponse,
 )
 from .common import dictify, jsonify
+import asyncio
 
 if is_fastapi_available():
-    from fastapi import Depends, FastAPI, HTTPException, status
+    from fastapi import Depends, FastAPI, HTTPException, status, Request
     from fastapi.middleware.cors import CORSMiddleware
     from fastapi.security.http import HTTPAuthorizationCredentials, HTTPBearer
 
@@ -86,7 +87,25 @@ def create_app() -> "FastAPI":
     async def list_models():
         model_list = _model_list()
         return ModelList(data=model_list)
+    @app.get('/stream')
+    async def stream(request: Request):
+        import random
+        def new_count():
+            return random.randint(1, 100)
 
+        async def event_generator():
+            index = 0
+            while True:
+                index += 1
+                if await request.is_disconnected():
+                    break
+                # 测试取随机数据，每次取一个随机数
+                if count := new_count():
+                    yield {'data': count}
+
+                await asyncio.sleep(1)
+
+        return EventSourceResponse(event_generator())
     @app.post(
         "/v1/models/download",
         response_model=DownloadModelResponse,
