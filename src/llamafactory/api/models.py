@@ -20,7 +20,7 @@ ROLE_MAPPING = {
     Role.TOOL: DataRole.OBSERVATION.value,
 }
 # 调用名：配置
-model_conf_path = "src/llamafactory/api/config/model_conf.json"
+model_conf_path = "src/llamafactory/api/api_onfig/model_conf.json"
 MODEL_MAPPING = pandas.read_json(model_conf_path, orient="records").to_dict(orient="records")
 
 
