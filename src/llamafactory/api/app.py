@@ -26,13 +26,13 @@ from .chat import (
     create_score_evaluation_response,
     create_stream_chat_completion_response,
 )
-from .models import _model_list
+from .models import _model_list,download_model
 from .protocol import (
     ChatCompletionRequest,
     ChatCompletionResponse,
-    ModelCard,
+    DownloadModelRequest,
     ModelList,
-    ScoreEvaluationRequest,
+    DownloadModelResponse,
     ScoreEvaluationResponse,
     LoadModelRequest,
     LoadModelResponse,
@@ -78,7 +78,7 @@ def create_app() -> "FastAPI":
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid API key.")
 
     @app.get(
-        "/v1/models",
+        "/v1/models/list",
         response_model=ModelList,
         status_code=status.HTTP_200_OK,
         dependencies=[Depends(verify_api_key)],
@@ -86,6 +86,16 @@ def create_app() -> "FastAPI":
     async def list_models():
         model_list = _model_list()
         return ModelList(data=model_list)
+
+    @app.get(
+        "/v1/models/download",
+        response_model=DownloadModelResponse,
+        status_code=status.HTTP_200_OK,
+        dependencies=[Depends(verify_api_key)],
+    )
+    async def download_model_func(request: DownloadModelRequest):
+        model_down = download_model(request)
+        return model_down
 
     @app.post(
         "/v1/model/load",

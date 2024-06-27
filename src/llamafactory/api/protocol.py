@@ -45,6 +45,16 @@ class ModelCard(BaseModel):
 class ModelList(BaseModel):
     data: List[ModelCard] = []
 
+class DownloadModelRequest(BaseModel):
+    model_alias: str
+    template: Literal["llama3", "gemma", "qwen", "llama2", "glm4", "yi"]
+    origin_platform:Literal["huggingface", "modelscope"]
+    model_name_or_path: str
+
+
+class DownloadModelResponse(BaseModel):
+    msg:str=""
+
 
 class Function(BaseModel):
     name: str
