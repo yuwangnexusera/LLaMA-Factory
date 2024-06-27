@@ -86,7 +86,7 @@ def ie_unit_benchmark(request: "BenchmarkRequest", chat_model: ChatModel):
                     )
                 except Exception as e:
                     generated_answer = response #非json直接返回
-
+                    report_eval_metrics = {}
                 model_correct_answer[unit_name].append(
                     {
                         f"report_{index}": content,
