@@ -91,7 +91,7 @@ def create_app() -> "FastAPI":
     async def stream(request: Request):
         import random
         def new_count():
-            return random.randint(1, 100)
+            return random.randint(1, 5)
 
         async def event_generator():
             index = 0
