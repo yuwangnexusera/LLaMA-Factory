@@ -87,7 +87,7 @@ def create_app() -> "FastAPI":
         model_list = _model_list()
         return ModelList(data=model_list)
 
-    @app.get(
+    @app.post(
         "/v1/models/download",
         response_model=DownloadModelResponse,
         status_code=status.HTTP_200_OK,
