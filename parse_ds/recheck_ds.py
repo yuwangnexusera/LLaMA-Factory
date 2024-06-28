@@ -119,7 +119,7 @@ class AlignDataset:
                 {
                     "instruction": sft_unit_prompt.get(self.unit_name, ""),
                     "input": data["ocr"],
-                    "output": json.dumps(self.remove_duplicates(unit_ds), ensure_ascii=False),
+                    "output": json.dumps(unit_ds, ensure_ascii=False), #self.remove_duplicates(unit_ds),是否需要全去重？wy觉得没必要
                 }
             )
         return self.unit_ds
