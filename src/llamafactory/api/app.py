@@ -26,6 +26,7 @@ from .chat import (
     create_score_evaluation_response,
     create_stream_chat_completion_response,
 )
+from .api_config import config_func
 from .models import _model_list,download_model
 from .protocol import (
     ChatCompletionRequest,
@@ -35,6 +36,7 @@ from .protocol import (
     DownloadModelResponse,
     ScoreEvaluationResponse,
     LoadModelRequest,
+    LoadModelRequestBody,
     LoadModelResponse,
     BenchmarkRequest,
     BenchmarkResponse,
@@ -106,15 +108,15 @@ def create_app() -> "FastAPI":
                 await asyncio.sleep(1)
 
         return EventSourceResponse(event_generator())
-    @app.post(
-        "/v1/models/download",
-        response_model=DownloadModelResponse,
-        status_code=status.HTTP_200_OK,
-        dependencies=[Depends(verify_api_key)],
-    )
-    async def download_model_func(request: DownloadModelRequest):
-        model_down = download_model(request)
-        return model_down
+    # @app.post(
+    #     "/v1/models/download",
+    #     response_model=DownloadModelResponse,
+    #     status_code=status.HTTP_200_OK,
+    #     dependencies=[Depends(verify_api_key)],
+    # )
+    # async def download_model_func(request: DownloadModelRequest):
+    #     model_down = download_model(request)
+    #     return model_down
 
     @app.post(
         "/v1/model/load",
@@ -125,7 +127,10 @@ def create_app() -> "FastAPI":
     async def load_model(load_args: LoadModelRequest):
         torch_gc()
         try:
-            app.state.chat_model = ChatModel(dictify(load_args))
+            model_config = config_func.mapping_model_name_path(load_args.model_alias)
+            model_args = LoadModelRequestBody(model_name_or_path=model_config.model_name_or_path,template=model_config.template,temperature=load_args.temperature,
+                top_p=load_args.top_p,max_new_tokens=load_args.max_new_tokens,repetition_penalty=load_args.repetition_penalty,length_penalty=load_args.length_penalty)
+            app.state.chat_model = ChatModel(dictify(model_args))
             return LoadModelResponse(status="success", message=f"{load_args.model_name_or_path}Model loaded")
         except Exception as err:
             return LoadModelResponse(status="failed", message=str(err))

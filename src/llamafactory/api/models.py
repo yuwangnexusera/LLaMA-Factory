@@ -67,7 +67,7 @@ def update_configuration(request):
             {
                 "model_alias": request.model_alias,
                 "template": request.template,
-                "model_name_or_path": '../models/' + request.model_name_or_path,
+                # "model_name_or_path": '../models/' + request.model_name_or_path,
                 "hf_path": hf_path,
                 "ms_path": ms_path,
             }
