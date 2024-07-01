@@ -44,7 +44,7 @@ def ie_unit_benchmark(request: "BenchmarkRequest", chat_model: ChatModel):
     unit_names = request.test_unit
     evaluation_criteria = {}  # 评估指标
     model_correct_answer = {}  # 模型回答与正确答案
-    error_details = {}
+    # error_details = {}
     for unit_name in unit_names:
         eval_metrics = {
             "correct_extraction": 0,
