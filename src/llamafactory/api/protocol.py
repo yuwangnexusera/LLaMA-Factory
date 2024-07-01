@@ -45,6 +45,38 @@ class ModelCard(BaseModel):
 class ModelList(BaseModel):
     data: List[ModelCard] = []
 
+
+class LoadModelRequest(BaseModel):
+    model_alias: str = "qwen2-7b-chat"
+    # do_sample: bool = True
+    # adapter_name_or_path: str = "output_model_dir"
+    # template: str = "qwen"
+    # finetuning_type: str = "lora"
+    use_unsloth: bool = False
+    temperature: float = 0.7
+    top_p: float = 0.7
+    max_new_tokens: int = 1024
+    repetition_penalty: float = 1.2
+    length_penalty: float = 1.1
+
+
+class LoadModelRequestBody(BaseModel):
+    model_name_or_path: str
+    template: str = "qwen"
+    # finetuning_type: str = "lora"
+    # use_unsloth: bool = True
+    temperature: float = 0.7
+    top_p: float = 0.7
+    max_new_tokens: int = 1024
+    repetition_penalty: float = 1.2
+    length_penalty: float = 1.1
+
+
+class LoadModelResponse(BaseModel):
+    status: Literal["success", "failed"]
+    message: str
+
+
 class DownloadModelRequest(BaseModel):
     model_alias: str
     template: Literal["llama3", "gemma", "qwen", "llama2", "glm4", "yi"]
@@ -176,21 +208,3 @@ class ScoreEvaluationResponse(BaseModel):
     object: Literal["score.evaluation"] = "score.evaluation"
     model: str
     scores: List[float]
-
-
-class LoadModelRequest(BaseModel):
-    model_name_or_path: str = "../models/qwen/Qwen2-7B-Instruct"
-    # do_sample: bool = True
-    # adapter_name_or_path: str = "output_model_dir"
-    template: str = "qwen"
-    # finetuning_type: str = "lora"
-    # use_unsloth: bool = True
-    temperature: float = 0.7
-    top_p: float = 0.7
-    max_new_tokens: int = 1024
-    repetition_penalty: float = 1.2
-    length_penalty: float = 1.1
-
-class LoadModelResponse(BaseModel):
-    status: Literal["success", "failed"]
-    message: str
