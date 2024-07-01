@@ -8,7 +8,7 @@ from .protocol import Role, BenchmarkRequest, BenchmarkResponse
 import json
 from ..f1 import F1score
 
-
+from parse_ds.sft_prompt import sft_unit_prompt
 logger = get_logger(__name__)
 ROLE_MAPPING = {
     Role.USER: DataRole.USER.value,
@@ -18,7 +18,7 @@ ROLE_MAPPING = {
     Role.TOOL: DataRole.OBSERVATION.value,
 }
 
-from parse_ds.sft_prompt import sft_unit_prompt
+
 
 
 test_path_mapping = {
