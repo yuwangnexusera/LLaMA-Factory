@@ -149,7 +149,7 @@ class F1score:
                         if k_g in ["Diagnosing Doctor"]: #诊断医生的拼音转换
                             pinyin_list_g = pinyin(v_g, style=Style.NORMAL)
                             v_g = "".join(word[0] for word in pinyin_list_g)
-                        generate_unit_value_dict[k_g] = v_g.strip()
+                        generate_unit_value_dict[k_g] = v_g.strip() if isinstance(v_g, str) else v_g
 
                     for k_a, v_a in answer_unit_value_dict.items():
                         v_a = str(v_a) if isinstance(v_a, int) else v_a
@@ -162,7 +162,7 @@ class F1score:
                         if k_a in ["Diagnosing Doctor"]:
                             pinyin_list_a = pinyin(v_a, style=Style.NORMAL)
                             v_a = "".join(word[0] for word in pinyin_list_a)
-                        answer_unit_value_dict[k_a] = v_a.strip()
+                        answer_unit_value_dict[k_a] = v_a.strip() if isinstance(v_a, str) else v_a
 
                     # 对比
                     for k_a, v_a in answer_unit_value_dict.items():
