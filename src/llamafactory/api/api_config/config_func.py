@@ -1,6 +1,6 @@
 import pandas
 
-MODEL_CONFIG = pandas.read_json("./model_conf.json", orient="records").to_dict(orient="records")
+MODEL_CONFIG = pandas.read_json("src/llamafactory/api/api_config/model_conf.json", orient="records").to_dict(orient="records")
 
 
 def mapping_model_name_path(model_alias):
