@@ -9,16 +9,16 @@ from parse_ds.sft_prompt import sft_unit_prompt
 print("*****************运行评估测试************************")
 args = dict(
     do_sample=True,  # False之后常被截断
-    model_name_or_path="/mnt/windows/Users/Admin/LLM/shenzhi-wang/Llama3-8B-Chinese-Chat",
-    adapter_name_or_path="/mnt/windows/Users/Admin/LLM/shenzhi-wang/output_v1",  # 加载之前保存的 LoRA 适配器
+    model_name_or_path="/mnt/windows/Users/Admin/LLM/models/shenzhi-wang/Llama3-8B-Chinese-Chat",
+    adapter_name_or_path="/mnt/windows/Users/Admin/LLM/models/shenzhi-wang/output_v1",  # 加载之前保存的 LoRA 适配器
     template="llama3",  # 和训练保持一致
     finetuning_type="lora",  # 和训练保持一致
     # quantization_bit=4,                    # 加载 4 比特量化模型
-    use_unsloth=True,  # 使用 UnslothAI 的 LoRA 优化来获得两倍的推理速度
-    temperature=0.01,
-    top_p=0.8,
+   # use_unsloth=True,  # 使用 UnslothAI 的 LoRA 优化来获得两倍的推理速度
+    temperature=0.5,
+    top_p=0.7,
     max_new_tokens=1024,
-    repetition_penalty=1.2,
+    repetition_penalty=1,
     length_penalty=1.1,
 )
 torch_gc()
