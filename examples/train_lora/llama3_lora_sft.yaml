@@ -1,5 +1,5 @@
 ### model
-model_name_or_path: meta-llama/Meta-Llama-3-8B-Instruct
+model_name_or_path: /mnt/windows/Users/Admin/LLM/models/shenzhi-wang/Llama3-8B-Chinese-Chat
 
 ### method
 stage: sft
@@ -8,7 +8,10 @@ finetuning_type: lora
 lora_target: all
 
 ### dataset
-dataset: identity,alpaca_en_demo
+# datasets = """pathology_sft,basic_information_sft,cancer_treatment_sft,comorbid_disease_sft,
+# date_unit_sft,diagnosis_sft,disease_sft,genetic_testing_sft,imaging_sft,immunization_sft,symptom_sft,treatment_drug_plan_sft"""
+
+dataset: treatment_drug_plan_sft
 template: llama3
 cutoff_len: 1024
 max_samples: 1000
@@ -16,24 +19,33 @@ overwrite_cache: true
 preprocessing_num_workers: 16
 
 ### output
-output_dir: saves/llama3-8b/lora/sft
-logging_steps: 10
+output_dir: /mnt/windows/Users/Admin/LLM/shenzhi-wang/output_v1
+logging_steps: 128
 save_steps: 500
 plot_loss: true
 overwrite_output_dir: true
 
 ### train
-per_device_train_batch_size: 1
-gradient_accumulation_steps: 8
+per_device_train_batch_size: 4
+gradient_accumulation_steps: 1
 learning_rate: 1.0e-4
-num_train_epochs: 3.0
+num_train_epochs: 5.0
 lr_scheduler_type: cosine
 warmup_ratio: 0.1
 fp16: true
 ddp_timeout: 180000000
+weight_decay: 0.01
 
 ### eval
+do_eval: True
 val_size: 0.1
-per_device_eval_batch_size: 1
+per_device_eval_batch_size: 4
 eval_strategy: steps
-eval_steps: 500
+eval_steps: 64
+
+### lora
+lora_dropout: 0.05
+lora_rank: 8
+lora_target: all
+
+use_unsloth: True
