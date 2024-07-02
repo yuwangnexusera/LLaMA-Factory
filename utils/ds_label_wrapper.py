@@ -20,42 +20,7 @@ def select_test():
 
 # 查询训练、测试集，ds2000_开头的数据  patient_id关联【62-76】
 def select_sft_train_ds():
-    sft_patient_id = [
-        2,
-        3,
-        5,
-        6,
-        7,
-        8,
-        9,
-        62,
-        64,
-        65,
-        66,
-        67,
-        68,
-        69,
-        70,
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        33,
-        54,
-        55,
-        56,
-        57,
-        58,
-        59,
-        35,
-        36,
-        34,
-        45,
-        21,
-        60,
-    ]
+    sft_patient_id = [2, 5, 6, 7, 8, 9, 33, 48, 53, 54, 55, 56, 57, 58, 59, 35, 36, 37, 34, 38, 45, 21, 60]
     query = ds_image.select().where((ds_image.patient_id.in_(sft_patient_id)) & (ds_image.status == 0))
     return query
 
