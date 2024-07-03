@@ -11,7 +11,7 @@ lora_target: all
 # datasets = """pathology_sft,basic_information_sft,cancer_treatment_sft,comorbid_disease_sft,
 # date_unit_sft,diagnosis_sft,disease_sft,genetic_testing_sft,imaging_sft,immunization_sft,symptom_sft,treatment_drug_plan_sft"""
 
-dataset: treatment_drug_plan_sft
+dataset: pathology_sft,basic_information_sft,cancer_treatment_sft,comorbid_disease_sft,date_unit_sft,diagnosis_sft,disease_sft,genetic_testing_sft,imaging_sft,immunization_sft,symptom_sft,treatment_drug_plan_sft
 template: llama3
 cutoff_len: 1024
 max_samples: 1000
@@ -19,14 +19,14 @@ overwrite_cache: true
 preprocessing_num_workers: 16
 
 ### output
-output_dir: /mnt/windows/Users/Admin/LLM/models/shenzhi-wang/output_v1_5e6
-logging_steps: 128
-save_steps: 128
+output_dir: /mnt/windows/Users/Admin/LLM/models/shenzhi-wang/nexusera_lora_extract
+logging_steps: 512
+save_steps: 1024
 plot_loss: true
 overwrite_output_dir: true
 
 ### train
-per_device_train_batch_size: 4
+per_device_train_batch_size: 6
 gradient_accumulation_steps: 1
 learning_rate: 5.0e-6
 num_train_epochs: 5.0
@@ -41,10 +41,10 @@ do_eval: True
 val_size: 0.1
 per_device_eval_batch_size: 4
 eval_strategy: steps
-eval_steps: 64
+eval_steps: 512
 
 ### lora
-lora_dropout: 0.05
+lora_dropout: 0.1
 lora_rank: 8
 lora_target: all
 
