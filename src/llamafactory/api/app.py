@@ -128,7 +128,7 @@ def create_app() -> "FastAPI":
         torch_gc()
         try:
             model_config = config_func.mapping_model_name_path(load_args.model_alias)
-            model_args = LoadModelRequestBody(model_name_or_path=model_config.model_name_or_path,template=model_config.template,temperature=load_args.temperature,
+            model_args = LoadModelRequestBody(model_name_or_path=model_config.get("model_name_or_path"),template=model_config.get("template"),temperature=load_args.temperature,
                 top_p=load_args.top_p,max_new_tokens=load_args.max_new_tokens,repetition_penalty=load_args.repetition_penalty,length_penalty=load_args.length_penalty)
             app.state.chat_model = ChatModel(dictify(model_args))
             return LoadModelResponse(status="success", message=f"{load_args.model_name_or_path}Model loaded")

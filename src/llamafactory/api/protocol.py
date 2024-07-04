@@ -35,7 +35,7 @@ class Finish(str, Enum):
 
 
 class ModelCard(BaseModel):
-    model_alias: str = "qwen2-7b-chat"
+    model_alias: str = "Qwen1.5-14B-int8"
     template: str = "qwen"
     model_name_or_path: str
     hf_path: str
@@ -47,7 +47,7 @@ class ModelList(BaseModel):
 
 
 class LoadModelRequest(BaseModel):
-    model_alias: str = "qwen2-7b-chat"
+    model_alias: str = "Qwen1.5-14B-int8"
     # do_sample: bool = True
     # adapter_name_or_path: str = "output_model_dir"
     # template: str = "qwen"
@@ -135,7 +135,7 @@ class ChatCompletionMessage(BaseModel):
 class ChatCompletionRequest(BaseModel):
     model: str
     messages: List[ChatMessage]
-    tools: Optional[List[FunctionAvailable]] = None
+    tools: dict={}#Optional[List[FunctionAvailable]] = None
     do_sample: bool = True
     temperature: Optional[float] = 0.1
     top_p: Optional[float] = 0.8
