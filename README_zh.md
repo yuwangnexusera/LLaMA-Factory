@@ -328,6 +328,13 @@ huggingface-cli login
 | QLoRA             |   4  |   6GB |  12GB |  24GB |   48GB |   72GB |  30GB |   96GB |
 | QLoRA             |   2  |   4GB |   8GB |  16GB |   24GB |   48GB |  18GB |   48GB |
 
+### 推理
+| 方法               | 精度 |   7B  |  14B  |  
+| ----------------- | ---- | ----- | ----- | 
+| LoRA/GaLore/BAdam |  16  |   |   |  
+| QLoRA             |   8  |   |  17GB |  
+| QLoRA             |   4  |    |   |  
+| QLoRA             |   2  |    |    |
 ## 如何使用
 
 ### 安装 LLaMA Factory
