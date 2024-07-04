@@ -30,5 +30,13 @@
         "hf_path": "",
         "ms_path": "",
         "unsloth": "True"
+    },
+    {
+        "model_alias": "Qwen1.5-14B-int8",
+        "template": "qwen",
+        "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/qwen/Qwen1___5-14B-Chat-GPTQ-Int8",
+        "hf_path": "",
+        "ms_path": "",
+        "unsloth": "False"
     }
 ]
