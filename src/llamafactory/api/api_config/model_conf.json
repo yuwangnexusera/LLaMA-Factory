@@ -38,5 +38,13 @@
         "hf_path": "",
         "ms_path": "",
         "unsloth": "False"
+    },
+    {
+        "model_alias": "mixtral8x7_3bit",
+        "template": "mistral",
+        "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/n810x/Mixtral-8x7B-Instruct-v0.1-3bit-exl2",
+        "hf_path": "",
+        "ms_path": "",
+        "unsloth": "True"
     }
 ]
