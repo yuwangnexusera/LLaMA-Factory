@@ -9,7 +9,8 @@ local_dir = "/mnt/windows/Users/Admin/LLM/models"
 # 设置仓库id
 model_id = "shenzhi-wang/Gemma-2-9B-Chinese-Chat"
 
-cmd = f"huggingface-cli download --resume-download {model_id} --local-dir {local_dir}/{model_id} --local-dir-use-symlinks False"
+exclude = "*.gguf"
+cmd = f"huggingface-cli download --resume-download {model_id} --local-dir {local_dir}/{model_id} --local-dir-use-symlinks False --exclude {exclude}"
 
 # 启动下载
 os.system(cmd)
