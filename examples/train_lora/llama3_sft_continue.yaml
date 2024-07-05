@@ -1,5 +1,5 @@
 ### model
-model_name_or_path: /mnt/windows/Users/Admin/LLM/models/shenzhi-wang/Llama3-8B-Chinese-Chat
+model_name_or_path: /mnt/windows/Users/Admin/LLM/models/shenzhi-wang/Nexusera_SFT_Model_V1
 
 ### method
 stage: sft
@@ -19,9 +19,9 @@ overwrite_cache: true
 preprocessing_num_workers: 16
 
 ### output
-output_dir: /mnt/windows/Users/Admin/LLM/models/shenzhi-wang/test/test_drug_100
-logging_steps: 32
-save_steps: 64
+output_dir: /mnt/windows/Users/Admin/LLM/models/shenzhi-wang/nexusera_lora_extract_v2
+logging_steps: 64
+save_steps: 128
 plot_loss: true
 overwrite_output_dir: true
 
@@ -32,7 +32,7 @@ learning_rate: 5.0e-6
 num_train_epochs: 5.0
 lr_scheduler_type: cosine
 warmup_ratio: 0.1
-fp16: true
+bf16: true
 ddp_timeout: 180000000
 weight_decay: 0.01
 
@@ -41,11 +41,11 @@ do_eval: True
 val_size: 0.1
 per_device_eval_batch_size: 4
 eval_strategy: steps
-eval_steps: 32
+eval_steps: 64
 
 ### lora
-lora_dropout: 0.1
-lora_rank: 16
+lora_dropout: 0.05
+lora_rank: 8
 lora_target: all
 
 use_unsloth: True

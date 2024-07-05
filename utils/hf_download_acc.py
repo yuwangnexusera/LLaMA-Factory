@@ -7,7 +7,7 @@ os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
 local_dir = "/mnt/windows/Users/Admin/LLM/models"
 
 # 设置仓库id
-model_id = "shenzhi-wang/Gemma-2-9B-Chinese-Chat"
+model_id = "n810x/Mixtral-8x7B-Instruct-v0.1-3bit-exl2"
 
 exclude = "*.gguf"
 cmd = f"huggingface-cli download --resume-download {model_id} --local-dir {local_dir}/{model_id} --local-dir-use-symlinks False --exclude {exclude}"
