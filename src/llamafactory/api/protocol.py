@@ -135,10 +135,10 @@ class ChatCompletionMessage(BaseModel):
 class ChatCompletionRequest(BaseModel):
     model: str
     messages: List[ChatMessage]
-    tools: dict={}#Optional[List[FunctionAvailable]] = None
-    do_sample: bool = True
-    temperature: Optional[float] = 0.1
-    top_p: Optional[float] = 0.8
+    tools: Optional[List[FunctionAvailable]] = None
+    do_sample: Optional[bool] = None
+    temperature: Optional[float] = None
+    top_p: Optional[float] = None
     n: int = 1
     max_tokens: Optional[int] = 1024
     stop: Optional[Union[str, List[str]]] = None
