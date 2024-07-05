@@ -2,7 +2,7 @@ from recheck_ds import AlignDataset
 
 # 生成SFT与R:HF数据集总入口
 import json
-from langchain_community.chat_models.openai import ChatOpenAI
+# from langchain_community.chat_models.openai import ChatOpenAI
 with open("utils/mapping_answer_zh_en.json", "r", encoding="utf-8") as f:
     mapping = json.load(f)
 # 治疗用药方案,基本信息,疾病,体征数据,诊断,影像学,基因检测,免疫检测,肿瘤治疗,治疗用药方案,合并疾病,   日期
@@ -14,9 +14,9 @@ for u in unit:
     all_path = f"data/{en_unit}/all_zh.json"
     # sft_path = f"data/{en_unit}/sft_zh.json"
     # dpo_path = f"data/{en_unit}/dpo_zh.json"
-    alignor = AlignDataset(u,"test")
+    alignor = AlignDataset(u,"train")
     unit_res = alignor.unit_values()
-    alignor.save(test_path, unit_res)
+    alignor.save(all_path, unit_res)
 # alignor = AlignDataset("治疗用药方案", "train")
 # date_res = alignor.unit_values()
 # alignor.save(f"data/Treatment Drug Plan/test_zh.json", date_res)
