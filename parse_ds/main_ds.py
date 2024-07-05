@@ -14,9 +14,9 @@ for u in unit:
     all_path = f"data/{en_unit}/all_zh.json"
     # sft_path = f"data/{en_unit}/sft_zh.json"
     # dpo_path = f"data/{en_unit}/dpo_zh.json"
-    alignor = AlignDataset(u,"train")
+    alignor = AlignDataset(u,"test")
     unit_res = alignor.unit_values()
-    alignor.save(all_path, unit_res)
+    alignor.save(test_path, unit_res)
 # alignor = AlignDataset("治疗用药方案", "train")
 # date_res = alignor.unit_values()
 # alignor.save(f"data/Treatment Drug Plan/test_zh.json", date_res)

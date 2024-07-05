@@ -6,5 +6,5 @@ db_conf = {
     "port": 3306,
     "database": "med_books2",
     "username": "root",
-    "password": "",
+    "password": "1qaz2wsX",
 }
