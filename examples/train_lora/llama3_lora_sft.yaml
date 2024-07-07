@@ -19,7 +19,7 @@ overwrite_cache: true
 preprocessing_num_workers: 16
 
 ### output
-output_dir: /mnt/windows/Users/Admin/LLM/models/shenzhi-wang/test/test_drug_100
+output_dir: /mnt/windows/Users/Admin/LLM/models/shenzhi-wang/test/test_drug_500
 logging_steps: 32
 save_steps: 64
 plot_loss: true
@@ -45,7 +45,7 @@ eval_steps: 32
 
 ### lora
 lora_dropout: 0.1
-lora_rank: 16
+lora_rank: 8
 lora_target: all
 
 use_unsloth: True
