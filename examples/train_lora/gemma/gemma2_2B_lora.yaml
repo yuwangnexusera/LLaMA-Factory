@@ -1,0 +1,48 @@
+### model
+model_name_or_path: /mnt/windows/Users/Admin/LLM/models/AI-ModelScope/gemma-2b-it
+### method
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_target: all
+
+
+dataset: sfan
+template: gemma
+cutoff_len: 1024
+max_samples: 512
+overwrite_cache: true
+preprocessing_num_workers: 16
+
+### output
+output_dir: /mnt/windows/Users/Admin/LLM/models/AI-ModelScope/sfan_gemma2b_test
+# resume_from_checkpoint: /mnt/windows/Users/Admin/LLM/models/qwen/nexusera_lora_extract
+logging_steps: 1
+save_steps: 1
+plot_loss: true
+overwrite_output_dir: true
+
+### train
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 1
+learning_rate: 5.0e-6
+num_train_epochs: 5.0
+lr_scheduler_type: cosine
+warmup_ratio: 0.1
+bf16: true
+ddp_timeout: 180000000
+weight_decay: 0.01
+
+### eval
+do_eval: True
+val_size: 0.1
+per_device_eval_batch_size: 1
+eval_strategy: steps
+eval_steps: 1
+
+### lora
+lora_dropout: 0.05
+lora_rank: 8
+lora_target: all
+
+use_unsloth: True

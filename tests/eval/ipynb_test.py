@@ -5,28 +5,29 @@ from llamafactory.extras.misc import torch_gc
 from llamafactory.f1.recall_precise_rate import F1score
 import json
 from parse_ds.sft_prompt import sft_unit_prompt
-
+# 20B=200亿token 0.01亿字（红楼梦）
 print("*****************运行评估测试************************")
 args = dict(
-    do_sample=True,  # False之后常被截断
-    model_name_or_path="/mnt/windows/Users/Admin/LLM/models/shenzhi-wang/Llama3-8B-Chinese-Chat",
-    adapter_name_or_path="/mnt/windows/Users/Admin/LLM/models/shenzhi-wang/test/test_drug_100",  # 加载之前保存的 LoRA 适配器
-    template="llama3",  # 和训练保持一致
+    do_sample=True,
+    model_name_or_path="/mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/internlm2_5-7b-chat/",
+    adapter_name_or_path="/mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/test/cancer_internlm2_5-7b-chat/",  # 加载之前保存的 LoRA 适配器
+    template="intern2",  # 和训练保持一致
     finetuning_type="lora",  # 和训练保持一致
     # quantization_bit=4,                    # 加载 4 比特量化模型
-    # use_unsloth=True,  # 使用 UnslothAI 的 LoRA 优化来获得两倍的推理速度
-    temperature=0.1,
+    temperature=0.5,
     top_p=0.7,
-    max_new_tokens=1024,
+    max_new_tokens=512,
     repetition_penalty=1.0,
-    length_penalty=1.0,
+    length_penalty=1.1,
+    num_beams=3,
+    top_k=80,
 )
 torch_gc()
 chat_model = ChatModel(args)
 f1_cal = F1score()
 # 测试推理
 
-unit_name = "治疗用药方案"
+unit_name = "肿瘤治疗"
 test_path_mapping = {
     "病理": "data/Pathology/test_zh.json",
     "治疗用药方案": "data/Treatment Drug Plan/test_zh.json",
@@ -67,9 +68,12 @@ with open(test_path_mapping.get(unit_name), "r", encoding="utf-8") as file:
             messages.append({"role": "user", "content": query})
             response = ""
             print(f"{index}推理开始")
-            for new_text in chat_model.stream_chat(messages):
-                print(new_text, end="")
-                response += new_text
+            response = chat_model.chat(messages)
+            response = response[0].response_text
+            print(response)
+            # for new_text in chat_model.chat(messages):
+            #     print(new_text, end="")
+            #     response += new_text
             print(f"答案：{report.get('output')}")
             try:
                 if "```json" in response:
