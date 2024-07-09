@@ -1,0 +1,27 @@
+[
+    {
+        "instruction":"Your mission is to extract entity information from biomedical text predictions, including Selin, Spessis, Jean, Technik, Protan, Proses, and Chemical. biomedical text ：",
+        "input":"The subcommissural organ (SCO) is an ancient and evolutionarily conserved gland in the brain located at the entrance of the aqueduct of Sylvius.",
+        "output":"[{\"entity_type\": \"CellLine\",\"entity_value\": \"subcommissural organ\",\"start_position\": 4,\"end_position\": 24,},{\"entity_type\": \"CellLine\",\"entity_value\": \"SCO\",\"start_position\": 26,\"end_position\": 29,},{\"entity_type\": \"Species\",\"entity_value\": \"aqueduct of Sylvius\",\"start_position\": 124,\"end_position\": 143,}]"
+    },
+    {
+        "instruction":"Your mission is to extract entity information from biomedical text predictions, including Selin, Spessis, Jean, Technik, Protan, Proses, and Chemical. biomedical text ：",
+        "input":"To explore the molecular mechanism of DCRT in DCM, Chromatin Isolation by RNA Purification (ChIRP) assays followed by Liquid Chromatography Mass Spectrometry (LC-MS) analyses were conducted.",
+        "output":"[  {    \"entity_type\": \"Gene\",    \"entity_value\": \"DCRT\",    \"start_position\": 38,    \"end_position\": 42,  },  {    \"entity_type\": \"Technique\",    \"entity_value\": \"Chromatin Isolation by RNA Purification\",    \"start_position\": 51,    \"end_position\": 90,  },  {    \"entity_type\": \"Technique\",    \"entity_value\": \"ChIRP\",    \"start_position\": 92,    \"end_position\": 97  }, {    \"entity_type\": \"Technique\",    \"entity_value\": \"Liquid Chromatography Mass Spectrometry\",    \"start_position\": 118,    \"end_position\": 157  }, {    \"entity_type\": \"Technique\",    \"entity_value\": \"LC-MS\",    \"start_position\": 159,    \"end_position\": 164  }]"
+    },
+    {
+        "instruction":"Your mission is to extract entity information from biomedical text predictions, including Selin, Spessis, Jean, Technik, Protan, Proses, and Chemical. biomedical text ：",
+        "input":"Nicotinamide phosphoribosyltransferase (NAMPT) serves as the key enzyme in the salvage pathway-mediated biosynthesis of nicotinamide adenine dinucleotide (NAD+), making it a potential target for cancer therapy.",
+        "output":"[   {     \"entity_type\": \"Gene\",     \"entity_value\": \"DCRT\",     \"start_position\": 38,     \"end_position\": 42,   },   {     \"entity_type\": \"Protein\",     \"entity_value\": \"NAMPT\",     \"start_position\": 40,     \"end_position\": 45,   },   {     \"entity_type\": \"Process\",     \"entity_value\": \"salvage pathway-mediated biosynthesis\",     \"start_position\": 79,     \"end_position\": 116,   },  {     \"entity_type\": \"Chemical\",     \"entity_value\": \"nicotinamide adenine dinucleotide\",     \"start_position\": 120,     \"end_position\": 153,   },  {     \"entity_type\": \"Process\",     \"entity_value\": \"NAD+\",     \"start_position\": 155,     \"end_position\": 159,   },  {     \"entity_type\": \"Process\",     \"entity_value\": \"cancer therapy\",     \"start_position\": 195,     \"end_position\": 209   } ]"
+    },
+    {
+        "instruction":"Your mission is to extract entity information from biomedical text predictions, including Selin, Spessis, Jean, Technik, Protan, Proses, and Chemical. biomedical text ：",
+        "input":"Existing thermal shift-based mass spectrometry approaches are able to identify target proteins without chemical modification of the ligand, but they are suffering from complicated workflows with limited throughput.",
+        "output":"[{\"entity_type\": \"CellLine\",\"entity_value\": \"subcommissural organ\",\"start_position\": 4,\"end_position\": 24,},{\"entity_type\": \"CellLine\",\"entity_value\": \"SCO\",\"start_position\": 26,\"end_position\": 29,},{\"entity_type\": \"Species\",\"entity_value\": \"aqueduct of Sylvius\",\"start_position\": 124,\"end_position\": 143,}]"
+    },
+    {
+        "instruction":"Your mission is to extract entity information from biomedical text predictions, including Selin, Spessis, Jean, Technik, Protan, Proses, and Chemical. biomedical text ：",
+        "input":"We immunoprecipitated endogenous CCDC188 from testis protein lysates of adult wild-type mice using our homemade CCDC188 antiserum. No CCDC188 protein was identified in protein lysates in which mouse IgG was added.",
+        "output":"[  {    \"entity_type\": \"Protein\",    \"entity_value\": \"CCDC188\",    \"start_position\": 33,    \"end_position\": 40,  },  {    \"entity_type\": \"Process\",    \"entity_value\": \"testis protein lysates\",    \"start_position\": 46,    \"end_position\": 68,  },  {    \"entity_type\": \"Species\",    \"entity_value\": \"adult wild-type mice\",    \"start_position\": 72,    \"end_position\": 92,  }]"
+    }
+]

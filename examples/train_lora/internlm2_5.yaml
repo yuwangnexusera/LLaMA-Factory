@@ -1,27 +1,37 @@
 ### model
-model_name_or_path: /mnt/windows/Users/Admin/LLM/models/shenzhi-wang/Llama3-8B-Chinese-Chat
+model_name_or_path: /mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/internlm2_5-7b-chat/
 
 ### method
 stage: sft
 do_train: true
 finetuning_type: lora
 lora_target: all
+# lora_plus
+# loraplus_lr_ratio: 16.0
+
+# pissa
+# pissa_init: true
+# pissa_iter: 16
+# pissa_convert: true
+# llama_pro
+# use_llama_pro: true
 
 ### dataset
 # datasets = """pathology_sft,basic_information_sft,cancer_treatment_sft,comorbid_disease_sft,
 # date_unit_sft,diagnosis_sft,disease_sft,genetic_testing_sft,imaging_sft,immunization_sft,symptom_sft,treatment_drug_plan_sft"""
 
-dataset: cancer_treatment_sft,treatment_drug_plan_sft
-template: llama3
+dataset: cancer_treatment_sft
+template: intern2
 cutoff_len: 1400
-max_samples: 100
+max_samples: 500
 overwrite_cache: true
 preprocessing_num_workers: 16
 
 ### output
-output_dir: /mnt/windows/Users/Admin/LLM/models/shenzhi-wang/llama3_test/test_drugturmo_100_r64_drop0_05_lr1e4
-logging_steps: 200
-save_steps: 200
+output_dir: /mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/test/cancer_internlm2_5-7b-chat/
+# resume_from_checkpoint: /mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/test_drug_internlm2_5-7b-chat/
+logging_steps: 64
+save_steps: 128
 plot_loss: true
 overwrite_output_dir: true
 
@@ -32,7 +42,7 @@ learning_rate: 1.0e-4
 num_train_epochs: 5.0
 lr_scheduler_type: cosine
 warmup_ratio: 0.1
-fp16: true
+bf16: true
 ddp_timeout: 180000000
 weight_decay: 0.01
 
@@ -41,11 +51,11 @@ do_eval: True
 val_size: 0.1
 per_device_eval_batch_size: 2
 eval_strategy: steps
-eval_steps: 200
+eval_steps: 64
 
 ### lora
 lora_dropout: 0.05
 lora_rank: 64
 lora_target: all
 
-use_unsloth: True
+use_unsloth: False

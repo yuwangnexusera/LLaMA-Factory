@@ -1,6 +1,6 @@
 ### model
-model_name_or_path: /mnt/windows/Users/Admin/LLM/models/shenzhi-wang/Llama3-8B-Chinese-Chat
-
+model_name_or_path: /mnt/windows/Users/Admin/LLM/models/med_llama3/shanchen/llama3-8B-slerp-biomed-chat-chinese/
+# {'correct_extraction': 128, 'incorrect_extraction': 13, 'missed_extraction': 27, 'spurious_extraction': 4, 'precision': 0.9114583333333334, 'recall': 0.8913690476190477},F1:0.9013017609024626
 ### method
 stage: sft
 do_train: true
@@ -19,7 +19,7 @@ overwrite_cache: true
 preprocessing_num_workers: 16
 
 ### output
-output_dir: /mnt/windows/Users/Admin/LLM/models/shenzhi-wang/llama3_test/test_drugturmo_100_r64_drop0_05_lr1e4
+output_dir: /mnt/windows/Users/Admin/LLM/models/med_llama3/shanchen/test/test_drugturmo_100_r64_drop0_05_lr1e4
 logging_steps: 200
 save_steps: 200
 plot_loss: true
@@ -32,7 +32,7 @@ learning_rate: 1.0e-4
 num_train_epochs: 5.0
 lr_scheduler_type: cosine
 warmup_ratio: 0.1
-fp16: true
+bf16: true
 ddp_timeout: 180000000
 weight_decay: 0.01
 

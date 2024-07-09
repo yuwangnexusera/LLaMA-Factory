@@ -4,13 +4,13 @@ os.system("pip install -U huggingface_hub hf_transfer")
 os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
 
 # 设置保存的路径
-local_dir = "/mnt/windows/Users/Admin/LLM/models"
+local_dir = "/mnt/windows/Users/Admin/LLM/models/med_llama3"
 
 # 设置仓库id
-model_id = "n810x/Mixtral-8x7B-Instruct-v0.1-3bit-exl2"
+model_id = "shanchen/llama3-8B-slerp-biomed-chat-chinese"
 
-exclude = "*.gguf"
-cmd = f"huggingface-cli download --resume-download {model_id} --local-dir {local_dir}/{model_id} --local-dir-use-symlinks False --exclude {exclude}"
+# exclude = "*.gguf" #--exclude {exclude}
+cmd = f"huggingface-cli download --resume-download {model_id} --local-dir {local_dir}/{model_id} --local-dir-use-symlinks False "
 
 # 启动下载
 os.system(cmd)

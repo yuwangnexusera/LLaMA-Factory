@@ -554,6 +554,9 @@
       "prompt": "content"
     }
   },
+  "sfan": {
+    "file_name": "Sfan/ner_sfan.json"
+  },
   "starcoder_python": {
     "hf_hub_url": "bigcode/starcoderdata",
     "ms_hub_url": "AI-ModelScope/starcoderdata",
