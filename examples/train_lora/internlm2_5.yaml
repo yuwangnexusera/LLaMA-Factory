@@ -7,9 +7,9 @@ do_train: true
 finetuning_type: lora
 lora_target: all
 # lora_plus
-# loraplus_lr_ratio: 16.0
+# loraplus_lr_ratio: 16.0  #0.76->0.83
 
-# pissa
+# pissa 0.80
 # pissa_init: true
 # pissa_iter: 16
 # pissa_convert: true
@@ -28,7 +28,7 @@ overwrite_cache: true
 preprocessing_num_workers: 16
 
 ### output
-output_dir: /mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/test/cancer_internlm2_5-7b-chat/
+output_dir: /mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/test/cancer_internlm2_5_llamapro/
 # resume_from_checkpoint: /mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/test_drug_internlm2_5-7b-chat/
 logging_steps: 64
 save_steps: 128
