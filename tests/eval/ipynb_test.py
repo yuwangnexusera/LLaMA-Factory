@@ -9,16 +9,16 @@ from parse_ds.sft_prompt import sft_unit_prompt
 print("*****************运行评估测试************************")
 args = dict(
     do_sample=True,
-    model_name_or_path="/mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/internlm2_5-7b-chat/",
-    adapter_name_or_path="/mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/test/cancer_internlm2_5-7b-chat/",  # 加载之前保存的 LoRA 适配器
-    template="intern2",  # 和训练保持一致
+    model_name_or_path="/mnt/windows/Users/Admin/LLM/models/shenzhi-wang/Llama3-8B-Chinese-Chat",
+    adapter_name_or_path="/mnt/windows/Users/Admin/LLM/models/shenzhi-wang/extract_llama3_plus_v1",  # 加载之前保存的 LoRA 适配器
+    template="llama3",  # 和训练保持一致
     finetuning_type="lora",  # 和训练保持一致
     # quantization_bit=4,                    # 加载 4 比特量化模型
     temperature=0.5,
     top_p=0.7,
-    max_new_tokens=512,
-    repetition_penalty=1.0,
-    length_penalty=1.1,
+    max_new_tokens=1024,
+    repetition_penalty=1.1,
+    length_penalty=1.2,
     num_beams=3,
     top_k=80,
 )

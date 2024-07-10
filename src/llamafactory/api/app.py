@@ -27,7 +27,7 @@ from .chat import (
     create_stream_chat_completion_response,
 )
 from .api_config import config_func
-from .models import _model_list,download_model
+from .models import _model_list, download_model
 from .protocol import (
     ChatCompletionRequest,
     ChatCompletionResponse,
@@ -89,9 +89,21 @@ def create_app() -> "FastAPI":
     async def list_models():
         model_list = _model_list()
         return ModelList(data=model_list)
-    @app.get('/stream')
+
+    @app.post(
+        "/v1/model/single_report",
+        response_model=DownloadModelResponse,
+        status_code=status.HTTP_200_OK,
+        dependencies=[Depends(verify_api_key)],
+    )
+    async def single_report(request: DownloadModelRequest):
+        # TODO 单篇报告提取
+        return download_model(request)
+
+    @app.get("/stream")
     async def stream(request: Request):
         import random
+
         def new_count():
             return random.randint(1, 5)
 
@@ -103,20 +115,11 @@ def create_app() -> "FastAPI":
                     break
                 # 测试取随机数据，每次取一个随机数
                 if count := new_count():
-                    yield {'data': count}
+                    yield {"data": count}
 
                 await asyncio.sleep(1)
 
         return EventSourceResponse(event_generator())
-    # @app.post(
-    #     "/v1/models/download",
-    #     response_model=DownloadModelResponse,
-    #     status_code=status.HTTP_200_OK,
-    #     dependencies=[Depends(verify_api_key)],
-    # )
-    # async def download_model_func(request: DownloadModelRequest):
-    #     model_down = download_model(request)
-    #     return model_down
 
     @app.post(
         "/v1/model/load",
@@ -128,8 +131,15 @@ def create_app() -> "FastAPI":
         torch_gc()
         try:
             model_config = config_func.mapping_model_name_path(load_args.model_alias)
-            model_args = LoadModelRequestBody(model_name_or_path=model_config.get("model_name_or_path"),template=model_config.get("template"),temperature=load_args.temperature,
-                top_p=load_args.top_p,max_new_tokens=load_args.max_new_tokens,repetition_penalty=load_args.repetition_penalty,length_penalty=load_args.length_penalty)
+            model_args = LoadModelRequestBody(
+                model_name_or_path=model_config.get("model_name_or_path"),
+                template=model_config.get("template"),
+                temperature=load_args.temperature,
+                top_p=load_args.top_p,
+                max_new_tokens=load_args.max_new_tokens,
+                repetition_penalty=load_args.repetition_penalty,
+                length_penalty=load_args.length_penalty,
+            )
             app.state.chat_model = ChatModel(dictify(model_args))
             return LoadModelResponse(status="success", message=f"{load_args.model_alias} Model loaded")
         except Exception as err:
@@ -146,7 +156,7 @@ def create_app() -> "FastAPI":
     async def benchmark_test(request: BenchmarkRequest):
 
         return ie_unit_benchmark(request, app.state.chat_model)
-    
+
     @app.post(
         "/v1/model/chat",
         response_model=ChatCompletionResponse,
@@ -164,7 +174,9 @@ def create_app() -> "FastAPI":
             else:
                 return await create_chat_completion_response(request, app.state.chat_model)
         except Exception as err:
-            return ChatCompletionResponse(id=err+"模型可能未加载.....",)
+            return ChatCompletionResponse(
+                id=err + "模型可能未加载.....",
+            )
 
     # @app.post(
     #     "/v1/score/evaluation",
