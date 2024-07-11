@@ -27,20 +27,20 @@ from .chat import (
     create_stream_chat_completion_response,
 )
 from .api_config import config_func
-from .models import _model_list, download_model
+from .models import _model_list, single_report_extract
 from .protocol import (
     ChatCompletionRequest,
     ChatCompletionResponse,
-    DownloadModelRequest,
+    SingleReportRequest,
     ModelList,
-    DownloadModelResponse,
-    ScoreEvaluationResponse,
+    SingleReportResponse,
     LoadModelRequest,
     LoadModelRequestBody,
     LoadModelResponse,
     BenchmarkRequest,
     BenchmarkResponse,
 )
+
 from .common import dictify, jsonify
 import asyncio
 
@@ -92,13 +92,13 @@ def create_app() -> "FastAPI":
 
     @app.post(
         "/v1/model/single_report",
-        response_model=DownloadModelResponse,
+        response_model=SingleReportResponse,
         status_code=status.HTTP_200_OK,
         dependencies=[Depends(verify_api_key)],
     )
-    async def single_report(request: DownloadModelRequest):
-        # TODO 单篇报告提取
-        return download_model(request)
+    async def single_report(request: SingleReportRequest):
+        # TODO 单篇报告提取 sft_unit_prompt
+        return single_report_extract(request.unit_name, str(request.report), app.state.chat_model)
 
     @app.get("/stream")
     async def stream(request: Request):
