@@ -8,7 +8,7 @@ def parse_ner_file(file_path):
 
     # Regular expressions to match test_i and test_detections blocks
     test_i_pattern = re.compile(r"(test_\d+=.*?)# GROUND TRUTH NER DETECTIONS", re.DOTALL)
-    test_detections_pattern = re.compile(r"# GROUND TRUTH NER DETECTIONS\s*test_detections\s*=\s*\[(.*?)\]", re.DOTALL)
+    test_detections_pattern = re.compile(r"# GROUND TRUTH NER DETECTIONS\s*test_detections\s*=\s*\[(.*?\])\]", re.DOTALL)
 
     # Find all test_i blocks
     test_i_blocks = test_i_pattern.findall(content)
@@ -32,7 +32,7 @@ def parse_ner_file(file_path):
 
 
 # 使用示例
-file_path = "./train.txt"
+file_path = "/root/LLM/LLaMA-Factory/data/Sfan/train.txt"
 results = parse_ner_file(file_path)
 
 for result in results:
