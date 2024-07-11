@@ -45,24 +45,25 @@ def parse_ner_file(file_path):
 
     return results
 
-
-# 使用示例
-print(datetime.now())
-file_path = r"C:\Users\Administrator\Desktop\sfan\test.txt"
-results = parse_ner_file(file_path)
-print(datetime.now())
-with open("data/Sfan/ner_sfan_test.json", "w", encoding="utf-8") as file:
-    res = []
-    instruction = """Your mission is to extract entity information from biomedical text predictions.
-output format:
-    [{   
-        "entity_type": ""//list of options：[protein, cell_type, cell_line, DNA, RNA]   
-        "entity_value": ""   
-        "start_position": ""    
-        "end_position": ""
-    }]
-biomedical text:"""
-    for result in results:
-        res.append({"instruction": instruction, "input": result["txt"], "output": result["answer"], "sft_answer": ""})
-    file.write(json.dumps(res, ensure_ascii=False, indent=4))
-    print("写入成功")
+if __name__ == "__main__":
+    
+    # 使用示例
+    print(datetime.now())
+    file_path = r"C:\Users\Administrator\Desktop\sfan\test.txt"
+    results = parse_ner_file(file_path)
+    print(datetime.now())
+    with open("data/Sfan/ner_sfan_test.json", "w", encoding="utf-8") as file:
+        res = []
+        instruction = """Your mission is to extract entity information from biomedical text predictions.
+    output format:
+        [{   
+            "entity_type": ""//list of options：[protein, cell_type, cell_line, DNA, RNA]   
+            "entity_value": ""   
+            "start_position": ""    
+            "end_position": ""
+        }]
+    biomedical text:"""
+        for result in results:
+            res.append({"instruction": instruction, "input": result["txt"], "output": result["answer"], "sft_answer": ""})
+        file.write(json.dumps(res, ensure_ascii=False, indent=4))
+        print("写入成功")
