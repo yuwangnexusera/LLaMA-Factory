@@ -2,12 +2,12 @@
 
 ### model
 model_name_or_path: /mnt/windows/Users/Admin/LLM/models/shenzhi-wang/Llama3-8B-Chinese-Chat
-adapter_name_or_path: /mnt/windows/Users/Admin/LLM/models/shenzhi-wang/nexusera_lora_extract
+adapter_name_or_path: /mnt/windows/Users/Admin/LLM/models/shenzhi-wang/extract_llama3_v1
 template: llama3
 finetuning_type: lora
 
 ### export
-export_dir: /mnt/windows/Users/Admin/LLM/models/shenzhi-wang/Nexusera_SFT_Model_V1
+export_dir: /mnt/windows/Users/Admin/LLM/models/shenzhi-wang/Nexusera_Extract_V1
 export_size: 2
 export_device: cpu
 export_legacy_format: false

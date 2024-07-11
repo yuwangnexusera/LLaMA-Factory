@@ -38,7 +38,8 @@
         "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/shenzhi-wang/Llama3-8B-Chinese-Chat",
         "hf_path": "",
         "ms_path": "",
-        "unsloth": "True"
+        "unsloth": "True",
+        "description": "中文版本8B LLama3，没有微调"
     },
     {
         "model_alias": "Qwen1.5-14B-int8",

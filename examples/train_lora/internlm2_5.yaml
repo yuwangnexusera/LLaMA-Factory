@@ -6,6 +6,8 @@ stage: sft
 do_train: true
 finetuning_type: lora
 lora_target: all
+
+mixture_of_depths: convert
 # lora_plus
 # loraplus_lr_ratio: 16.0  #0.76->0.83
 
@@ -20,7 +22,7 @@ lora_target: all
 # datasets = """pathology_sft,basic_information_sft,cancer_treatment_sft,comorbid_disease_sft,
 # date_unit_sft,diagnosis_sft,disease_sft,genetic_testing_sft,imaging_sft,immunization_sft,symptom_sft,treatment_drug_plan_sft"""
 
-dataset: cancer_treatment_sft
+dataset: pathology_sft,basic_information_sft,cancer_treatment_sft,comorbid_disease_sft,date_unit_sft,diagnosis_sft,disease_sft,genetic_testing_sft,imaging_sft,immunization_sft,symptom_sft,treatment_drug_plan_sft
 template: intern2
 cutoff_len: 1400
 max_samples: 500
@@ -28,7 +30,7 @@ overwrite_cache: true
 preprocessing_num_workers: 16
 
 ### output
-output_dir: /mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/test/cancer_internlm2_5_llamapro/
+output_dir: /mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/allds_internlm2_5_v2/
 # resume_from_checkpoint: /mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/test_drug_internlm2_5-7b-chat/
 logging_steps: 64
 save_steps: 128
