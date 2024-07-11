@@ -5,6 +5,76 @@ from llamafactory.extras.misc import torch_gc
 from llamafactory.f1.recall_precise_rate import F1score
 import json
 from parse_ds.sft_prompt import sft_unit_prompt
+from langchain.docstore.document import Document
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+import tiktoken
+
+from llamafactory.chat import ChatModel
+
+guide_prompt = """你是一个医学专家同时精通各种医学自然语言处理技术，你的任务是从药物不良反应专家指南中提取服用
+
+                药品名：|||drug_name||| \后不良反应的患者自我管理办法和治疗措施。
+                在具体的提取任务开始前，你需要明确，自我管理办法和治疗措施的定义差别。自我管理办法主要从患者的日常出发，利用改变一些生活习惯比如作息、饮食等，来进行不良反应的干预；治疗措施通常指从用药出发，利用药物的作用干预不良反应的症状。
+
+                不良反应相关内容：|||input||| \
+
+                输出格式: 确保按照以下JSON格式的代码片段输出结果。
+                {
+                "不良反应具体类型": {
+                                "管理办法":
+                                "治疗措施":
+                } // 注意"不良反应具体类型"字段需要替换具体的不良反应名称，而不是直接返回“不良反应具体类型”，同时所有输出均用中文表达；注意：你返回的json类型必须是上述json格式！"""
+
+
+def num_tokens_from_string(string: str, encoding_name: str) -> int:
+    """Returns the number of tokens in a text string."""
+    encoding = tiktoken.get_encoding(encoding_name)
+    num_tokens = len(encoding.encode(string))
+    return num_tokens
+
+
+def read_txt(file_path):
+    with open(file_path, "r") as f:
+        guide_txt = f.read()
+    return guide_txt
+
+
+def split_txt(text):
+    text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+        model_name="gpt-3.5-turbo-1106",
+        chunk_size=2000,
+        chunk_overlap=20,
+    )
+    pages = text_splitter.split_text(text)
+    texts = [Document(page_content=p) for p in pages]
+    print(len(texts))
+    return texts
+
+
+# map-reduce
+def run_guide_map_reduce(texts, drug, model: "ChatModel"):
+    chunks = split_txt(texts)
+    res = []
+    print(res)
+    for chunk in chunks:
+        messages = []
+        messages.append(
+            {"role": "user", "content": guide_prompt.replace("|||drug_name|||", drug).replace("|||input|||", chunk.page_content)}
+        )
+        response = ""
+        response = model.chat(messages)
+        response = response[0].response_text
+        res.append(response)
+        # print("model answer：", response)
+    print(res)
+    return res
+
+
+# refine
+def run_refine(texts, model: "ChatModel"):
+
+    return
+
 
 # 20B=200亿token 0.01亿字（红楼梦）
 print("*****************运行评估测试************************")
@@ -23,18 +93,15 @@ args = dict(
     num_beams=1,
     top_k=80,
 )
-torch_gc()
-chat_model = ChatModel(args)
 
-messages = []
-prompt = """你需要提取以下文本中所有的疾病不良反应及其发生频率（比如十分常见、常见、罕见、十分罕见、不详），注意<br>是换行符，请以表格的形式理解他。请不要漏掉不良反应，同时注意将其名称与发生频率匹配正确：
-临床试验中的不良反应已经开展了多个贝伐珠单抗治疗不同恶性肿瘤的临床试验，其中绝大多数是与化疗联合应用。本节中对从大约5500多名患者的临床试验人群中获得的安全性结果进行了描述。最严重的药物不良反应是：●胃肠道穿孔(参见【注意事项】)●出血，包括较多见于NSCLC（非小细胞肺癌）患者的肺出血/咯血(参见【注意事项】)●动脉血栓栓塞(参见【注意事项】)临床安全性数据的分析结果提示接受贝伐珠单抗治疗时高血压和蛋白尿的发生可能具有剂量依赖性。在各项临床试验中接受贝伐珠单抗治疗的患者，发生频率最高的药物不良反应包括高血压、疲劳或乏力、腹泻和腹痛。临床试验中不良反应总结列表按MedDRA系统器官分类，表1中列举了贝伐珠单抗联合不同化疗方案治疗多种适应症时，与治疗相关的药物不良反应。每种不良反应的发生频率基于以下惯例分类：十分常见（≥1/10）；常见（≥1/100至<1/10）；偶见（≥1/10,000至<1/100）；罕见（≥1/10,000至<1/1,000）；十分罕见（<1/10,000）。这些反应在至少一项主要临床试验中的发生率与对照组相差≥2%（NCI-CTC[常见毒性评价标准]3-5级反应），或者与对照组相差≥10%（NCI-CTC1-5级反应）。根据在各项主要临床试验中观察到的最高发生率将药物不良反应归入到下面表格的适当分类中。在每个频率分组中，按照严重性降序排列。虽然某些不良反应是化疗中常见的反应（例如采用卡培他滨治疗时发生的手足综合征，以及采用紫杉醇或奥沙利铂治疗时发生的外周感觉神经病变），但是，不能排除贝伐珠单抗治疗使反应加重的可能性。例如与多柔比星脂质体或卡培他滨联用时发生的手足综合征，与紫杉醇或奥沙利铂联用时发生的外周感觉神经病变，与紫杉醇联用时发生的指甲病变和脱发。表1.十分常见的和常见的药物不良反应                              NCI-CTC 3-5 级反应                   所有各级反应<br>     墨宮系统分类      (在至少一项临床试验中观察到研究组与对    (在至少一项临床试验中观察到研<br>       (SOC)                照组之间的差异≥2%)            究组与对照组之间的差异≥10%)<br>                         十分常见              常见                  十分常见<br>                                            脓毒病<br>   感染及侵染类疾病                            脓肿<br>                                         蜂窝组织炎感染<br>                    发热性中性粒细胞减少<br>                            症<br>                                             贫血<br>  血液与淋巴系统疾病      白细胞减少症<br>                                         淋巴细胞减少症<br>                     中性粒细胞减少症<br>                       血小板减少症<br>                                             脱水                  食欲减退<br>   代谢与营养类疾病                           低钠血症                低镁血症<br>                                                                  低钠血症<br>                                          脑血管意外<br>                                                                  味觉障碍<br>                                             昏厥<br>     神经系统疾病       外周感觉神经病变                                头痛<br>                                             嗜睡<br>                                                                  构音困难<br>                                             头痛<br>                                                                  眼睛疾病<br>      眼器官疾病<br>                                                                  流泪增多<br>                                         充血性心力衰竭<br>    心脏器官疾病<br>                                         室上性心动过速<br>                                        血栓栓塞(动脉)<br>      血管疾病             高血压            深静脉血栓                高血压<br>                                             出血<br>                                            肺栓塞                 呼吸困难<br>  呼吸系统、胸和纵隔                          呼吸困难                 鼻出血<br>        疾病                                  缺氧                    鼻炎<br>                                            鼻出血                   咳嗽<br>                                            肠穿孔<br>                                            肠梗阻<br>                           腹泻                                      便秘<br>                                            肠阻塞<br>                           恶心                                     口腔炎<br>     胃肠系统疾病                           直肠-阴道瘘*<br>                                                                  直肠出血<br>                                           胃肠道疾病<br>                           腹痛<br>                                            口腔炎<br>                                            肛部痛<br>    内分泌系统疾病                                                 卵巢衰竭 **                                                                 剥脱性皮炎<br>  皮肤与皮下组织类疾<br>                                          手足综合征                干皮病<br>         病<br>                                                                  皮肤脱色<br>                                            肌无力<br>  骨骼肌肉、结缔组织    医脉通                                      关节炎<br>                                             肌痛<br>     和骨骼疾病                              关节痛<br>                                             背痛<br>                                            蛋白尿<br>  肾脏与泌尿系统疾病                                                 蛋白尿<br>                                           尿路感染<br>                                                                    发热<br>                                             疼痛<br>  全身性疾病及给药部         乏力               困倦<br>                                                                    乏力<br>     位各种反应             疲乏                                      疼痛<br>                                           粘膜炎症<br>                                                                  粘膜炎症<br>  生殖系统及乳腺疾病                          盆腔疼痛<br>        检查                                                       体重减轻<br> *直肠-阴道瘘在胃肠道-阴道瘘中最为常见<br> ** 基于 295 例患者参加的 AVF3077s(NSABPC-08)的亚组研究临床试验中特定严重不良反应信息在接受贝伐珠单抗治疗的患者中，观察到下列采用NCI-CTC毒性评价标准报告的药物不良反应。胃肠道穿孔和瘘有一些接受贝伐珠单抗治疗的患者发生严重的胃肠道穿孔。根据临床试验报告，在转移性乳腺癌或非鳞状细胞型非小细胞肺癌患者中，胃肠道穿孔的发生率低于1%，而在转移性肾细胞癌，新诊断为胶质母细胞瘤或卵巢癌患者中最高达2%，在转移性结直肠癌中最高达2.7%（包括胃肠道瘘和脓肿），在复发性胶质母细胞瘤患者中也观察到胃肠穿孔的病例。一项在持续性、复发性或转移性宫颈癌患者中进行的临床试验中（GOG-0240研究），接受贝伐珠单抗治疗的患者发生胃肠道穿孔（任一级别）的发生率为3.2％，所有患者均有既往盆腔放疗史。这些事件的类型和严重性各有不同，从腹部X平片上观察到的游离气体（不需要治疗即可缓解）到伴有腹腔脓肿和致死性结局的肠道穿孔。某些病例中存在潜在的腹腔内炎症，可能来源于胃溃疡、肿瘤坏死、憩室炎或者化疗引起的结肠炎。腹腔内炎症过程和胃肠道穿孔与贝伐珠单抗之间是否存在因果关系尚未确定。严重胃肠道穿孔病例中大约有三分之一是致死性的，占所有贝伐珠单抗治疗患者的0.2%-1%。在贝伐珠单抗临床试验中，转移性结直肠癌和卵巢癌患者中胃肠道瘘（所有级别）的发病率据报告最高达2%，但在其他类型的癌症治疗中较少报告。一项在持续性，复发性或转移性宫颈癌患者中进行的临床试验中，贝伐珠单抗治疗组和对照组胃肠道-阴道瘘的发生率分别为8.3%和0.9%，所有患者均有既往盆腔放疗史。出现胃肠道-阴道瘘的患者可能也会出现肠梗阻，需要手术治疗和分流造口。非胃肠道瘘有一些接受贝伐珠单抗治疗的患者发生严重的瘘，其中包括导致死亡的病例。在持续性，复发性或转移性宫颈癌临床试验（GOG-0240研究）的患者中，接受贝伐珠单抗治疗的患者非胃肠道瘘、阴道瘘或女性生殖道瘘的发生率为1.8%，对照组为1.4%。在其它适应症中，胃肠道以外的其它部位发生瘘（如，支气管胸膜，泌尿生殖管和胆管瘘）很少报告（≥0.1%至<1%）。在上市后用药经验中也有瘘的报告。瘘可发生在治疗过程中的不同时间，范围从开始贝伐珠单抗治疗后一周到超过一年，大多数都发生在治疗的前6个月。出血在所有适应症的临床试验中，接受贝伐珠单抗治疗的患者NCI-CTC3-5级出血事件的总发生率为0.4%-6.9%，接受化疗的对照组患者中发生率为0-4.5%。在贝伐珠单抗临床试验中观察到的出血类型主要是与肿瘤相关的出血（见下文），其次是粘膜与皮肤的出血（例如鼻出血）。-与肿瘤相关的出血主要是在非小细胞肺癌（NSCLC）患者进行的研究中观察到了严重的或者大量的肺出血/咯血。可能的危险因素包括肿瘤组织学类型为鳞状细胞组织、采用抗风湿/抗炎药物治疗、采用抗凝血剂治疗、既往接受过放射治疗、贝伐珠单抗治疗、既往具有动脉硬化症的病史、中心型肺癌以及在治疗之前或治疗过程中肿瘤形成空洞。与出血具有统计学显著相关性的变量是贝伐珠单抗治疗和鳞状细胞组织。在后来进行的研究中，那些已知鳞状细胞组织或者混合细胞类型以鳞状细胞为主的NSCLC患者被排除在外，但是有肿瘤组织学类型未知的患者被纳入了研究。在除外主要组织学类型为鳞癌的NSCLC患者中，采用贝伐珠单抗联合化疗治疗时，观察到的各级不良事件的发生率为9%，在只采用化疗的患者中发生率为5%。在贝伐珠单抗联合化疗的患者中，3-5级不良事件的发生率为2.3%，在只采用化疗的患者中发生率＜1%。重症或大量的肺出血/咯血可以突然发生，而且三分之二的严重肺出血是致死性的（参见【注意事项】）。
-"""
-messages.append({"role": "user", "content": prompt})
-response = ""
-response = chat_model.chat(messages)
-response = response[0].response_text
-print("model answer：", response)
-# for new_text in chat_model.stream_chat(messages):
-#     print(new_text, end="")
-#     response += new_text
+
+if __name__ == "__main__":
+    # 指南提取
+    texts = read_txt("tests/eval/dufa.txt")
+    torch_gc()
+    chat_model = ChatModel(args)
+    drug_name = "度伐利尤单抗"
+    run_guide_map_reduce(texts, drug_name, chat_model)
+    # for new_text in chat_model.stream_chat(messages):
+    #     print(new_text, end="")
+    #     response += new_text
