@@ -1,41 +1,68 @@
 import re
 import json
+from datetime import datetime
+
+import re
+import json
 
 
 def parse_ner_file(file_path):
     with open(file_path, "r", encoding="utf-8") as file:
         content = file.read()
 
-    # Regular expressions to match test_i and test_detections blocks
-    test_i_pattern = re.compile(r"(test_\d+=.*?)# GROUND TRUTH NER DETECTIONS", re.DOTALL)
-    test_detections_pattern = re.compile(r"# GROUND TRUTH NER DETECTIONS\s*test_detections\s*=\s*\[(.*?\])\]", re.DOTALL)
+    # 精简并预编译正则表达式模式
+    test_i_pattern = re.compile(r"(test_\d+\s*=\s*.*?)\s*#\s*GROUND\s*TRUTH\s*NER\s*DETECTIONS", re.DOTALL)
+    test_detections_pattern = re.compile(r"#\s*GROUND\s*TRUTH\s*NER\s*DETECTIONS\s*test_detections\s*=\s*\[(.*?)\]", re.DOTALL)
 
-    # Find all test_i blocks
+    # 查找所有 test_i 块
     test_i_blocks = test_i_pattern.findall(content)
 
-    # Find all test_detections blocks
+    # 查找所有 test_detections 块
     test_detections_blocks = test_detections_pattern.findall(content)
 
-    # Combine the results
     results = []
     for test_i, test_detections in zip(test_i_blocks, test_detections_blocks):
-        test_i_value = test_i.split("=", 1)[1].strip()
-        test_i_value = re.sub(r"\s*\n\s*", " ", test_i_value).strip().strip('"')
-        test_detections_value = f"[{test_detections.strip()}]"
+        try:
+            test_i_value = test_i.split("=", 1)[1].strip().strip('"')
+            test_i_value = re.sub(r"\s*\n\s*", " ", test_i_value)
 
-        # Ensure that there is no trailing comma in test_detections_value
-        test_detections_value = json.loads(re.sub(r",\s*([\]}])", r"\1", test_detections_value))
+            # 处理 test_detections 块
+            # 去除末尾可能存在的逗号
+            test_detections_clean = test_detections.rstrip(",")
 
-        results.append({"txt": str(test_i_value), "answer": json.dumps(test_detections_value)})
+            # 去除换行和空格
+            test_detections_clean = test_detections_clean.replace("\n", "").replace(" ", "")
+
+            # 补充缺失的大括号，以保证是一个完整的JSON数组
+            test_detections_value = json.loads(f"[{test_detections_clean.strip()}]")
+            if not test_detections_value:
+                print(f"{test_detections_value}")
+                continue
+            results.append({"txt": test_i_value, "answer": json.dumps(test_detections_value)})
+        except Exception as e:
+            print(f"处理错误：{e}")
+            continue
 
     return results
 
 
 # 使用示例
-file_path = "/root/LLM/LLaMA-Factory/data/Sfan/train.txt"
+print(datetime.now())
+file_path = r"C:\Users\Administrator\Desktop\sfan\test.txt"
 results = parse_ner_file(file_path)
-
-for result in results:
-    print("test_i:", result["test_i"])
-    print("test_detections:", result["test_detections"])
-    print("-----")
+print(datetime.now())
+with open("data/Sfan/ner_sfan_test.json", "w", encoding="utf-8") as file:
+    res = []
+    instruction = """Your mission is to extract entity information from biomedical text predictions.
+output format:
+    [{   
+        "entity_type": ""//list of options：[protein, cell_type, cell_line, DNA, RNA]   
+        "entity_value": ""   
+        "start_position": ""    
+        "end_position": ""
+    }]
+biomedical text:"""
+    for result in results:
+        res.append({"instruction": instruction, "input": result["txt"], "output": result["answer"], "sft_answer": ""})
+    file.write(json.dumps(res, ensure_ascii=False, indent=4))
+    print("写入成功")
