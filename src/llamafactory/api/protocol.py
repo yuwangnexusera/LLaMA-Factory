@@ -77,15 +77,14 @@ class LoadModelResponse(BaseModel):
     message: str
 
 
-class DownloadModelRequest(BaseModel):
-    model_alias: str
-    template: Literal["llama3", "gemma", "qwen", "llama2", "glm4", "yi"]
-    origin_platform:Literal["huggingface", "modelscope"]
-    model_name_or_path: str
+class SingleReportRequest(BaseModel):
+    unit_name: str = "治疗用药方案"
+    report: str
 
 
-class DownloadModelResponse(BaseModel):
-    msg:str=""
+class SingleReportResponse(BaseModel):
+    unit_json: dict = {}
+
 
 
 class Function(BaseModel):
