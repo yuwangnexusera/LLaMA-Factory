@@ -7,7 +7,8 @@ finetuning_type: lora
 lora_target: all
 
 # 14000*3/16
-dataset: sfan
+# dataset: sfan_AnatEM 
+dataset: sfan_BC5CDR 
 template: gemma
 cutoff_len: 512
 max_samples: 20000
@@ -16,7 +17,8 @@ preprocessing_num_workers: 16
 mixture_of_depths: convert
 
 ### output
-output_dir: /mnt/windows/Users/Admin/LLM/models/AI-ModelScope/test/sfan_gemma2b_test_v1
+# output_dir: /mnt/windows/Users/Admin/LLM/models/AI-ModelScope/test/sfan_gemma2b_test_AnatEM
+output_dir: /mnt/windows/Users/Admin/LLM/models/AI-ModelScope/test/sfan_gemma2b_test_BC5CDR
 # resume_from_checkpoint: /mnt/windows/Users/Admin/LLM/models/qwen/nexusera_lora_extract
 logging_steps: 200
 save_steps: 1000
