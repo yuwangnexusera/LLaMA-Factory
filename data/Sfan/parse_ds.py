@@ -27,18 +27,25 @@ def parse_ner_file(file_path):
             test_i_value = re.sub(r"\s*\n\s*", " ", test_i_value)
 
             # 处理 test_detections 块
-            # 去除末尾可能存在的逗号
-            test_detections_clean = test_detections.rstrip(",")
+            test_detections_clean = test_detections.strip()
+            if test_detections_clean == "":
+                results.append({"txt": test_i_value, "answer": "[]"})
+            else:
+                # 去除末尾可能存在的逗号
+                test_detections_clean = test_detections_clean.rstrip(",")
 
-            # 去除换行和空格
-            test_detections_clean = test_detections_clean.replace("\n", "").replace(" ", "")
+                # 去除换行和空格
+                test_detections_clean = test_detections_clean.replace("\n", "").replace(" ", "")
 
-            # 补充缺失的大括号，以保证是一个完整的JSON数组
-            test_detections_value = json.loads(f"[{test_detections_clean.strip()}]")
-            if not test_detections_value:
-                print(f"{test_detections_value}")
-                continue
-            results.append({"txt": test_i_value, "answer": json.dumps(test_detections_value)})
+                # 补充缺失的大括号，以保证是一个完整的JSON数组
+                test_detections_value = json.loads(f"[{test_detections_clean.strip()}]")
+
+                # 如果解析后为空列表，则不添加到结果中
+                if not test_detections_value:
+                    print(f"空列表：{test_detections_value}")
+                    continue
+
+                results.append({"txt": test_i_value, "answer": json.dumps(test_detections_value)})
         except Exception as e:
             print(f"处理错误：{e}")
             continue
@@ -49,21 +56,21 @@ if __name__ == "__main__":
     
     # 使用示例
     print(datetime.now())
-    file_path = r"C:\Users\Administrator\Desktop\sfan\test.txt"
+    file_path = "data/Sfan/BC5CDR/test.txt"
     results = parse_ner_file(file_path)
     print(datetime.now())
-    with open("data/Sfan/ner_sfan_test.json", "w", encoding="utf-8") as file:
+    with open("data/Sfan/sfan_BC5CDR_test.json", "w", encoding="utf-8") as file:
         res = []
         instruction = """Your mission is to extract entity information from biomedical text predictions.
     output format:
         [{   
-            "entity_type": ""//list of options：[protein, cell_type, cell_line, DNA, RNA]   
+            "entity_type": ""//list of options：[Chemical,Disease]   
             "entity_value": ""   
-            "start_position": ""    
-            "end_position": ""
-        }]
+            "start_position": ""//The start index of biomedical text, which contains Spaces  
+            "end_position": ""//The end index of biomedical text
+        }]\n
     biomedical text:"""
         for result in results:
-            res.append({"instruction": instruction, "input": result["txt"], "output": result["answer"], "sft_answer": ""})
+            res.append({"instruction": instruction, "input": result["txt"], "output": result["answer"]})
         file.write(json.dumps(res, ensure_ascii=False, indent=4))
         print("写入成功")

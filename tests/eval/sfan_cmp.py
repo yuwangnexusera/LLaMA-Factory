@@ -33,11 +33,11 @@ def compare_annotations(correct_annotations, model_annotations):
 # 20B=200亿token 0.01亿字（红楼梦）
 if __name__ == "__main__":
     print("*****************运行评估测试************************")
-    answer_json = pandas.read_json("data/Sfan/ner_sfan_test.json", orient="records").to_dict(orient="records")
+    answer_json = pandas.read_json("data/Sfan/sfan_BC5CDR_test.json", orient="records").to_dict(orient="records")
     args = dict(
         do_sample=True,
         model_name_or_path="/mnt/windows/Users/Admin/LLM/models/AI-ModelScope/gemma-2b-it",
-        adapter_name_or_path="/mnt/windows/Users/Admin/LLM/models/AI-ModelScope/test/sfan_gemma2b_test_v1",
+        adapter_name_or_path="/mnt/windows/Users/Admin/LLM/models/AI-ModelScope/test/sfan_gemma2b_test_BC5CDR",
         template="gemma",  # 和训练保持一致
         finetuning_type="lora",  # 和训练保持一致
         # quantization_bit=4,                    # 加载 4 比特量化模型
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     res = []
     print(f"*****************开始{datetime.now()}************************")
     for answer_i in answer_json:
-        if num > 100:
+        if num > 5000:
             break
         messages = []
         messages.append({"role": "user", "content": answer_i.get("instruction") + answer_i.get("input")})
@@ -77,7 +77,7 @@ if __name__ == "__main__":
         )
         num += 1
     print(f"*****************结束{datetime.now()}************************")
-    with open("../res.json", "w") as f:
+    with open("res_BC5CDR.json", "w") as f:
         json.dump(res, f, indent=4, ensure_ascii=False)
     # for new_text in chat_model.chat(messages):
     #     print(new_text, end="")
