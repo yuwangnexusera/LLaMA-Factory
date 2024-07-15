@@ -139,6 +139,8 @@ def create_app() -> "FastAPI":
                 max_new_tokens=load_args.max_new_tokens,
                 repetition_penalty=load_args.repetition_penalty,
                 length_penalty=load_args.length_penalty,
+                num_beams=load_args.num_beams,
+                top_k = load_args.top_k
             )
             app.state.chat_model = ChatModel(dictify(model_args))
             return LoadModelResponse(status="success", message=f"{load_args.model_alias} Model loaded")

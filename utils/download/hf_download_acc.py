@@ -7,7 +7,7 @@ os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
 local_dir = "/mnt/windows/Users/Admin/LLM/models/"
 
 # 设置仓库id
-model_id = "microsoft/Phi-3-mini-4k-instruct"
+model_id = "Qwen/Qwen1.5-14B-Chat"
 
 # exclude = "*.gguf" #--exclude {exclude}
 cmd = f"huggingface-cli download --resume-download {model_id} --local-dir {local_dir}/{model_id} --local-dir-use-symlinks False "

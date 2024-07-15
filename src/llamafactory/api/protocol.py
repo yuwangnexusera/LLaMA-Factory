@@ -38,8 +38,8 @@ class ModelCard(BaseModel):
     model_alias: str = "Qwen1.5-14B-int8"
     template: str = "qwen"
     model_name_or_path: str
-    hf_path: str
-    ms_path: str
+    unsloth: bool = False
+    description: Optional[str]
 
 
 class ModelList(BaseModel):
@@ -51,25 +51,25 @@ class LoadModelRequest(BaseModel):
     # do_sample: bool = True
     # adapter_name_or_path: str = "output_model_dir"
     # template: str = "qwen"
-    # finetuning_type: str = "lora"
+    num_beams:int=3
     use_unsloth: bool = False
-    temperature: float = 0.7
+    temperature: float = 0.3
     top_p: float = 0.7
     max_new_tokens: int = 1024
-    repetition_penalty: float = 1.2
+    repetition_penalty: float = 1.0
     length_penalty: float = 1.1
-
+    top_k :int = 80
 
 class LoadModelRequestBody(BaseModel):
     model_name_or_path: str
-    template: str = "qwen"
-    # finetuning_type: str = "lora"
-    # use_unsloth: bool = True
-    temperature: float = 0.7
-    top_p: float = 0.7
-    max_new_tokens: int = 1024
-    repetition_penalty: float = 1.2
-    length_penalty: float = 1.1
+    template: str
+    num_beams:int 
+    temperature: float 
+    top_p: float
+    max_new_tokens: int 
+    repetition_penalty: float 
+    length_penalty: float 
+    top_k:int
 
 
 class LoadModelResponse(BaseModel):
@@ -83,8 +83,7 @@ class SingleReportRequest(BaseModel):
 
 
 class SingleReportResponse(BaseModel):
-    unit_json: dict = {}
-
+    unit_json: str
 
 
 class Function(BaseModel):

@@ -1,12 +1,13 @@
 ### model
-model_name_or_path: /mnt/windows/Users/Admin/LLM/models/qwen/Qwen1___5-14B-Chat-GPTQ-Int8
+model_name_or_path: /mnt/windows/Users/Admin/LLM/models/qwen/Qwen1___5-14B-Chat
 
 ### method
 stage: sft
 do_train: true
 finetuning_type: lora
 lora_target: all
-
+quantization_bit: 2
+quantization_method: hqq  # choices: [bitsandbytes (4/8), hqq (2/3/4/5/6/8), eetq (8)]
 ### dataset
 # datasets = """pathology_sft,basic_information_sft,cancer_treatment_sft,comorbid_disease_sft,
 # date_unit_sft,diagnosis_sft,disease_sft,genetic_testing_sft,imaging_sft,immunization_sft,symptom_sft,treatment_drug_plan_sft"""
@@ -19,7 +20,7 @@ overwrite_cache: true
 preprocessing_num_workers: 16
 
 ### output
-output_dir: /mnt/windows/Users/Admin/LLM/models/qwen/nexusera_14Blora_v1
+output_dir: /mnt/windows/Users/Admin/LLM/models/qwen/qwen2_14b_extract0715
 # resume_from_checkpoint: /mnt/windows/Users/Admin/LLM/models/qwen/nexusera_lora_extract
 logging_steps: 200
 save_steps: 1000
@@ -46,7 +47,7 @@ eval_steps: 200
 
 ### lora
 lora_dropout: 0.1
-lora_rank: 32
+lora_rank: 8
 lora_target: all
 
 # use_unsloth: True
