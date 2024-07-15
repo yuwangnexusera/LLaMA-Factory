@@ -38,11 +38,11 @@ def single_report_extract(unit_name, report,model:"ChatModel"):
     response = ""
     response = model.chat(messages)
     response = response[0].response_text
-    try:
-        unit_json = json.loads(response)
-    except Exception as e:
-        unit_json = {
-            "response": response,
-            "error": str(e),
-        }
-    return SingleReportResponse(unit_json=unit_json)
+    # try:
+    #     unit_json = json.loads(response)
+    # except Exception as e:
+    #     unit_json = {
+    #         "response": response,
+    #         "error": str(e),
+    #     }
+    return SingleReportResponse(unit_json=response)
