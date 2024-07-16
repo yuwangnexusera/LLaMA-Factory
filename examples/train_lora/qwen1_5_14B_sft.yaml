@@ -1,26 +1,28 @@
 ### model
-model_name_or_path: /mnt/windows/Users/Admin/LLM/models/qwen/Qwen2-7B-Instruct
+model_name_or_path: /mnt/windows/Users/Admin/LLM/models/qwen/Qwen1___5-14B-Chat
 
 ### method
 stage: sft
 do_train: true
 finetuning_type: lora
+quantization_bit: 4
+quantization_method: bitsandbytes
 ### dataset
 # datasets = """pathology_sft,basic_information_sft,cancer_treatment_sft,comorbid_disease_sft,
 # date_unit_sft,diagnosis_sft,disease_sft,genetic_testing_sft,imaging_sft,immunization_sft,symptom_sft,treatment_drug_plan_sft"""
 
-dataset: pathology_sft,basic_information_sft,cancer_treatment_sft,comorbid_disease_sft,date_unit_sft,diagnosis_sft,disease_sft,genetic_testing_sft,imaging_sft,immunization_sft,symptom_sft,treatment_drug_plan_sft
+dataset: treatment_drug_plan_sft
 template: qwen
 cutoff_len: 1024
-max_samples: 500
+max_samples: 100
 overwrite_cache: true
 preprocessing_num_workers: 16
 
 ### output
-output_dir: /mnt/windows/Users/Admin/LLM/models/qwen/test_7B/Qwen2-7B-Instruct-lora
+output_dir: /mnt/windows/Users/Admin/LLM/models/qwen/test_7B/Qwen1_5-14B-Instruct-lora
 # resume_from_checkpoint: /mnt/windows/Users/Admin/LLM/models/qwen/nexusera_lora_extract
-logging_steps: 200
-save_steps: 1000
+logging_steps: 64
+save_steps: 128
 plot_loss: true
 overwrite_output_dir: true
 
@@ -28,7 +30,7 @@ overwrite_output_dir: true
 per_device_train_batch_size: 2
 gradient_accumulation_steps: 1
 learning_rate: 1.0e-4
-num_train_epochs: 4.0
+num_train_epochs: 5.0
 lr_scheduler_type: cosine_with_restarts
 # lr_scheduler_kwargs: cosine_with_min_lr
 warmup_ratio: 0.1
@@ -41,12 +43,12 @@ do_eval: True
 val_size: 0.1
 per_device_eval_batch_size: 2
 eval_strategy: steps
-eval_steps: 200
+eval_steps: 64
 
 ### lora
 lora_dropout: 0.1
-lora_rank: 64
-lora_alpha: 128
-lora_target: q_proj,v_proj,o_proj,k_proj,up_proj
+lora_rank: 128
+lora_alpha: 256
+lora_target: q_proj,v_proj,o_proj,k_proj
 
 # use_unsloth: True

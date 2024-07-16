@@ -10,11 +10,11 @@ print("*****************运行评估测试************************")
 # internlm模型更好
 args = dict(
     do_sample=True,
-    model_name_or_path="/mnt/windows/Users/Admin/LLM/models/shenzhi-wang/Llama3-8B-Chinese-Chat",
-    adapter_name_or_path="/mnt/windows/Users/Admin/LLM/models/shenzhi-wang/extract_llama3_v1",  # 加载之前保存的 LoRA 适配器
-    template="llama3",  # 和训练保持一致
+    model_name_or_path="/mnt/windows/Users/Admin/LLM/models/qwen/Qwen2-7B-Instruct",
+    adapter_name_or_path="/mnt/windows/Users/Admin/LLM/models/qwen/test_7B/Qwen2-7B-Instruct-lora",  # 加载之前保存的 LoRA 适配器
+    template="qwen",  # 和训练保持一致
     finetuning_type="lora",  # 和训练保持一致
-    # quantization_bit=4,                    # 加载 4 比特量化模型
+    # quantization_bit=4,
     temperature=0.3,
     top_p=0.7,
     max_new_tokens=1024,
@@ -28,7 +28,7 @@ chat_model = ChatModel(args)
 f1_cal = F1score()
 # 测试推理
 
-unit_name = "肿瘤治疗"
+unit_name = "治疗用药方案"
 test_path_mapping = {
     "病理": "data/Pathology/test_zh.json",
     "治疗用药方案": "data/Treatment Drug Plan/test_zh.json",
