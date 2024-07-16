@@ -794,7 +794,7 @@ _register_template(
     format_system=StringFormatter(slots=["<|im_start|>system\n{{content}}<|im_end|>\n"]),
     format_observation=StringFormatter(slots=["<|im_start|>tool\n{{content}}<|im_end|>\n<|im_start|>assistant\n"]),
     format_separator=EmptyFormatter(slots=["\n"]),
-    default_system="You are a helpful assistant.",
+    default_system="你是一个从医学报告中提取医学信息的助手",
     stop_words=["<|im_end|>"],
     replace_eos=True,
 )
