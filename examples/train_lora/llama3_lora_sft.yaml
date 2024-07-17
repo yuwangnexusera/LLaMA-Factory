@@ -5,7 +5,6 @@ model_name_or_path: /mnt/windows/Users/Admin/LLM/models/shenzhi-wang/Llama3-8B-C
 stage: sft
 do_train: true
 finetuning_type: lora
-lora_target: all
 # loraplus_lr_ratio: 16.0 #
 mixture_of_depths: convert # load, convert F1:0.959
 
@@ -22,14 +21,14 @@ mixture_of_depths: convert # load, convert F1:0.959
 
 dataset: pathology_sft,basic_information_sft,cancer_treatment_sft,comorbid_disease_sft,date_unit_sft,diagnosis_sft,disease_sft,genetic_testing_sft,imaging_sft,immunization_sft,symptom_sft,treatment_drug_plan_sft
 template: llama3
-cutoff_len: 1400
+cutoff_len: 1024
 max_samples: 500
 overwrite_cache: true
 preprocessing_num_workers: 16
 
 ### output
-output_dir: /mnt/windows/Users/Admin/LLM/models/shenzhi-wang/extract_llama3_v1
-# resume_from_checkpoint: /mnt/windows/Users/Admin/LLM/models/shenzhi-wang/extract_llama3_plus_v1
+output_dir: /mnt/windows/Users/Admin/LLM/models/shenzhi-wang/lora_Llama3-8B
+# resume_from_checkpoint: /mnt/windows/Users/Admin/LLM/models/shenzhi-wang/lora_Llama3-8B
 logging_steps: 200
 save_steps: 1000
 plot_loss: true
@@ -39,12 +38,13 @@ overwrite_output_dir: true
 per_device_train_batch_size: 2
 gradient_accumulation_steps: 1
 learning_rate: 1.0e-4
-num_train_epochs: 5.0
-lr_scheduler_type: cosine
-warmup_ratio: 0.1
-fp16: true
+num_train_epochs: 4.0
+lr_scheduler_type: cosine_with_restarts
+# lr_scheduler_kwargs: cosine_with_min_lr
+warmup_ratio: 0.05
+bf16: true
 ddp_timeout: 180000000
-weight_decay: 0.1
+weight_decay: 0.01
 
 ### eval
 do_eval: True
@@ -54,8 +54,9 @@ eval_strategy: steps
 eval_steps: 200
 
 ### lora
-lora_dropout: 0.05
+lora_dropout: 0.01
 lora_rank: 64
-lora_target: all
+lora_alpha: 128
+lora_target: q_proj,v_proj,o_proj,k_proj,up_proj
 
 use_unsloth: True

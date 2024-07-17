@@ -10,17 +10,17 @@ print("*****************运行评估测试************************")
 # internlm模型更好
 args = dict(
     do_sample=True,
-    model_name_or_path="/mnt/windows/Users/Admin/LLM/models/qwen/Qwen2-7B-Instruct",
-    adapter_name_or_path="/mnt/windows/Users/Admin/LLM/models/qwen/test_7B/Qwen2-7B-Instruct-lora",  # 加载之前保存的 LoRA 适配器
+    model_name_or_path="/mnt/windows/Users/Admin/LLM/models/qwen/reach_standard/Nexusera-Qwen2-7B",
+    # adapter_name_or_path="/mnt/windows/Users/Admin/LLM/models/qwen/test_7B/Qwen2-7B-Instruct-lora",  # 加载之前保存的 LoRA 适配器
     template="qwen",  # 和训练保持一致
-    finetuning_type="lora",  # 和训练保持一致
+    # finetuning_type="lora",  # 和训练保持一致
     # quantization_bit=4,
     temperature=0.3,
     top_p=0.7,
     max_new_tokens=1024,
     repetition_penalty=1.0,
     length_penalty=1.1,
-    num_beams=3,
+    num_beams=1,
     top_k=80,
 )
 torch_gc()
@@ -28,7 +28,7 @@ chat_model = ChatModel(args)
 f1_cal = F1score()
 # 测试推理
 
-unit_name = "治疗用药方案"
+unit_name = "基因检测"
 test_path_mapping = {
     "病理": "data/Pathology/test_zh.json",
     "治疗用药方案": "data/Treatment Drug Plan/test_zh.json",
