@@ -27,15 +27,18 @@ MODEL_MAPPING = pandas.read_json(model_conf_path, orient="records").to_dict(orie
 def _model_list() -> List[dict]:
     model_list = MODEL_MAPPING
     return model_list
-def single_report_extract(unit_name, report,model:"ChatModel"):   
+
+
+def single_report_extract(unit_name, report, model: "ChatModel"):
     """单篇报告提取"""
     prompt = sft_unit_prompt.get(unit_name)
     if not prompt:
-        return SingleReportResponse(unit_json={"msg":"单元名不存在"})
+        return SingleReportResponse(unit_json={"msg": "单元名不存在"})
     messages = []
     query = f"{prompt}\n{report}"
     messages.append({"role": "user", "content": query})
     response = ""
+    logger.info(f"messages:{messages}")
     response = model.chat(messages)
     response = response[0].response_text
     # try:
