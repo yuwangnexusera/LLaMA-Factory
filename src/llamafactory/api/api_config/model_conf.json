@@ -2,9 +2,16 @@
     {
         "model_alias": "internlm_nexusera",
         "template": "intern2",
-        "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/Nexusera_Extract_V1",
+        "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/reach_standard/Nexusera_Extract_V1",
         "unsloth": "False",
         "description":"internlm-7B微调版本V1"
+    },
+    {
+        "model_alias": "qwen_nexusera",
+        "template": "qwen",
+        "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/qwen/reach_standard/Nexusera-Qwen2-7B",
+        "unsloth": "False",
+        "description":"qwen2-7B微调版本V1"
     },
     {
         "model_alias": "qwen2-7B-chat",
