@@ -11,6 +11,11 @@ def get_obj_by_id(id):
     return query
 
 
+def query_by_nums(num=300):
+    query = ds_image.select().where(ds_image.status == 0).limit(num)
+    return query
+
+
 # 查询验证集 test开头的数据
 def select_test():
     # 构建 SQL 查询 (简易版，看看patient_id的范围)
@@ -27,7 +32,7 @@ def select_sft_train_ds():
 
 if __name__ == "__main__":
     # 假设这是数据库中的一些示例数据
-    test_ds = select_test()
+    test_ds = query_by_nums(200)
     for dataset in test_ds:
         print(dataset.url)
     for i in test_ds:

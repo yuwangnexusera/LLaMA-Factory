@@ -601,6 +601,9 @@
   "genetic_testing_sft": {
     "file_name": "Genetic Testing/all_zh.json"
   },
+  "gene_fullDose": {
+    "file_name": "Genetic Testing/full_dose_ds.json"
+  },
   "imaging_sft": {
     "file_name": "Imaging/all_zh.json"
   },
