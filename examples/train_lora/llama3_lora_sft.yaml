@@ -9,26 +9,26 @@ finetuning_type: lora
 mixture_of_depths: convert # load, convert F1:0.959
 
 # pissa 
-pissa_init: true
-pissa_iter: 4
-pissa_convert: true
+# pissa_init: true
+# pissa_iter: 16
+# pissa_convert: true
 
 ### dataset
 # datasets = """pathology_sft,basic_information_sft,cancer_treatment_sft,comorbid_disease_sft,
 # date_unit_sft,diagnosis_sft,disease_sft,genetic_testing_sft,imaging_sft,immunization_sft,symptom_sft,treatment_drug_plan_sft"""
 
-dataset: treatment_drug_plan_sft
+dataset: pathology_sft,disease_sft,comorbid_disease_sft,date_unit_sft,treatment_drug_plan_sft,immunization_sft
 template: llama3
 cutoff_len: 1024
-max_samples: 100
+max_samples: 500
 overwrite_cache: true
 preprocessing_num_workers: 16
 
 ### output
 output_dir: /mnt/windows/Users/Admin/LLM/models/shenzhi-wang/lora_Llama3-8B
 # resume_from_checkpoint: /mnt/windows/Users/Admin/LLM/models/shenzhi-wang/lora_Llama3-8B
-logging_steps: 64
-save_steps: 128
+logging_steps: 100
+save_steps: 600
 plot_loss: true
 overwrite_output_dir: true
 
@@ -36,7 +36,7 @@ overwrite_output_dir: true
 per_device_train_batch_size: 2
 gradient_accumulation_steps: 1
 learning_rate: 1.0e-4
-num_train_epochs: 5.0
+num_train_epochs: 3.0
 lr_scheduler_type: cosine_with_restarts
 # lr_scheduler_kwargs: cosine_with_min_lr
 warmup_ratio: 0.05
@@ -49,7 +49,7 @@ do_eval: True
 val_size: 0.1
 per_device_eval_batch_size: 2
 eval_strategy: steps
-eval_steps: 64
+eval_steps: 100
 
 ### lora
 lora_dropout: 0.05
