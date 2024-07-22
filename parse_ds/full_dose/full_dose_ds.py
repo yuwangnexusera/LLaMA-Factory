@@ -3,6 +3,8 @@ import tiktoken
 import sys
 import json
 import time
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 sys.path.append(".")
 from env.env_llm import OPENAI
 from utils import ds_label_wrapper
@@ -18,13 +20,15 @@ def ask_doubao(prompt):
     # Non-streaming:
     print("----- standard request -----")
     completion = client.chat.completions.create(
-        model="ep-20240718032206-lj48n",
+        model="ep-20240715085700-26868",
         messages=[
-            {"role": "system", "content": "你的任务是按要求从给定报告中提取医学信息。"},
+            {"role": "system", "content": "你的任务是按要求给出改写后的文本"},
             {"role": "user", "content": prompt},
         ],
         stream=True,
-        temperature=0.01,
+        temperature=0.7,
+        top_p=0.7,
+        frequency_penalty=0,
     )
     output_llm = ""
     encoding = tiktoken.encoding_for_model(model_name="gpt-4")  # gpt-4/gpt-3.5-turbo
@@ -44,7 +48,7 @@ def ask_llm(prompt):
         api_key=OPENAI["OPENAI_API_KEY"],
         base_url=OPENAI["OPENAI_API_BASE"],
     )
-    model_name = "gpt-4o-mini"
+    model_name = "gpt-4-1106-preview"
     try:
         # 创建聊天完成请求
         completion = client.chat.completions.create(
@@ -104,34 +108,71 @@ def gene_prompt_extract():
         print(e)
     return reports
 
-def conbine_disease_extract():
-    conbine_disease_list = []
+def full_dose_extract(unit_name,save_path):
+    ds_list = []
     ds_500 = pandas.read_json("parse_ds/full_dose/gene_500.json", orient="records").to_dict(orient="records")
     max_retries = 3  # 最大重试次数
     for ds in ds_500:
         retry_count = 0
-        prompt = prompt_template.full_dose_prompt.get("合并疾病").replace("|||input_report|||", ds["report"])
+        prompt = prompt_template.full_dose_prompt.get(unit_name).replace("|||input_report|||", ds["report"])
         output = ask_doubao(prompt)
-
         while not output and retry_count < max_retries:
             retry_count += 1
             print(f"No output received for input: {ds['report']}. Retrying... Attempt {retry_count}/{max_retries}")
-            time.sleep(10) 
+            time.sleep(5)
             output = ask_doubao(prompt)
-
+        if "```json" in output:
+            output = output.replace("```json", "").replace("```", "")
+        try:
+            json_output = json.loads(output)
+        except:
+            print("json.loads error")
+            continue
         if not output:
             print(f"Failed to get output after {max_retries} attempts for input: {ds['report']}. Skipping.")
             continue
-        conbine_disease_list.append({"instruction": prompt_template.sft_prompt.get("合并疾病"), "input": ds["report"], "output": output})
-    pandas.DataFrame(conbine_disease_list).to_json("data/Comorbid Disease/full_dose_ds.json", orient="records", force_ascii=False, indent=4)
-    return conbine_disease_list
-def parse_generate_json(save_path="data/Genetic Testing/full_dose_ds.json"):
+        ds_list.append({"instruction": prompt_template.sft_prompt.get(unit_name), "input": ds["report"], "output": output})
+        logging.info(f"{len(ds_list)}")
+    pandas.DataFrame(ds_list).to_json(save_path, orient="records", force_ascii=False, indent=4)
+    return ds_list
+
+
+def instruction_enhangce(input_string, keyword = "输出格式"):
+    # 查找关键字的位置
+    logging.info("enhanging")
+    keyword_index = input_string.find(keyword)
+    enhangce_prompt = (
+        "对以下输入文本进行同义句、同义词替换改写或者进行提示词丰富，输入文本：" + input_string[:keyword_index]
+    )
+    enhangced_txt = ask_doubao(enhangce_prompt)
+    remaining_txt = input_string[keyword_index:]
+    # 如果关键字存在，截取并返回子字符串
+    return enhangced_txt + remaining_txt
+
+
+def parse_generate_json(unit_name,save_path="data/Genetic Testing/full_dose_ds.json"):
     gene_full_dose = []
-    reports = pandas.read_json("parse_ds/full_dose/gene_500.json", orient="records").to_dict(orient="records")
+    reports = pandas.read_json(save_path, orient="records").to_dict(orient="records")
+    i = 1
     for report in reports:
-        gene_full_dose.append({"instruction": prompt_template.sft_prompt.get("基因检测"), "input": report["report"], "output": report["output"]})
+        if i % 5 == 0:
+            continue
+        i += 1
+        instruction = instruction_enhangce(prompt_template.sft_prompt.get(unit_name))
+        gene_full_dose.append({"instruction": instruction, "input": report["input"], "output": report["output"]})
     pandas.DataFrame(gene_full_dose).to_json(save_path, orient="records", force_ascii=False, indent=4)
     return gene_full_dose
 
 if __name__ == "__main__":
-    full_dose_res = conbine_disease_extract()
+    logging.info("start")
+    unit_path_map = {"基因检测": "data/Genetic Testing/full_dose_ds.json",
+                     "病理": "data/Pathology/full_dose_ds.json",
+                     "治疗用药方案": "data/Treatment Drug Plan/full_dose_ds.json",
+                     "日期": "data/date_unit/full_dose_ds.json",
+                     "疾病": "data/Disease/full_dose_ds.json",
+                     "免疫检测": "data/Immune Testing/full_dose_ds.json",
+                     "合并疾病": "data/Comorbid Disease/full_dose_ds.json"}
+    unit_name = "基因检测"
+    path = unit_path_map.get(unit_name)
+    full_dose_res = parse_generate_json(unit_name, path)
+    # 其余单元

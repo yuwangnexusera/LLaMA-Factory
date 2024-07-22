@@ -554,15 +554,6 @@
       "prompt": "content"
     }
   },
-  "sfan": {
-    "file_name": "Sfan/ner_sfan.json"
-  },
-  "sfan_AnatEM": {
-    "file_name": "Sfan/sfan_AnatEM_train.json"
-  },
-  "sfan_BC5CDR": {
-    "file_name": "Sfan/sfan_BC5CDR_train.json"
-  },
   "starcoder_python": {
     "hf_hub_url": "bigcode/starcoderdata",
     "ms_hub_url": "AI-ModelScope/starcoderdata",
@@ -603,6 +594,18 @@
   },
   "gene_fullDose": {
     "file_name": "Genetic Testing/full_dose_ds.json"
+  },
+  "immune_fullDose": {
+    "file_name": "Immune Testing/full_dose_ds.json"
+  },
+  "disease_fullDose": {
+    "file_name": "Disease/full_dose_ds.json"
+  },
+  "pathology_fullDose": {
+    "file_name": "Pathology/full_dose_ds.json"
+  },
+  "comorbid_disease_fullDose": {
+    "file_name": "Comorbid Disease/full_dose_ds.json"
   },
   "imaging_sft": {
     "file_name": "Imaging/all_zh.json"
