@@ -1,5 +1,19 @@
 [
     {
+        "model_alias": "qwen_full_dose",
+        "template": "qwen",
+        "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/qwen/reach_standard/Qwen2-7B-Full-Dose",
+        "unsloth": "False",
+        "description":"qwen2-7B微调原样提取"
+    },
+    {
+        "model_alias": "internlm_nexusera",
+        "template": "intern2",
+        "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/reach_standard/Nexusera_Extract_V1",
+        "unsloth": "False",
+        "description": "internlm-7B原样提取微调单元+报告分类"
+    },
+    {
         "model_alias": "internlm_nexusera",
         "template": "intern2",
         "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/reach_standard/Nexusera_Extract_V1",
@@ -13,13 +27,7 @@
         "unsloth": "False",
         "description":"qwen2-7B微调版本V1"
     },
-    {
-        "model_alias": "gene_qwen_full_dose",
-        "template": "qwen",
-        "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/qwen/reach_standard/Qwen2-7B-Gene-Full-Dose_",
-        "unsloth": "False",
-        "description":"qwen2-7B微调原样提取基因"
-    },
+
     {
         "model_alias": "qwen2-7B-chat",
         "template": "qwen",
@@ -75,5 +83,12 @@
         "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/n810x/Mixtral-8x7B-Instruct-v0.1-3bit-exl2",
         "unsloth": "True",
         "description": ""
+    },
+    {
+        "model_alias": "Mistral-Nemo-Instruct-2407",
+        "template": "mistral",
+        "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/AI-ModelScope/Mistral-Nemo-Instruct-2407",
+        "unsloth": "False",
+        "description": "mistral 12B微调版本V1"
     }
 ]
