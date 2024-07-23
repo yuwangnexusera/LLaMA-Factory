@@ -165,15 +165,15 @@ def parse_generate_json(unit_name,save_path="data/Genetic Testing/full_dose_ds.j
 
 def prepare_report_type(save_path = "data/category_zh.json"):
     categories = []
-    ds_records = ds_label_wrapper.query_by_nums(500)
+    ds_records = ds_label_wrapper.query_by_nums(512)
     for report in ds_records:
-        # instruction = instruction_enhangce()
-        categories.append(
-            {"instruction": prompt_template.sft_prompt.get("报告分类"), "input": report["input"], "output": report["output"]}
-        )
-    pandas.DataFrame(categories).to_json(save_path, orient="records", force_ascii=False, indent=4)
+        if report.category:
+            categories.append(
+                {"instruction": prompt_template.sft_prompt.get("报告分类"), "input": report.ocr_result, "output": report.category}
+            )
+    pandas.DataFrame(categories[:500]).to_json(save_path, orient="records", force_ascii=False, indent=4)
 
-    return 
+    return categories
 
 
 if __name__ == "__main__":
