@@ -26,9 +26,9 @@ def ask_doubao(prompt):
             {"role": "user", "content": prompt},
         ],
         stream=True,
-        temperature=0.7,
+        temperature=0.9,
         top_p=0.7,
-        frequency_penalty=0,
+        seed=100
     )
     output_llm = ""
     encoding = tiktoken.encoding_for_model(model_name="gpt-4")  # gpt-4/gpt-3.5-turbo
@@ -142,7 +142,7 @@ def instruction_enhangce(input_string, keyword = "输出格式"):
     logging.info("enhanging")
     keyword_index = input_string.find(keyword)
     enhangce_prompt = (
-        "对以下输入文本进行同义句、同义词替换改写或者进行提示词丰富，输入文本：" + input_string[:keyword_index]
+        "我现在正在做数据增强任务，需要你帮助我丰富输入文本，可以通过进行同义句改写、同义词替换、相关医学术语词汇的替换等方式，输入文本：" + input_string[:keyword_index]
     )
     enhangced_txt = ask_doubao(enhangce_prompt)
     remaining_txt = input_string[keyword_index:]
@@ -153,26 +153,44 @@ def instruction_enhangce(input_string, keyword = "输出格式"):
 def parse_generate_json(unit_name,save_path="data/Genetic Testing/full_dose_ds.json"):
     gene_full_dose = []
     reports = pandas.read_json(save_path, orient="records").to_dict(orient="records")
-    i = 1
     for report in reports:
-        if i % 5 == 0:
-            continue
-        i += 1
-        instruction = instruction_enhangce(prompt_template.sft_prompt.get(unit_name))
-        gene_full_dose.append({"instruction": instruction, "input": report["input"], "output": report["output"]})
+        logging.info("parse_generate_json")
+        # instruction = instruction_enhangce()
+        gene_full_dose.append(
+            {"instruction": prompt_template.sft_prompt.get(unit_name), "input": report["input"], "output": report["output"]}
+        )
     pandas.DataFrame(gene_full_dose).to_json(save_path, orient="records", force_ascii=False, indent=4)
     return gene_full_dose
 
+
+def prepare_report_type(save_path = "data/category_zh.json"):
+    categories = []
+    ds_records = ds_label_wrapper.query_by_nums(500)
+    for report in ds_records:
+        # instruction = instruction_enhangce()
+        categories.append(
+            {"instruction": prompt_template.sft_prompt.get("报告分类"), "input": report["input"], "output": report["output"]}
+        )
+    pandas.DataFrame(categories).to_json(save_path, orient="records", force_ascii=False, indent=4)
+
+    return 
+
+
 if __name__ == "__main__":
     logging.info("start")
-    unit_path_map = {"基因检测": "data/Genetic Testing/full_dose_ds.json",
+    unit_path_map = {
+        "基因检测": "data/Genetic Testing/full_dose_ds.json",
                      "病理": "data/Pathology/full_dose_ds.json",
-                     "治疗用药方案": "data/Treatment Drug Plan/full_dose_ds.json",
-                     "日期": "data/date_unit/full_dose_ds.json",
+                    #  "治疗用药方案": "data/Treatment Drug Plan/full_dose_ds.json",
+                    #  "日期": "data/date_unit/full_dose_ds.json",
                      "疾病": "data/Disease/full_dose_ds.json",
                      "免疫检测": "data/Immune Testing/full_dose_ds.json",
                      "合并疾病": "data/Comorbid Disease/full_dose_ds.json"}
-    unit_name = "基因检测"
-    path = unit_path_map.get(unit_name)
-    full_dose_res = parse_generate_json(unit_name, path)
+    # unit_name = "病理"
+    # path = unit_path_map.get(unit_name)
+    # for unit_name, path in unit_path_map.items():
+    #     full_dose_res = parse_generate_json(unit_name, path)
     # 其余单元
+
+    # 报告分类
+    prepare_report_type()

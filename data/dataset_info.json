@@ -619,17 +619,7 @@
   "treatment_drug_plan_sft": {
     "file_name": "Treatment Drug Plan/all_zh.json"
   },
-  "treatment_drug_plan_dpo_sft": {
-    "file_name": "Treatment Drug Plan/sft_zh.json"
-  },
-  "treatment_drug_plan_dpo": {
-    "file_name": "Treatment Drug Plan/dpo_zh.json",
-    "ranking": true,
-    "formatting": "sharegpt",
-    "columns": {
-      "messages": "conversations",
-      "chosen": "chosen",
-      "rejected": "rejected"
-    }
+  "report_category":{
+    "file_name": "category_zh.json"
   }
 }
