@@ -5,7 +5,7 @@ model_name_or_path: /mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/i
 stage: sft
 do_train: true
 finetuning_type: lora
-mixture_of_depths: convert
+# mixture_of_depths: convert
 
 dataset: date_unit_sft,gene_fullDose,immune_fullDose,treatment_drug_plan_sft,disease_fullDose,pathology_fullDose,comorbid_disease_fullDose,report_category
 template: intern2
@@ -19,7 +19,7 @@ output_dir: /mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/test/full
 ### output
 # resume_from_checkpoint: /mnt/windows/Users/Admin/LLM/models/qwen/nexusera_lora_extract
 logging_steps: 200
-save_steps: 500
+save_steps: 600
 plot_loss: true
 overwrite_output_dir: true
 

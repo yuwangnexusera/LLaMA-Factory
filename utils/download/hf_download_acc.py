@@ -7,10 +7,10 @@ os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
 local_dir = "/mnt/windows/Users/Admin/LLM/models/"
 
 # 设置仓库id
-model_id = "mistralai/Mistral-Nemo-Instruct-2407"
+model_id = "meta-llama/Meta-Llama-3.1-8B-Instruct"
 
-# exclude = "*.gguf" #--exclude {exclude}
-cmd = f"huggingface-cli download --resume-download {model_id} --local-dir {local_dir}/{model_id} --local-dir-use-symlinks False "
+exclude = "*.pth" #--exclude {exclude}
+cmd = f"huggingface-cli download --resume-download {model_id} --local-dir {local_dir}/{model_id} --exclude {exclude} --local-dir-use-symlinks False --token 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"
 
 # 启动下载
 os.system(cmd)
