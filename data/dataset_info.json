@@ -562,6 +562,9 @@
     },
     "folder": "python"
   },
+  "sfan_BC5CDR": {
+    "file_name":"Sfan/sfan_BC5CDR_train.json"
+  },
   "pathology_rlhf_sft": {
     "file_name": "Pathology/sft_zh.json"
   },

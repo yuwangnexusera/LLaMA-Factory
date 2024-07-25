@@ -2,12 +2,12 @@
 
 ### model
 model_name_or_path: /mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/internlm2_5-7b-chat/
-adapter_name_or_path: /mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/test_allds_internlm2_5-7b-chat/
+adapter_name_or_path: /mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/test/full_dose_500
 template: intern2
 finetuning_type: lora
 
 ### export
-export_dir: /mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/Nexusera_Extract_V1
+export_dir: /mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/reach_standard/full_dose
 export_size: 2
 export_device: cpu
 export_legacy_format: false
