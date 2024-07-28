@@ -200,6 +200,9 @@ https://github.com/user-attachments/assets/e6ce34b0-52d5-4f3e-a830-592106c4c272
 | ORPO 训练              | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 | SimPO 训练             | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 
+> [!TIP]
+> 有关 PPO 的实现细节，请参考[此博客](https://newfacade.github.io/notes-on-reinforcement-learning/17-ppo-trl.html)。
+
 ## 数据集
 
 <details><summary>预训练数据集</summary>
@@ -429,16 +432,24 @@ CUDA 用户：
 
 ```bash
 cd docker/docker-cuda/
-docker-compose up -d
-docker-compose exec llamafactory bash
+docker compose up -d
+docker compose exec llamafactory bash
 ```
 
 昇腾 NPU 用户：
 
 ```bash
 cd docker/docker-npu/
-docker-compose up -d
-docker-compose exec llamafactory bash
+docker compose up -d
+docker compose exec llamafactory bash
+```
+
+AMD ROCm 用户：
+
+```bash
+cd docker/docker-rocm/
+docker compose up -d
+docker compose exec llamafactory bash
 ```
 
 <details><summary>不使用 Docker Compose 构建</summary>
@@ -493,6 +504,34 @@ docker run -dit \
     --device /dev/davinci_manager \
     --device /dev/devmm_svm \
     --device /dev/hisi_hdc \
+    --shm-size 16G \
+    --name llamafactory \
+    llamafactory:latest
+
+docker exec -it llamafactory bash
+```
+
+AMD ROCm 用户：
+
+```bash
+docker build -f ./docker/docker-rocm/Dockerfile \
+    --build-arg INSTALL_BNB=false \
+    --build-arg INSTALL_VLLM=false \
+    --build-arg INSTALL_DEEPSPEED=false \
+    --build-arg INSTALL_FLASHATTN=false \
+    --build-arg PIP_INDEX=https://pypi.org/simple \
+    -t llamafactory:latest .
+
+docker run -dit \
+    -v ./hf_cache:/root/.cache/huggingface \
+    -v ./ms_cache:/root/.cache/modelscope \
+    -v ./data:/app/data \
+    -v ./output:/app/output \
+    -v ./saves:/app/saves \
+    -p 7860:7860 \
+    -p 8000:8000 \
+    --device /dev/kfd \
+    --device /dev/dri \
     --shm-size 16G \
     --name llamafactory \
     llamafactory:latest
