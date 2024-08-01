@@ -33,7 +33,7 @@ def compare_annotations(correct_annotations, model_annotations):
 # 20B=200亿token 0.01亿字（红楼梦）
 if __name__ == "__main__":
     print("*****************运行评估测试************************")
-    answer_json = pandas.read_json("data/Sfan/sfan_AnatEM_test.json", orient="records").to_dict(orient="records")
+    answer_json = pandas.read_json("data/Sfan/ner_sfan_test.json", orient="records").to_dict(orient="records")
     args = dict(
         do_sample=True,
         model_name_or_path="/mnt/windows/Users/Admin/LLM/models/AI-ModelScope/gemma-2b-it",
@@ -43,10 +43,10 @@ if __name__ == "__main__":
         # quantization_bit=4,                    # 加载 4 比特量化模型
         temperature=0.1,
         top_p=0.7,
-        max_new_tokens=512,
+        max_new_tokens=256,
         repetition_penalty=1.0,
         length_penalty=1.1,
-        num_beams=3,
+        num_beams=1,
         top_k=80,
     )
     torch_gc()
@@ -55,8 +55,6 @@ if __name__ == "__main__":
     res = []
     print(f"*****************开始{datetime.now()}************************")
     for answer_i in answer_json:
-        if num > 5000:
-            break
         messages = []
         messages.append({"role": "user", "content": answer_i.get("instruction") + answer_i.get("input")})
         response = ""
@@ -67,7 +65,7 @@ if __name__ == "__main__":
         except Exception as e:
             print(e)
             model_answer = response
-        print("*****************第" + str(num) + "个完成************************")
+        print("*****************第" + str(num) + f"/{len(answer_json)}个完成{response}************************")
         res.append(
             {
                 "input": answer_i.get("input"),
@@ -77,7 +75,7 @@ if __name__ == "__main__":
         )
         num += 1
     print(f"*****************结束{datetime.now()}************************")
-    with open("sfan_AnatEM_test.json", "w") as f:
+    with open("ner_sfan_test.json", "w") as f:
         json.dump(res, f, indent=4, ensure_ascii=False)
     # for new_text in chat_model.chat(messages):
     #     print(new_text, end="")

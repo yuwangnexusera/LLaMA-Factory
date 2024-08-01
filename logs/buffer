@@ -1,0 +1,1921 @@
+*****************第153/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "glucocorticoids",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第154/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "Cortisol",
+  "start_position": "12",
+  "end_position": "17"
+}************************
+*****************第155/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "antiglucocorticoids",
+  "start_position": 10,
+  "end_position": 20
+}************************
+*****************第156/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "HMGB1",
+  "start_position": 12,
+  "end_position": 17
+}************************
+*****************第157/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "ATGCAAAT",
+  "start_position": "5",
+  "end_position": "70"
+}************************
+*****************第158/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "VL",
+  "start_position": "0",
+  "end_position": "0"
+}************************
+*****************第159/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "immunoglobulin genes",
+  "start_position": "1",
+  "end_position": "15"
+}************************
+*****************第160/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "factor",
+  "start_position": "0",
+  "end_position": "0"
+}************************
+*****************第161/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "DNA-protein interaction",
+  "start_position": "123",
+  "end_position": "156"
+}************************
+*****************第162/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "HTLV-I LTR",
+  "start_position": "1",
+  "end_position": "20"
+}************************
+Expecting value: line 1 column 1 (char 0)
+*****************第163/3159个完成```
+[
+  {
+    "entity_type": "protein",
+    "entity_value": "adenovirus 2 major late gene",
+    "start_position": 1,
+    "end_position": 50
+  },
+  {
+    "entity_type": "gene",
+    "entity_value": "mouse beta-globin gene",
+    "start_position": 60,
+    "end_position": 120
+  },
+  {
+    "entity_type": "gene",
+    "entity_value": "mouse immunoglobulin VH gene",
+    "start_position": 130,
+    "end_position": 190
+  },
+  {
+    "entity_type": "gene",
+    "entity_value": "LTR of the human T-lymphotropic retrovirus type I",
+    "start_position": 200,
+    "end_position": 260
+  }
+]
+```************************
+*****************第164/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "MT-2",
+  "start_position": "123",
+  "end_position": "156"
+}************************
+*****************第165/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "HTLV-I LTR",
+  "start_position": "123",
+  "end_position": "156"
+}************************
+*****************第166/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "MT-2",
+  "start_position": "12",
+  "end_position": "17"
+}************************
+*****************第167/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "nuclear factor",
+  "start_position": "1",
+  "end_position": "20"
+}************************
+*****************第168/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "Trans-acting factors that mediate B-cell specific transcription of immunoglobulin genes have been postulated based on an analysis of the expression of exogenously introduced immunoglobulin gene recombinants in lymphoid and non-
+lymphoid cells",
+  "start_position": "",
+  "end_position": ""
+}************************
+*****************第169/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "B-cell",
+  "start_position": "1",
+  "end_position": "15"
+}************************
+*****************第170/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "V",
+  "start_position": "15",
+  "end_position": "20"
+}************************
+*****************第171/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "heavy",
+  "start_position": "123",
+  "end_position": "156"
+}************************
+*****************第172/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "IgNF-A",
+  "start_position": "1",
+  "end_position": "20"
+}************************
+*****************第173/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "IgNF-A",
+  "start_position": "12",
+  "end_position": "17"
+}************************
+*****************第174/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "cortisol",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第175/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "glucocorticoid receptors",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第176/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "Glucocorticoid receptor",
+  "start_position": "12",
+  "end_position": "17"
+}************************
+*****************第177/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "intra-adrenal",
+  "start_position": "12",
+  "end_position": "17"
+}************************
+*****************第178/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "cortisol",
+  "start_position": "12",
+  "end_position": "17"
+}************************
+*****************第179/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "EKLF",
+  "start_position": "1",
+  "end_position": "25"
+}************************
+*****************第180/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "EKLF",
+  "start_position": "1",
+  "end_position": "25"
+}************************
+*****************第181/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "EKLF",
+  "start_position": "1",
+  "end_position": "15"
+}************************
+*****************第182/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "EKLF",
+  "start_position": "0",
+  "end_position": "0"
+}************************
+*****************第183/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "CBP",
+  "start_position": 12,
+  "end_position": 17
+}************************
+*****************第184/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "CBP and p300",
+  "start_position": "12",
+  "end_position": "15"
+}************************
+*****************第185/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "EKLF",
+  "start_position": "0",
+  "end_position": "15"
+}************************
+*****************第186/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "CD4",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第187/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "CD4",
+  "start_position": "12",
+  "end_position": "17"
+}************************
+*****************第188/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "many",
+  "start_position": 12,
+  "end_position": 17
+}************************
+*****************第189/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "T cells",
+  "start_position": "0.67",
+  "end_position": "0.73"
+}************************
+*****************第190/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "VP22",
+  "start_position": "123",
+  "end_position": "156"
+}************************
+*****************第191/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "VP22",
+  "start_position": "0",
+  "end_position": "15"
+}************************
+*****************第192/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "UL21",
+  "start_position": "123",
+  "end_position": "156"
+}************************
+*****************第193/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "VP16",
+  "start_position": "0",
+  "end_position": "0"
+}************************
+*****************第194/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "CD4",
+  "start_position": "12",
+  "end_position": "17"
+}************************
+*****************第195/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "herpes simplex tegument proteins",
+  "start_position": "0",
+  "end_position": "0"
+}************************
+*****************第196/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "NF-kappa B",
+  "start_position": 12,
+  "end_position": 20
+}************************
+*****************第197/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "leukocyte",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第198/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "NF-kappa B",
+  "start_position": "12",
+  "end_position": "25"
+}************************
+*****************第199/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "CD11b/CD18",
+  "start_position": "0",
+  "end_position": "10"
+}************************
+*****************第200/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "fibrinogen",
+  "start_position": "10-100",
+  "end_position": "10-100"
+}************************
+*****************第201/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "NF-kappa B",
+  "start_position": 12,
+  "end_position": 20
+}************************
+*****************第202/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "AP-1",
+  "start_position": "12",
+  "end_position": "15"
+}************************
+Extra data: line 7 column 1 (char 103)
+*****************第203/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "CD18",
+  "start_position": 12,
+  "end_position": 15
+}
+{
+  "entity_type": "protein",
+  "entity_value": "CD11b",
+  "start_position": 19,
+  "end_position": 22
+}
+{
+  "entity_type": "gene",
+  "entity_value": "NF-kappa B",
+  "start_position": 27,
+  "end_position": 32
+}************************
+*****************第204/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "U937",
+  "start_position": "1",
+  "end_position": "10"
+}************************
+*****************第205/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "CAT",
+  "start_position": "24",
+  "end_position": "24"
+}************************
+*****************第206/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "fibrinogen-derived proteins",
+  "start_position": "12",
+  "end_position": "25"
+}************************
+*****************第207/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "estrogen receptor",
+  "start_position": "123",
+  "end_position": "156"
+}************************
+*****************第208/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "ER",
+  "start_position": "1",
+  "end_position": "20"
+}************************
+Extra data: line 7 column 1 (char 128)
+*****************第209/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "peripheral blood monocytes",
+  "start_position": "1",
+  "end_position": "15"
+}
+{
+  "entity_type": "cell_type",
+  "entity_value": "T cells",
+  "start_position": "16",
+  "end_position": "20"
+}************************
+*****************第210/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "CD4",
+  "start_position": "12",
+  "end_position": "15"
+}************************
+Extra data: line 7 column 1 (char 108)
+*****************第211/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "monocytes",
+  "start_position": 12,
+  "end_position": 17
+}
+{
+  "entity_type": "cell_type",
+  "entity_value": "T cells",
+  "start_position": 20,
+  "end_position": 25
+}************************
+Extra data: line 7 column 1 (char 116)
+*****************第212/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "Epstein-Barr virus",
+  "start_position": 0,
+  "end_position": 12
+}
+{
+  "entity_type": "cell_type",
+  "entity_value": "B cell lines",
+  "start_position": 13,
+  "end_position": 20
+}
+{
+  "entity_type": "cell_line",
+  "entity_value": "n/a",
+  "start_position": 21,
+  "end_position": 25
+}
+{
+  "entity_type": "DNA",
+  "entity_value": "n/a",
+  "start_position": 26,
+  "end_position": 35
+}
+{
+  "entity_type": "RNA",
+  "entity_value": "n/a",
+  "start_position": 36,
+  "end_position": 45
+}************************
+*****************第213/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "ER",
+  "start_position": "123",
+  "end_position": "156"
+}************************
+*****************第214/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "ER mRNA",
+  "start_position": "0",
+  "end_position": "0"
+}************************
+*****************第215/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "human_er_mri",
+  "start_position": "1",
+  "end_position": "8"
+}************************
+*****************第216/3159个完成{
+  "entity_type": "",
+  "entity_value": "",
+  "start_position": "",
+  "end_position": ""
+}************************
+*****************第217/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "ER",
+  "start_position": 12,
+  "end_position": 18
+}************************
+*****************第218/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "ER",
+  "start_position": "12",
+  "end_position": "15"
+}************************
+*****************第219/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "Fas ligand",
+  "start_position": "12",
+  "end_position": "17"
+}************************
+*****************第220/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "FasL",
+  "start_position": "1",
+  "end_position": "15"
+}************************
+Extra data: line 7 column 1 (char 112)
+*****************第221/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "NF-kappa B",
+  "start_position": "1",
+  "end_position": "25"
+}
+{
+  "entity_type": "cell_type",
+  "entity_value": "Human",
+  "start_position": "26",
+  "end_position": "35"
+}
+{
+  "entity_type": "cell_line",
+  "entity_value": "HeLa",
+  "start_position": "36",
+  "end_position": "45"
+}************************
+*****************第222/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "I kappa B",
+  "start_position": "1",
+  "end_position": "15"
+}************************
+*****************第223/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "SAPK/JNK",
+  "start_position": "0",
+  "end_position": "15"
+}************************
+*****************第224/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "FasL",
+  "start_position": "1",
+  "end_position": "1.2"
+}************************
+Extra data: line 7 column 1 (char 109)
+*****************第225/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "NF-kappa B",
+  "start_position": 12,
+  "end_position": 17
+}
+{
+  "entity_type": "protein",
+  "entity_value": "AP-1",
+  "start_position": 20,
+  "end_position": 25
+}************************
+Extra data: line 7 column 1 (char 109)
+*****************第226/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "NF-kappa B",
+  "start_position": 12,
+  "end_position": 17
+}
+{
+  "entity_type": "cell_type",
+  "entity_value": "AP-1",
+  "start_position": 20,
+  "end_position": 25
+}
+{
+  "entity_type": "cell_line",
+  "entity_value": "N/A",
+  "start_position": 25,
+  "end_position": 25
+}
+{
+  "entity_type": "DNA",
+  "entity_value": "FasL",
+  "start_position": 30,
+  "end_position": 35
+}************************
+*****************第227/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "granulocyte-colony-stimulating factor",
+  "start_position": 10,
+  "end_position": 20
+}************************
+*****************第228/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "SB 247464",
+  "start_position": "0",
+  "end_position": "0"
+}************************
+*****************第229/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "G-CSF",
+  "start_position": 10,
+  "end_position": 20
+}************************
+*****************第230/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "neutrophils",
+  "start_position": 12,
+  "end_position": 17
+}************************
+*****************第231/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "SB 247464",
+  "start_position": "0",
+  "end_position": "0"
+}************************
+Extra data: line 7 column 1 (char 112)
+*****************第232/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "PML/RAR alpha",
+  "start_position": 12,
+  "end_position": 20
+}
+{
+  "entity_type": "protein",
+  "entity_value": "AML1/ETO",
+  "start_position": 25,
+  "end_position": 35
+}
+{
+  "entity_type": "cell_type",
+  "entity_value": "bone marrow",
+  "start_position": 45,
+  "end_position": 55
+}************************
+Extra data: line 6 column 2 (char 114)
+*****************第233/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "PML/RAR alpha",
+  "start_position": "0",
+  "end_position": "10"
+},
+{
+  "entity_type": "cell_type",
+  "entity_value": "Lymphocytes",
+  "start_position": "11",
+  "end_position": "15"
+},
+{
+  "entity_type": "cell_line",
+  "entity_value": "K56",
+  "start_position": "16",
+  "end_position": "20"
+},
+{
+  "entity_type": "DNA",
+  "entity_value": "AML",
+  "start_position": "21",
+  "end_position": "25"
+},
+{
+  "entity_type": "RNA",
+  "entity_value": "AML",
+  "start_position": "26",
+  "end_position": "30"
+}************************
+Extra data: line 7 column 1 (char 141)
+*****************第234/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "PML/RAR alpha transcript",
+  "start_position": "10 ( -5 )",
+  "end_position": "10 ( -6 )"
+}
+{
+  "entity_type": "protein",
+  "entity_value": "AML1/ETO transcript",
+  "start_position": "10 ( -4 )",
+  "end_position": "10 ( -5 )"
+}************************
+Extra data: line 7 column 1 (char 114)
+*****************第235/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "T lymphocyte",
+  "start_position": "1",
+  "end_position": "10"
+}
+{
+  "entity_type": "cell_type",
+  "entity_value": "NK cells",
+  "start_position": "11",
+  "end_position": "15"
+}************************
+*****************第236/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "CD4 +, CD8 + and CD56 +",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第237/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "T/NK-cell",
+  "start_position": "12",
+  "end_position": "17"
+}************************
+*****************第238/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "T/NK-cell",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第239/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "T/NK cells",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第240/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "NF-kappaB",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第241/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "ManLAM",
+  "start_position": "1",
+  "end_position": "25"
+}************************
+*****************第242/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "CD4",
+  "start_position": "12",
+  "end_position": "17"
+}************************
+*****************第243/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "CFP",
+  "start_position": "not provided",
+  "end_position": "not provided"
+}************************
+*****************第244/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "protein tyrosine kinase ( s )",
+  "start_position": "1",
+  "end_position": "15"
+}************************
+*****************第245/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "NF-kappaB",
+  "start_position": "123",
+  "end_position": "156"
+}************************
+*****************第246/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "Luciferase",
+  "start_position": "12345",
+  "end_position": "12345"
+}************************
+*****************第247/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "MANLAM",
+  "start_position": "12",
+  "end_position": "17"
+}************************
+*****************第248/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "M. tuberculosis",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第249/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "Human immunodeficiency virus type 1",
+  "start_position": "1",
+  "end_position": "25"
+}************************
+*****************第250/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "LTR",
+  "start_position": "455",
+  "end_position": "490"
+}************************
+*****************第251/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "some of these LTRs had activities which varied significantly from the LAI LTR in U-373 MG cells ( an astrocytoma cell line ) as well as in Jurkat cells ( a CD4-positive lymphocyte cell line )",
+  "start_position": "",
+  "end_position": ""
+}************************
+*****************第252/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "LTRs",
+  "start_position": "12",
+  "end_position": "15"
+}************************
+*****************第253/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "LEF-1",
+  "start_position": "12",
+  "end_position": "18"
+}************************
+*****************第254/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "HMG1",
+  "start_position": "123",
+  "end_position": "156"
+}************************
+*****************第255/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "Sry",
+  "start_position": "0",
+  "end_position": "0"
+}************************
+*****************第256/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "HMG box proteins",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+Expecting value: line 1 column 1 (char 0)
+*****************第257/3159个完成```
+{
+  "entity_type": "protein",
+  "entity_value": "Sox-4",
+  "start_position": "0",
+  "end_position": "15"
+}
+{
+  "entity_type": "cell_type",
+  "entity_value": "B-cell",
+  "start_position": "0",
+  "end_position": "15"
+}
+{
+  "entity_type": "cell_line",
+  "entity_value": "N/A",
+  "start_position": "0",
+  "end_position": "15"
+}
+{
+  "entity_type": "DNA",
+  "entity_value": "N/A",
+  "start_position": "0",
+  "end_position": "15"
+}
+{
+  "entity_type": "RNA",
+  "entity_value": "N/A",
+  "start_position": "0",
+  "end_position": "15"
+}
+```************************
+*****************第258/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "TCF/LEF proteins",
+  "start_position": "0",
+  "end_position": "15"
+}************************
+*****************第259/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "deregulation",
+  "start_position": "12",
+  "end_position": "17"
+}************************
+*****************第260/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "TCF/LEF",
+  "start_position": "0",
+  "end_position": "15"
+}************************
+*****************第261/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "MRP14",
+  "start_position": "1",
+  "end_position": "20"
+}************************
+*****************第262/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "MRP14",
+  "start_position": "1",
+  "end_position": "20"
+}************************
+*****************第263/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "MRP14",
+  "start_position": "0",
+  "end_position": "0"
+}************************
+*****************第264/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "gene",
+  "start_position": "1",
+  "end_position": "10"
+}************************
+*****************第265/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "MRP14",
+  "start_position": "12",
+  "end_position": "15"
+}************************
+*****************第266/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "VD3-treated HL-60 cells and THP-1 cells",
+  "start_position": "-81",
+  "end_position": "-81"
+}************************
+Extra data: line 6 column 2 (char 133)
+*****************第267/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "C/EBP alpha",
+  "start_position": "not provided",
+  "end_position": "not provided"
+},
+{
+  "entity_type": "protein",
+  "entity_value": "C/EBP beta",
+  "start_position": "not provided",
+  "end_position": "not provided"
+}************************
+Expecting value: line 4 column 21 (char 83)
+*****************第268/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "C/EBP delta",
+  "start_position": None,
+  "end_position": None
+}************************
+*****************第269/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "C/EBP alpha and -beta",
+  "start_position": "THP-1 cells",
+  "end_position": "VD3-treated HL-60 cells"
+}************************
+*****************第270/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "C/EBP",
+  "start_position": "1",
+  "end_position": "15"
+}************************
+*****************第271/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "VD3",
+  "start_position": "12",
+  "end_position": "17"
+}************************
+*****************第272/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "MRP14",
+  "start_position": "123",
+  "end_position": "156"
+}************************
+*****************第273/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "C/EBP beta",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第274/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "X",
+  "start_position": "18",
+  "end_position": "18"
+}************************
+*****************第275/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "HUMARA",
+  "start_position": 1,
+  "end_position": 25
+}************************
+*****************第276/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "clone",
+  "start_position": "0",
+  "end_position": "0"
+}************************
+*****************第277/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "CD3+",
+  "start_position": "14",
+  "end_position": "18"
+}************************
+*****************第278/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "CD19",
+  "start_position": "123",
+  "end_position": "156"
+}************************
+*****************第279/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "polyclonal",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第280/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "SSRY1",
+  "start_position": 12,
+  "end_position": 17
+}************************
+*****************第281/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "Steroid metabolism was investigated in cultured human B-lymphoblastoid cells ( B-LCL ), and peripheral blood T and B cells ",
+  "start_position": "0",
+  "end_position": "0"
+}************************
+Extra data: line 6 column 2 (char 108)
+*****************第282/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "CYP11A",
+  "start_position": "11",
+  "end_position": "15"
+},
+{
+  "entity_type": "protein",
+  "entity_value": "CYP17",
+  "start_position": "19",
+  "end_position": "23"
+},
+{
+  "entity_type": "protein",
+  "entity_value": "HSD11L ( 11beta-hydroxysteroid dehydrogenase I )",
+  "start_position": "35",
+  "end_position": "41"
+},
+{
+  "entity_type": "protein",
+  "entity_value": "HSD17B1 ( 17beta-hydroxysteroid dehydrogenase type I )",
+  "start_position": "45",
+  "end_position": "51"
+},
+{
+  "entity_type": "protein",
+  "entity_value": "SRD5A1 ( 5alpha-reductase I )",************************
+*****************第283/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "CYP11B",
+  "start_position": "1",
+  "end_position": "10"
+}************************
+*****************第284/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "HSD3B1, HSD3B2",
+  "start_position": "3",
+  "end_position": "5"
+}************************
+*****************第285/3159个完成{
+  "entity_type": "",
+  "entity_value": "",
+  "start_position": "",
+  "end_position": ""
+}************************
+Extra data: line 7 column 1 (char 134)
+*****************第286/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "17-hydroxysteroid dehydrogenase",
+  "start_position": "17",
+  "end_position": "22"
+}
+{
+  "entity_type": "protein",
+  "entity_value": "5alpha-reductase",
+  "start_position": "25",
+  "end_position": "30"
+}************************
+*****************第287/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "androgen synthesis",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第288/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "pterin carbinolamine dehydratase/dimerization cofactor of HNF1",
+  "start_position": "1",
+  "end_position": "25"
+}************************
+*****************第289/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "Pterin carbinolamine dehydratase/dimerization cofactor of HNF1 ( PCD/DCoH )",
+  "start_position": "0",
+  "end_position": "20"
+}************************
+*****************第290/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "pterin 4alpha-carbinolamine dehydratase",
+  "start_position": "1",
+  "end_position": "25"
+}************************
+*****************第291/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "HNF1",
+  "start_position": "12",
+  "end_position": "17"
+}************************
+*****************第292/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "PCD/DCoH mRNA",
+  "start_position": "1",
+  "end_position": "10"
+}************************
+*****************第293/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "NF-Y",
+  "start_position": "123",
+  "end_position": "456"
+}************************
+*****************第294/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "NF-Y",
+  "start_position": "1",
+  "end_position": "20"
+}************************
+*****************第295/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "NF-Y complex",
+  "start_position": "0",
+  "end_position": "0"
+}************************
+*****************第296/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "NF-Y",
+  "start_position": "0",
+  "end_position": "0"
+}************************
+*****************第297/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "MPC11",
+  "start_position": "1",
+  "end_position": "15"
+}************************
+*****************第298/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "NF-YA",
+  "start_position": 12,
+  "end_position": 17
+}************************
+*****************第299/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "PC4",
+  "start_position": "123",
+  "end_position": "156"
+}************************
+*****************第300/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "PC4",
+  "start_position": "0",
+  "end_position": "0"
+}************************
+*****************第301/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "CD40",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第302/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "CD40",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第303/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "CD40",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第304/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "mu",
+  "start_position": "start_position not provided",
+  "end_position": "start_position not provided"
+}************************
+*****************第305/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "CD40",
+  "start_position": "12",
+  "end_position": "17"
+}************************
+*****************第306/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "secretory immunoglobulin",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第307/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "Wurzburg T cells",
+  "start_position": "12",
+  "end_position": "17"
+}************************
+*****************第308/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "H2O2",
+  "start_position": "100",
+  "end_position": "100"
+}************************
+*****************第309/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "H2O2",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第310/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "TNFalpha",
+  "start_position": "150",
+  "end_position": "150"
+}************************
+*****************第311/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "LA-Plus",
+  "start_position": "5",
+  "end_position": "5"
+}************************
+*****************第312/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "NRXI",
+  "start_position": "0",
+  "end_position": "0"
+}************************
+*****************第313/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "androgen receptor",
+  "start_position": "1",
+  "end_position": "15"
+}************************
+Expecting value: line 1 column 1 (char 0)
+*****************第314/3159个完成```
+{
+  "entity_type": "protein",
+  "entity_value": "NRXI",
+  "start_position": "0",
+  "end_position": "0"
+}
+```************************
+*****************第315/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "NF-kB",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第316/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "albumin",
+  "start_position": "10",
+  "end_position": "100"
+}************************
+*****************第317/3159个完成{
+  "entity_type": "cell_type",
+  "entity_value": "Endothelial cells",
+  "start_position": "1",
+  "end_position": "15"
+}************************
+*****************第318/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "glucose",
+  "start_position": "15",
+  "end_position": "20"
+}************************
+*****************第319/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "IL-1beta",
+  "start_position": "195",
+  "end_position": "200"
+}************************
+*****************第320/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "leukocytes",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第321/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "leukocytes",
+  "start_position": "30 mM glucose",
+  "end_position": "30 mM glucose"
+}************************
+Extra data: line 7 column 1 (char 113)
+*****************第322/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "E-selectin",
+  "start_position": "67",
+  "end_position": "83"
+}
+{
+  "entity_type": "cell_type",
+  "entity_value": "intercellular cell adhesion molecule-1",
+  "start_position": "62",
+  "end_position": "83"
+}
+{
+  "entity_type": "cell_line",
+  "entity_value": "vascular cell adhesion molecule-1",
+  "start_position": "67",
+  "end_position": "83"
+}************************
+*****************第323/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "E-selectin, intercellular cell adhesion molecule-1, vascular cell adhesion molecule-1",
+  "start_position": "0",
+  "end_position": "0"
+}************************
+*****************第324/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "NF-kB",
+  "start_position": "1",
+  "end_position": "30"
+}************************
+*****************第325/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "pyrrolidinedithiocarbamate",
+  "start_position": 100,
+  "end_position": 250
+}************************
+*****************第326/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "protein kinase C",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+Extra data: line 7 column 1 (char 111)
+*****************第327/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "PKCalpha",
+  "start_position": "12",
+  "end_position": "20"
+}
+{
+  "entity_type": "protein",
+  "entity_value": "PKCepsilon",
+  "start_position": "25",
+  "end_position": "35"
+}************************
+*****************第328/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "albumin",
+  "start_position": "110",
+  "end_position": "16"
+}************************
+*****************第329/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "leukocyte adhesion",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第330/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "cell adhesion",
+  "start_position": "0",
+  "end_position": "15"
+}************************
+*****************第331/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "Ikaros",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第332/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "Ikaros",
+  "start_position": "1",
+  "end_position": "20"
+}************************
+*****************第333/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "Ikaros",
+  "start_position": "0",
+  "end_position": "25"
+}************************
+*****************第334/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "Ikaros",
+  "start_position": "1",
+  "end_position": "20"
+}************************
+*****************第335/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "Ikaros",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第336/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "E12",
+  "start_position": "1",
+  "end_position": "20"
+}************************
+Extra data: line 7 column 1 (char 101)
+*****************第337/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "E2A",
+  "start_position": 0,
+  "end_position": 12
+}
+{
+  "entity_type": "protein",
+  "entity_value": "EBF",
+  "start_position": 13,
+  "end_position": 25
+}************************
+*****************第338/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "B lineage cells",
+  "start_position": "",
+  "end_position": ""
+}************************
+Extra data: line 7 column 1 (char 105)
+*****************第339/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "E2A",
+  "start_position": "1",
+  "end_position": "15"
+}
+{
+  "entity_type": "protein",
+  "entity_value": "EBF",
+  "start_position": "16",
+  "end_position": "25"
+}************************
+*****************第340/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "E2A",
+  "start_position": "123",
+  "end_position": "156"
+}************************
+*****************第341/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "E2A",
+  "start_position": "not provided",
+  "end_position": "not provided"
+}************************
+*****************第342/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "EBF",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第343/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "E12",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第344/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "RXRalpha",
+  "start_position": 12,
+  "end_position": 20
+}************************
+*****************第345/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "mRNA",
+  "start_position": "5.4",
+  "end_position": "5.4"
+}************************
+*****************第346/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "XRRalpha",
+  "start_position": "5",
+  "end_position": "10"
+}************************
+*****************第347/3159个完成{
+  "entity_type": "RNA",
+  "entity_value": "3' end of RXRalpha mRNA",
+  "start_position": "0",
+  "end_position": "0"
+}************************
+*****************第348/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "RXRalpha",
+  "start_position": "123",
+  "end_position": "156"
+}************************
+*****************第349/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "RXRalpha",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第350/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "RXRalpha",
+  "start_position": "12",
+  "end_position": "18"
+}************************
+*****************第351/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "XRRalpha",
+  "start_position": "0",
+  "end_position": "15"
+}************************
+Extra data: line 7 column 1 (char 108)
+*****************第352/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "cytokines",
+  "start_position": 10,
+  "end_position": 25
+}
+{
+  "entity_type": "cell_type",
+  "entity_value": "B-cell",
+  "start_position": 25,
+  "end_position": 35
+}
+{
+  "entity_type": "cell_line",
+  "entity_value": "A-42",
+  "start_position": 35,
+  "end_position": 45
+}
+{
+  "entity_type": "DNA",
+  "entity_value": "c-myc",
+  "start_position": 45,
+  "end_position": 55
+}
+{
+  "entity_type": "DNA",
+  "entity_value": "bcl-6",
+  "start_position": 55,
+  "end_position": 65
+}
+{
+  "entity_type": "DNA",
+  "************************
+*****************第353/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "Matrix metalloproteinase",
+  "start_position": 12,
+  "end_position": 45
+}************************
+*****************第354/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "MMPs",
+  "start_position": "0",
+  "end_position": "15"
+}************************
+*****************第355/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "MMP-3",
+  "start_position": "0",
+  "end_position": "0"
+}************************
+*****************第356/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "MMP-3",
+  "start_position": "1",
+  "end_position": "25"
+}************************
+*****************第357/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "Stromelysin-1",
+  "start_position": "0",
+  "end_position": "0"
+}************************
+*****************第358/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "ST1",
+  "start_position": "123",
+  "end_position": "156"
+}************************
+Extra data: line 7 column 1 (char 135)
+*****************第359/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "p53 tumour suppressor gene product",
+  "start_position": "0",
+  "end_position": "0"
+}
+{
+  "entity_type": "protein",
+  "entity_value": "c-erbB-2 protein",
+  "start_position": "0",
+  "end_position": "0"
+}
+{
+  "entity_type": "protein",
+  "entity_value": "progesterone receptor",
+  "start_position": "0",
+  "end_position": "0"
+}************************
+*****************第360/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "ST1",
+  "start_position": "0",
+  "end_position": "0"
+}************************
+*****************第361/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "ALDH1",
+  "start_position": "123",
+  "end_position": "156"
+}************************
+*****************第362/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "TNF",
+  "start_position": 12,
+  "end_position": 20
+}************************
+Extra data: line 7 column 1 (char 101)
+*****************第363/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "TNF",
+  "start_position": 1,
+  "end_position": 15
+}
+{
+  "entity_type": "cell_type",
+  "entity_value": "Hepatocytes",
+  "start_position": 19,
+  "end_position": 25
+}
+{
+  "entity_type": "cell_line",
+  "entity_value": "HepG2",
+  "start_position": 29,
+  "end_position": 35
+}************************
+*****************第364/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "IL-8",
+  "start_position": "12",
+  "end_position": "17"
+}************************
+*****************第365/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "MnSOD",
+  "start_position": 0,
+  "end_position": 15
+}************************
+Extra data: line 7 column 1 (char 106)
+*****************第366/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "IL-8",
+  "start_position": "1",
+  "end_position": "20"
+}
+{
+  "entity_type": "cell_type",
+  "entity_value": "HepG2",
+  "start_position": "21",
+  "end_position": "25"
+}************************
+*****************第367/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "P-4502E1",
+  "start_position": "1",
+  "end_position": "10"
+}************************
+Extra data: line 7 column 1 (char 108)
+*****************第368/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "NF-kappaB",
+  "start_position": 12,
+  "end_position": 20
+}
+{
+  "entity_type": "cell_type",
+  "entity_value": "Human",
+  "start_position": 25,
+  "end_position": 35
+}
+{
+  "entity_type": "cell_line",
+  "entity_value": "HCT116",
+  "start_position": 40,
+  "end_position": 50
+}
+{
+  "entity_type": "DNA",
+  "entity_value": "NF-kappaB",
+  "start_position": 12,
+  "end_position": 20
+}
+{
+  "entity_type": "DNA",
+  "entity_value": "3'NF-IL-6",
+  "start_position": 25,
+  "end_position": 35
+}
+{
+  "entity_type": "DNA",************************
+*****************第369/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "TNF",
+  "start_position": 10,
+  "end_position": 15
+}************************
+*****************第370/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "HepG2",
+  "start_position": "25",
+  "end_position": "100"
+}************************
+Extra data: line 7 column 1 (char 101)
+*****************第371/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "TNF",
+  "start_position": 1,
+  "end_position": 15
+}
+{
+  "entity_type": "cell_type",
+  "entity_value": "HepG2",
+  "start_position": 16,
+  "end_position": 25
+}
+{
+  "entity_type": "cell_line",
+  "entity_value": "N/A",
+  "start_position": 26,
+  "end_position": 35
+}
+{
+  "entity_type": "DNA",
+  "entity_value": "N/A",
+  "start_position": 36,
+  "end_position": 45
+}
+{
+  "entity_type": "RNA",
+  "entity_value": "N/A",
+  "start_position": 46,
+  "end_position": 55
+}************************
+*****************第372/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "MnSOD",
+  "start_position": "10",
+  "end_position": "15"
+}************************
+*****************第373/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "MnSOD",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第374/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "transfected liver cell lines",
+  "start_position": "12",
+  "end_position": "25"
+}************************
+*****************第375/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "Egr-1",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第376/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "tissue factor",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第377/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "Egr-1",
+  "start_position": "1",
+  "end_position": "25"
+}************************
+*****************第378/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "tissue factor",
+  "start_position": "18",
+  "end_position": "18"
+}************************
+*****************第379/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "tissue factor",
+  "start_position": "-111",
+  "end_position": "14"
+}************************
+*****************第380/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "Egr-1",
+  "start_position": "Not Provided",
+  "end_position": "Not Provided"
+}************************
+Extra data: line 7 column 1 (char 105)
+*****************第381/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "Sp1",
+  "start_position": "1",
+  "end_position": "15"
+}
+{
+  "entity_type": "cell_type",
+  "entity_value": "HeLa",
+  "start_position": "16",
+  "end_position": "20"
+}
+{
+  "entity_type": "cell_line",
+  "entity_value": "HeLa",
+  "start_position": "21",
+  "end_position": "25"
+}
+{
+  "entity_type": "DNA",
+  "entity_value": "tissue factor promoter",
+  "start_position": "26",
+  "end_position": "35"
+}
+{
+  "entity_type": "RNA",
+  "entity_value": "Egr-1",
+  "start_position": "36",
+  "end_position": "45"
+}************************
+*****************第382/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "Egr-1",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第383/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "Egr-1",
+  "start_position": "12",
+  "end_position": "18"
+}************************
+*****************第384/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "IL2RA",
+  "start_position": 12,
+  "end_position": 20
+}************************
+*****************第385/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "T cells",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+*****************第386/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "CD3",
+  "start_position": "123",
+  "end_position": "156"
+}************************
+*****************第387/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "T cells",
+  "start_position": "1",
+  "end_position": "15"
+}************************
+Extra data: line 7 column 1 (char 102)
+*****************第388/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "CD3",
+  "start_position": 12,
+  "end_position": 15
+}
+{
+  "entity_type": "cell_type",
+  "entity_value": "T cells",
+  "start_position": 19,
+  "end_position": 22
+}
+{
+  "entity_type": "cell_line",
+  "entity_value": "HT-29",
+  "start_position": 25,
+  "end_position": 28
+}
+{
+  "entity_type": "DNA",
+  "entity_value": "IL-2",
+  "start_position": 35,
+  "end_position": 40
+}
+{
+  "entity_type": "DNA",
+  "entity_value": "IFN-gamma",
+  "start_position": 45,
+  "end_position": 50
+}
+{
+  "entity_type": "DNA",
+  "entity_value":************************
+*****************第389/3159个完成{
+  "entity_type": "",
+  "entity_value": "No IL-6 gene expression was observed",
+  "start_position": "",
+  "end_position": ""
+}************************
+*****************第390/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "cytokine",
+  "start_position": "12",
+  "end_position": "20"
+}************************
+Extra data: line 7 column 1 (char 105)
+*****************第391/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "IL-2",
+  "start_position": "3",
+  "end_position": "3"
+}
+{
+  "entity_type": "cell_type",
+  "entity_value": "CD3",
+  "start_position": "3",
+  "end_position": "3"
+}
+{
+  "entity_type": "cell_line",
+  "entity_value": "N/A",
+  "start_position": "3",
+  "end_position": "3"
+}
+{
+  "entity_type": "DNA",
+  "entity_value": "N/A",
+  "start_position": "3",
+  "end_position": "3"
+}
+{
+  "entity_type": "RNA",
+  "entity_value": "N/A",
+  "start_position": "3",
+  "end_position": "3"
+}************************
+*****************第392/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "TNF-alpha",
+  "start_position": "1",
+  "end_position": "1"
+}************************
+*****************第393/3159个完成{
+  "entity_type": "protein",
+  "entity_value": "Protein synthesis inhibitor",
+  "start_position": "123",
+  "end_position": "156"
+}************************
+^CTraceback (most recent call last):
+  File "/root/LLM/LLaMA-Factory/tests/eval/sfan_cmp.py", line 61, in <module>
+    response = chat_model.chat(messages)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/LLM/LLaMA-Factory/src/llamafactory/chat/chat_model.py", line 63, in chat
+    return task.result()
+           ^^^^^^^^^^^^^
+  File "/root/miniconda3/envs/llm/lib/python3.11/concurrent/futures/_base.py", line 451, in result
+    self._condition.wait(timeout)
+  File "/root/miniconda3/envs/llm/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+KeyboardInterrupt
+^C
+(llm) 4090:~/LLM/LLaMA-Factory# ^C
+(llm) 4090:~/LLM/LLaMA-Factory# tmux capture-pane -S -32768
+
