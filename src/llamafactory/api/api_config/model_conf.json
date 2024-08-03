@@ -57,6 +57,13 @@
         "description": "中文版本8B LLama3，没有微调"
     },
     {
+        "model_alias": "llama3.1-8B-chinese-chat",
+        "template": "llama3",
+        "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/shenzhi-wang/Llama3.1-8B-Chinese-Chat",
+        "unsloth": "True",
+        "description": "中文版本8B LLama3.1，没有微调"
+    },
+    {
         "model_alias": "Gemma-2-9B-chinese-chat",
         "template": "gemma",
         "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/shenzhi-wang/Gemma-2-9B-Chinese-Chat",
