@@ -624,5 +624,8 @@
   },
   "report_category":{
     "file_name": "category_zh.json"
+  },
+  "TCM": {
+    "file_name": "match_zy/train_gt_1.json"
   }
 }
