@@ -14,8 +14,10 @@ echo "训练任务完成。"
 # echo "评估任务完成。"
 
 # # 3. 执行导出命令
-echo "开始导出任务..."
-llamafactory-cli export examples/merge_lora/qwen_lora_sft.yaml 2>&1 | tee logs/sft.log
-echo "导出任务完成。"
+# echo "开始导出任务..."
+# llamafactory-cli export examples/merge_lora/qwen_lora_sft.yaml 2>&1 | tee logs/sft.log
+# echo "导出任务完成。"
 
-# echo "所有任务已完成。"
+# # echo "所有任务已完成。"
+# echo "评测任务...."
+# python tests/eval/tcm.py
