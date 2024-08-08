@@ -36,6 +36,13 @@
         "description": "中文版本7B Qwen2，没有微调"
     },
     {
+        "model_alias": "qwen2-7B-TCM",
+        "template": "qwen",
+        "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/qwen/TCM/tcm_qwen2_v1",
+        "unsloth":"False",
+        "description": "中医数据，180条"
+    },
+    {
         "model_alias": "glm-4-9b-chat",
         "template": "glm4",
         "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/ZhipuAI/glm-4-9b-chat",
@@ -57,11 +64,11 @@
         "description": "中文版本8B LLama3，没有微调"
     },
     {
-        "model_alias": "llama3.1-8B-chinese-chat",
+        "model_alias": "llama3.1-8B-chat",
         "template": "llama3",
-        "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/shenzhi-wang/Llama3.1-8B-Chinese-Chat",
-        "unsloth": "True",
-        "description": "中文版本8B LLama3.1，没有微调"
+        "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/meta-llama/Meta-Llama-3.1-8B-Instruct",
+        "unsloth": "False",
+        "description": "8B LLama3.1，没有微调"
     },
     {
         "model_alias": "Gemma-2-9B-chinese-chat",
