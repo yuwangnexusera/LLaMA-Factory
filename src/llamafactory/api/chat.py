@@ -18,7 +18,7 @@ import json
 import os
 import re
 import uuid
-import numpy
+import numpy as np
 from typing import TYPE_CHECKING, AsyncGenerator, Dict, List, Optional, Tuple
 
 from ..data import Role as DataRole
