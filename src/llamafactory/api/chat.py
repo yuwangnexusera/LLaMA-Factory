@@ -14,6 +14,7 @@
 
 import base64
 import io
+import re
 import json
 import os
 import re
