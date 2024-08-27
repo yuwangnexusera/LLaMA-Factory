@@ -27,23 +27,18 @@ logger = get_logger(__name__)
 
 
 def configure_liger_kernel(config: "PretrainedConfig", model_args: "ModelArguments", is_trainable: bool) -> None:
-    if not is_trainable or not model_args.enable_liger_kernel:
+    if not is_trainable or not model_args.use_liger_kernel:
         return
 
-    model_type = getattr(config, "model_type", None)
-    if model_type == "gemma":
+    if getattr(config, "model_type", None) == "gemma":
         from liger_kernel.transformers import apply_liger_kernel_to_gemma as apply_liger_kernel
-    elif model_type == "gemma2":
-        from liger_kernel.transformers import apply_liger_kernel_to_gemma2 as apply_liger_kernel
-    elif model_type == "llama":
+    elif getattr(config, "model_type", None) == "llama":
         from liger_kernel.transformers import apply_liger_kernel_to_llama as apply_liger_kernel
-    elif model_type == "mistral":
+    elif getattr(config, "model_type", None) == "mistral":
         from liger_kernel.transformers import apply_liger_kernel_to_mistral as apply_liger_kernel
-    elif model_type == "mixtral":
+    elif getattr(config, "model_type", None) == "mixtral":
         from liger_kernel.transformers import apply_liger_kernel_to_mixtral as apply_liger_kernel
-    elif model_type == "phi3":
-        from liger_kernel.transformers import apply_liger_kernel_to_phi3 as apply_liger_kernel
-    elif model_type == "qwen2":
+    elif getattr(config, "model_type", None) == "qwen2":
         from liger_kernel.transformers import apply_liger_kernel_to_qwen2 as apply_liger_kernel
     else:
         logger.warning("Current model does not support liger kernel.")
