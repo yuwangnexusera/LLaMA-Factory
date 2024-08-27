@@ -201,7 +201,26 @@ def get_logits_processor() -> "LogitsProcessorList":
     return logits_processor
 
 
-def infer_optim_dtype(model_dtype: torch.dtype) -> torch.dtype:
+def get_peak_memory() -> Tuple[int, int]:
+    r"""
+    Gets the peak memory usage for the current device (in Bytes).
+    """
+    if is_torch_npu_available():
+        return torch.npu.max_memory_allocated(), torch.npu.max_memory_reserved()
+    elif is_torch_cuda_available():
+        return torch.cuda.max_memory_allocated(), torch.cuda.max_memory_reserved()
+    else:
+        return 0, 0
+
+
+def has_tokenized_data(path: "os.PathLike") -> bool:
+    r"""
+    Checks if the path has a tokenized dataset.
+    """
+    return os.path.isdir(path) and len(os.listdir(path)) > 0
+
+
+def infer_optim_dtype(model_dtype: "torch.dtype") -> "torch.dtype":
     r"""
     Infers the optimal dtype according to the model_dtype and device compatibility.
     """
