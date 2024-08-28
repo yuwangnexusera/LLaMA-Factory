@@ -71,7 +71,7 @@ def _encode_supervised_example(
                 )
                 index += 1
             message["content"] = content.replace("<|placeholder|>", "<|image_pad|>")
-    if processor is not None and not hasattr(processor, "image_seq_length"):  # llava-like models
+    elif processor is not None and not hasattr(processor, "image_seq_length"):  # llava-like models
         prompt[0]["content"] = template.image_token + prompt[0]["content"]
 
     messages = prompt + response
@@ -128,12 +128,11 @@ def preprocess_supervised_dataset(
             continue
 
         input_ids, labels = _encode_supervised_example(
-            prompt=examples["_prompt"][i],
-            response=examples["_response"][i],
-            system=examples["_system"][i],
-            tools=examples["_tools"][i],
-            images=examples["_images"][i] or [],
-            videos=examples["_videos"][i] or [],
+            prompt=examples["prompt"][i],
+            response=examples["response"][i],
+            system=examples["system"][i],
+            tools=examples["tools"][i],
+            images=examples["images"][i],
             template=template,
             tokenizer=tokenizer,
             processor=processor,
