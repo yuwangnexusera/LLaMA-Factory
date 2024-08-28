@@ -46,6 +46,9 @@ class Template:
     format_prefix: "Formatter"
     default_system: str
     stop_words: List[str]
+    image_token: str
+    vision_start_token: str
+    vision_end_token: str
     efficient_eos: bool
     replace_eos: bool
     mm_plugin: "BasePlugin"
@@ -246,6 +249,9 @@ def _register_template(
     format_prefix: Optional["Formatter"] = None,
     default_system: str = "",
     stop_words: Sequence[str] = [],
+    image_token: str = "<image>",
+    vision_start_token: str = "<|vision_start|>",
+    vision_end_token: str = "<|vision_end|>",
     efficient_eos: bool = False,
     replace_eos: bool = False,
     mm_plugin: "BasePlugin" = get_mm_plugin(name="base"),
@@ -297,6 +303,9 @@ def _register_template(
         format_prefix=format_prefix or default_prefix_formatter,
         default_system=default_system,
         stop_words=stop_words,
+        image_token=image_token,
+        vision_start_token=vision_start_token,
+        vision_end_token=vision_end_token,
         efficient_eos=efficient_eos,
         replace_eos=replace_eos,
         mm_plugin=mm_plugin,
@@ -844,7 +853,6 @@ _register_template(
     default_system="You are a helpful assistant.",
     stop_words=["<|im_end|>"],
     replace_eos=True,
-    mm_plugin=get_mm_plugin(name="qwen2_vl", image_token="<|image_pad|>", video_token="<|video_pad|>"),
 )
 
 
