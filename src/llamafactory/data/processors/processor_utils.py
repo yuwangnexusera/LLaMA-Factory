@@ -76,3 +76,34 @@ def get_paligemma_token_type_ids(input_len: int, processor: "ProcessorMixin") ->
     """
     image_seq_length = getattr(processor, "image_seq_length")
     return [0] * image_seq_length + [1] * (input_len - image_seq_length)
+
+
+def get_qwen2vl_image_inputs(images: Sequence["ImageObject"], processor: "ProcessorMixin") -> "NDArray":
+    r"""
+    Processes visual inputs. support multi images
+    """
+    image_processor: "BaseImageProcessor" = getattr(processor, "image_processor")
+    if len(images) != 0:
+        image_inputs = image_processor(images=images, return_tensors="pt")
+    else:
+        image = Image.new("RGB", (56, 56), (255, 255, 255))
+        image_inputs = image_processor(images=[image], return_tensors="pt")
+        image_inputs["image_grid_thw"][0][0] = 0
+    return {"pixel_values": image_inputs["pixel_values"], "image_grid_thw": image_inputs["image_grid_thw"]}
+
+
+def infer_seqlen(source_len: int, target_len: int, cutoff_len: int) -> Tuple[int, int]:
+    r"""
+    Computes the real sequence length after truncation by the cutoff_len.
+    """
+    if target_len * 2 < cutoff_len:  # truncate source
+        max_target_len = cutoff_len
+    elif source_len * 2 < cutoff_len:  # truncate target
+        max_target_len = cutoff_len - source_len
+    else:  # truncate both
+        max_target_len = int(cutoff_len * (target_len / (source_len + target_len)))
+
+    new_target_len = min(max_target_len, target_len)
+    max_source_len = max(cutoff_len - new_target_len, 0)
+    new_source_len = min(max_source_len, source_len)
+    return new_source_len, new_target_len
