@@ -38,12 +38,12 @@
       "assistant_tag": "assistant"
     }
   },
-  "mllm_video_demo": {
-    "file_name": "mllm_video_demo.json",
+  "qwen2vl_demo": {
+    "file_name": "qwen2vl_demo.json",
     "formatting": "sharegpt",
     "columns": {
       "messages": "messages",
-      "videos": "videos"
+      "images": "images"
     },
     "tags": {
       "role_tag": "role",
