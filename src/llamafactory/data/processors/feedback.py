@@ -97,6 +97,7 @@ def preprocess_feedback_dataset(
             logger.warning("Dropped invalid example: {}".format(examples["_prompt"][i] + examples["_response"][i]))
             continue
 
+        prompt = template.mm_plugin.process_messages(examples["prompt"][i], examples["images"][i], processor)
         input_ids, labels, kl_input_ids, kl_labels, kto_tag = _encode_feedback_example(
             prompt=examples["_prompt"][i],
             response=examples["_response"][i],

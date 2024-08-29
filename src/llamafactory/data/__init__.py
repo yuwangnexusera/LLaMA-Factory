@@ -24,6 +24,7 @@ from .template import TEMPLATES, Template, get_template_and_fix_tokenizer
 
 
 __all__ = [
+    "CustomDataCollatorForSeq2Seq",
     "KTODataCollatorWithPadding",
     "MultiModalDataCollatorForSeq2Seq",
     "PairwiseDataCollatorWithPadding",

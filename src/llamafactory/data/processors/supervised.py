@@ -21,7 +21,6 @@ from .processor_utils import greedy_knapsack, infer_seqlen
 
 
 if TYPE_CHECKING:
-    from PIL.Image import Image as ImageObject
     from transformers import PreTrainedTokenizer, ProcessorMixin
 
     from ...hparams import DataArguments
@@ -40,7 +39,6 @@ def _encode_supervised_example(
     images: Sequence["ImageInput"],
     videos: Sequence["VideoInput"],
     template: "Template",
-    images: Sequence["ImageObject"],
     tokenizer: "PreTrainedTokenizer",
     processor: Optional["ProcessorMixin"],
     cutoff_len: int,
@@ -87,6 +85,7 @@ def preprocess_supervised_dataset(
             logger.warning("Dropped invalid example: {}".format(examples["_prompt"][i] + examples["_response"][i]))
             continue
 
+        prompt = template.mm_plugin.process_messages(examples["prompt"][i], examples["images"][i], processor)
         input_ids, labels = _encode_supervised_example(
             prompt=examples["_prompt"][i],
             response=examples["_response"][i],
