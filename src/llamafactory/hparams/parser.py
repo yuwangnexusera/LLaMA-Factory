@@ -195,6 +195,9 @@ def get_train_args(args: Optional[Dict[str, Any]] = None) -> _TRAIN_CLS:
     if training_args.do_train and training_args.predict_with_generate:
         raise ValueError("`predict_with_generate` cannot be set as True while training.")
 
+    if training_args.predict_with_generate and is_deepspeed_zero3_enabled():
+        raise ValueError("`predict_with_generate` is incompatible with DeepSpeed ZeRO-3.")
+
     if training_args.do_train and model_args.quantization_device_map == "auto":
         raise ValueError("Cannot use device map for quantized models in training.")
 
