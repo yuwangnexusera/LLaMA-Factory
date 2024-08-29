@@ -65,49 +65,10 @@ def prepare_4d_attention_mask(attention_mask_with_indices: "torch.Tensor", dtype
 
 
 @dataclass
-class MultiModalDataCollatorForSeq2Seq(DataCollatorForSeq2Seq):
+class CustomDataCollatorForSeq2Seq(DataCollatorForSeq2Seq):
     r"""
-    Data collator that supports VLMs.
-
-    Features should contain input_ids, attention_mask, labels and images.
+    Data collator for custom models (like Qwen2-VL).
     """
-
-    template: Optional["Template"] = None
-    processor: Optional["ProcessorMixin"] = None
-
-    def __call__(self, features: Sequence[Dict[str, Any]]) -> Dict[str, "torch.Tensor"]:
-        batch_images, batch_videos, batch_imglens, batch_vidlens, batch_seqlens = [], [], [], [], []
-        for feature in features:
-            images = feature.pop("images") or []  # avoid NoneType
-            videos = feature.pop("videos") or []
-            batch_images.extend(images)
-            batch_videos.extend(videos)
-            batch_imglens.append(len(images))
-            batch_vidlens.append(len(videos))
-            batch_seqlens.append(len(feature["input_ids"]))
-
-        mm_inputs = self.template.mm_plugin.get_mm_inputs(
-            batch_images, batch_videos, batch_imglens, batch_vidlens, batch_seqlens, self.processor
-        )
-        if "token_type_ids" in mm_inputs:
-            token_type_ids = mm_inputs.pop("token_type_ids")
-            for i, feature in enumerate(features):
-                feature["token_type_ids"] = token_type_ids[i]
-
-        features: Dict[str, "torch.Tensor"] = super().__call__(features)
-        features.update(mm_inputs)
-        return features
-
-
-@dataclass
-class SFTDataCollatorWith4DAttentionMask(MultiModalDataCollatorForSeq2Seq):
-    r"""
-    Data collator for 4d attention mask.
-    """
-
-    block_diag_attn: bool = False
-    attn_implementation: Literal["eager", "sdpa", "flash_attention_2"] = "eager"
-    compute_dtype: "torch.dtype" = torch.float32
 
     def __call__(self, features: Sequence[Dict[str, Any]]) -> Dict[str, "torch.Tensor"]:
         image_grid_thw = None
@@ -121,23 +82,18 @@ class SFTDataCollatorWith4DAttentionMask(MultiModalDataCollatorForSeq2Seq):
                 torch.Tensor(feature["pixel_values"]) for feature in features if feature["image_grid_thw"][0][0] > 0
             ]
             if image_grid_thw_list:
-                image_grid_thw = torch.cat(image_grid_thw_list, 0)
+                image_grid_thw = torch.cat(image_grid_thw_list, dim=0)
+                pixel_values = torch.cat(pixel_values_list, dim=0)
             else:
-                # Handle the case where the list is empty, for example:
                 image_grid_thw = None
-            if pixel_values_list:
-                pixel_values = torch.cat(pixel_values_list, 0)
-            else:
-                # Handle the case where the list is empty, for example:
                 pixel_values = None
+
             features = [
                 {key: feature[key] for key in feature if key not in ["image_grid_thw", "pixel_values"]}
                 for feature in features
             ]
 
         features = super().__call__(features)
-        if self.block_diag_attn and self.attn_implementation != "flash_attention_2":
-            features["attention_mask"] = prepare_4d_attention_mask(features["attention_mask"], self.compute_dtype)
         if image_grid_thw is not None:
             features["image_grid_thw"] = image_grid_thw
             features["pixel_values"] = pixel_values
@@ -146,7 +102,25 @@ class SFTDataCollatorWith4DAttentionMask(MultiModalDataCollatorForSeq2Seq):
 
 
 @dataclass
-class PairwiseDataCollatorWithPadding(MultiModalDataCollatorForSeq2Seq):
+class SFTDataCollatorWith4DAttentionMask(CustomDataCollatorForSeq2Seq):
+    r"""
+    Data collator for 4d attention mask.
+    """
+
+    block_diag_attn: bool = False
+    attn_implementation: Literal["eager", "sdpa", "flash_attention_2"] = "eager"
+    compute_dtype: "torch.dtype" = torch.float32
+
+    def __call__(self, features: Sequence[Dict[str, Any]]) -> Dict[str, "torch.Tensor"]:
+        features = super().__call__(features)
+        if self.block_diag_attn and self.attn_implementation != "flash_attention_2":
+            features["attention_mask"] = prepare_4d_attention_mask(features["attention_mask"], self.compute_dtype)
+
+        return features
+
+
+@dataclass
+class PairwiseDataCollatorWithPadding(CustomDataCollatorForSeq2Seq):
     r"""
     Data collator for pairwise data.
     """
@@ -165,16 +139,23 @@ class PairwiseDataCollatorWithPadding(MultiModalDataCollatorForSeq2Seq):
                     "input_ids": feature["{}_input_ids".format(key)],
                     "attention_mask": feature["{}_attention_mask".format(key)],
                     "labels": feature["{}_labels".format(key)],
-                    "images": feature["images"],
-                    "videos": feature["videos"],
                 }
+                if "pixel_values" in feature:  # image data are same for chosen and rejected
+                    target_feature["pixel_values"] = feature["pixel_values"]
+
+                if "image_grid_thw" in feature:
+                    target_feature["image_grid_thw"] = feature["image_grid_thw"]
+
+                if "{}_token_type_ids".format(key) in feature:
+                    target_feature["token_type_ids"] = feature["{}_token_type_ids".format(key)]
+
                 concatenated_features.append(target_feature)
 
         return super().__call__(concatenated_features)
 
 
 @dataclass
-class KTODataCollatorWithPadding(MultiModalDataCollatorForSeq2Seq):
+class KTODataCollatorWithPadding(CustomDataCollatorForSeq2Seq):
     r"""
     Data collator for KTO data.
     """
@@ -195,9 +176,17 @@ class KTODataCollatorWithPadding(MultiModalDataCollatorForSeq2Seq):
                 "input_ids": feature["kl_input_ids"],
                 "attention_mask": feature["kl_attention_mask"],
                 "labels": feature["kl_labels"],
-                "images": feature["images"],
-                "videos": feature["videos"],
             }
+            if "pixel_values" in feature:
+                target_feature["pixel_values"] = feature["pixel_values"]
+
+            if "image_grid_thw" in feature:
+                target_feature["image_grid_thw"] = feature["image_grid_thw"]
+
+            if "token_type_ids" in feature:
+                target_feature["token_type_ids"] = feature["token_type_ids"]
+                kl_feature["token_type_ids"] = feature["kl_token_type_ids"]
+
             target_features.append(target_feature)
             kl_features.append(kl_feature)
             kto_tags.append(feature["kto_tags"])

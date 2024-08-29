@@ -65,8 +65,8 @@ def _encode_feedback_example(
         response_ids += [tokenizer.eos_token_id]
         kl_response_ids += [tokenizer.eos_token_id]
 
-    prompt_ids, _ = template.mm_plugin.process_token_ids(prompt_ids, None, images, videos, tokenizer, processor)
-    kl_prompt_ids, _ = template.mm_plugin.process_token_ids(kl_prompt_ids, None, images, videos, tokenizer, processor)
+    prompt_ids, _ = template.mm_plugin.process_token_ids(prompt_ids, None, tokenizer, processor)
+    kl_prompt_ids, _ = template.mm_plugin.process_token_ids(kl_prompt_ids, None, tokenizer, processor)
 
     source_len, target_len = infer_seqlen(len(prompt_ids), len(response_ids), cutoff_len)
     prompt_ids = prompt_ids[:source_len]
@@ -90,16 +90,17 @@ def preprocess_feedback_dataset(
     data_args: "DataArguments",
 ) -> Dict[str, List[Any]]:
     # create unrelated input-output pairs for estimating the KL term by flipping the matched pairs
-    kl_response = examples["_response"][::-1]
+    kl_response = examples["response"][::-1]
     model_inputs = defaultdict(list)
-    for i in range(len(examples["_prompt"])):
-        if len(examples["_prompt"][i]) % 2 != 1 or len(examples["_response"][i]) < 2:
-            logger.warning("Dropped invalid example: {}".format(examples["_prompt"][i] + examples["_response"][i]))
+    for i in range(len(examples["prompt"])):
+        if len(examples["prompt"][i]) % 2 != 1 or len(examples["response"][i]) < 2:
+            logger.warning("Dropped invalid example: {}".format(examples["prompt"][i] + examples["response"][i]))
             continue
 
+        prompt = template.mm_plugin.process_messages(examples["prompt"][i], examples["images"][i], processor)
         input_ids, labels, kl_input_ids, kl_labels, kto_tag = _encode_feedback_example(
-            prompt=examples["_prompt"][i],
-            response=examples["_response"][i],
+            prompt=prompt,
+            response=examples["response"][i],
             kl_response=kl_response[i],
             system=examples["_system"][i],
             tools=examples["_tools"][i],
@@ -117,8 +118,15 @@ def preprocess_feedback_dataset(
         model_inputs["kl_attention_mask"].append([1] * len(kl_input_ids))
         model_inputs["kl_labels"].append(kl_labels)
         model_inputs["kto_tags"].append(kto_tag)
-        model_inputs["images"].append(examples["_images"][i])
-        model_inputs["videos"].append(examples["_videos"][i])
+        template.mm_plugin.process_model_inputs(
+            model_inputs=model_inputs,
+            images=examples["images"][i],
+            feature_seqlens={
+                "token_type_ids": len(input_ids),
+                "kl_token_type_ids": len(kl_input_ids),
+            },
+            processor=processor,
+        )
 
     desirable_num = sum([1 for tag in model_inputs["kto_tags"] if tag])
     undesirable_num = len(model_inputs["kto_tags"]) - desirable_num

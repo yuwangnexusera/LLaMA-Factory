@@ -1,5 +1,6 @@
 ### model
 model_name_or_path: Qwen/Qwen2-VL-7B-Instruct
+visual_inputs: true
 
 ### method
 stage: sft
@@ -8,7 +9,7 @@ finetuning_type: lora
 lora_target: all
 
 ### dataset
-dataset: mllm_demo,identity
+dataset: mllm_demo
 template: qwen2_vl
 cutoff_len: 1024
 max_samples: 1000

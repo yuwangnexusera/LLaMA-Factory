@@ -20,7 +20,7 @@ Level:
 
 Dependency graph:
   main:
-    transformers>=4.41.2,<=4.45.0
+    transformers>=4.41.2,<=4.44.3
     datasets>=2.16.0,<=2.21.0
     accelerate>=0.30.1,<=0.33.0
     peft>=0.11.1,<=0.12.0
@@ -31,12 +31,6 @@ Dependency graph:
     transformers>=4.41.2,<=4.44.3
   packing:
     transformers>=4.41.2,<=4.44.3
-
-Disable version checking: DISABLE_VERSION_CHECK=1
-Enable VRAM recording: RECORD_VRAM=1
-Force check imports: FORCE_CHECK_IMPORTS=1
-Force using torchrun: FORCE_TORCHRUN=1
-Use modelscope: USE_MODELSCOPE_HUB=1
 """
 
 from .extras.env import VERSION
