@@ -48,7 +48,7 @@ def _encode_supervised_example(
     processor: Optional["ProcessorMixin"],
     data_args: "DataArguments",
 ) -> Tuple[List[int], List[int]]:
-    if "image_grid_thw" in processor.model_input_names:  # qwen2_vl models
+    if processor is not None and "image_grid_thw" in processor.model_input_names:  # qwen2_vl models
         image_processor = getattr(processor, "image_processor")
         merge_length = image_processor.merge_size**2
         if len(images) > 0:
