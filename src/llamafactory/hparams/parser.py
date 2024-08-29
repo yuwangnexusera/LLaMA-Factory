@@ -26,7 +26,7 @@ from transformers import HfArgumentParser, Seq2SeqTrainingArguments
 from transformers.integrations import is_deepspeed_zero3_enabled
 from transformers.trainer_utils import get_last_checkpoint
 from transformers.training_args import ParallelMode
-from transformers.utils import is_torch_bf16_gpu_available
+from transformers.utils import is_torch_bf16_gpu_available, is_torch_npu_available
 from transformers.utils.versions import require_version
 
 from ..extras.constants import CHECKPOINT_NAMES
@@ -192,17 +192,29 @@ def get_train_args(args: Optional[Dict[str, Any]] = None) -> _TRAIN_CLS:
     if training_args.max_steps == -1 and data_args.streaming:
         raise ValueError("Please specify `max_steps` in streaming mode.")
 
-    if training_args.do_train and training_args.predict_with_generate:
-        raise ValueError("`predict_with_generate` cannot be set as True while training.")
+    if training_args.do_train and data_args.dataset is None:
+        raise ValueError("Please specify dataset for training.")
 
-    if training_args.predict_with_generate and is_deepspeed_zero3_enabled():
-        raise ValueError("`predict_with_generate` is incompatible with DeepSpeed ZeRO-3.")
+    if (training_args.do_eval or training_args.do_predict) and (
+        data_args.eval_dataset is None and data_args.val_size < 1e-6
+    ):
+        raise ValueError("Please specify dataset for evaluation.")
+
+    if training_args.predict_with_generate:
+        if is_deepspeed_zero3_enabled():
+            raise ValueError("`predict_with_generate` is incompatible with DeepSpeed ZeRO-3.")
+
+        if data_args.eval_dataset is None:
+            raise ValueError("Cannot use `predict_with_generate` if `eval_dataset` is None.")
+
+        if finetuning_args.compute_accuracy:
+            raise ValueError("Cannot use `predict_with_generate` and `compute_accuracy` together.")
 
     if training_args.do_train and model_args.quantization_device_map == "auto":
         raise ValueError("Cannot use device map for quantized models in training.")
 
     if finetuning_args.pure_bf16:
-        if not is_torch_bf16_gpu_available():
+        if not (is_torch_bf16_gpu_available() or (is_torch_npu_available() and torch.npu.is_bf16_supported())):
             raise ValueError("This device does not support `pure_bf16`.")
 
         if training_args.deepspeed:
