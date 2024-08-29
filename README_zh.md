@@ -46,7 +46,7 @@ https://github.com/hiyouga/LLaMA-Factory/assets/16256802/ec36a9dd-37f4-4f72-81bd
 
 ## 项目特色
 
-- **多种模型**：LLaMA、LLaVA、Mistral、Mixtral-MoE、Qwen、Yi、Gemma、Baichuan、ChatGLM、Phi 等等。
+- **多种模型**：LLaMA、LLaVA、Mistral、Mixtral-MoE、Qwen、Qwen2-VL、Yi、Gemma、Baichuan、ChatGLM、Phi 等等。
 - **集成方法**：（增量）预训练、（多模态）指令监督微调、奖励模型训练、PPO 训练、DPO 训练、KTO 训练、ORPO 训练等等。
 - **多种精度**：16 比特全参数微调、冻结微调、LoRA 微调和基于 AQLM/AWQ/GPTQ/LLM.int8/HQQ/EETQ 的 2/3/4/5/6/8 比特 QLoRA 微调。
 - **先进算法**：GaLore、BAdam、Adam-mini、DoRA、LongLoRA、LLaMA Pro、Mixture-of-Depths、LoRA+、LoftQ、PiSSA 和 Agent 微调。
@@ -71,13 +71,15 @@ https://github.com/hiyouga/LLaMA-Factory/assets/16256802/ec36a9dd-37f4-4f72-81bd
 
 ## 更新日志
 
-[24/08/27] 我们支持了 **[Liger Kernel](https://github.com/linkedin/Liger-Kernel)**。请使用 `use_liger_kernel: true` 来加速训练。
+[24/08/30] 我们支持了 **[Qwen2-VL](https://qwenlm.github.io/blog/qwen2-vl/)** 模型的微调。
+
+[24/08/27] 我们支持了 **[Liger Kernel](https://github.com/linkedin/Liger-Kernel)**。请使用 `enable_liger_kernel: true` 来加速训练。
 
 [24/08/09] 我们支持了 **[Adam-mini](https://arxiv.org/abs/2406.16793)** 优化器。详细用法请参照 [examples](examples/README_zh.md)。感谢 [@relic-yuexi](https://github.com/relic-yuexi) 的 PR。
 
-[24/07/04] 我们支持了[无污染打包训练](https://github.com/MeetKai/functionary/tree/main/functionary/train/packing)。请使用 `neat_packing: true` 参数。感谢 [@chuan298](https://github.com/chuan298) 的 PR。
-
 <details><summary>展开日志</summary>
+
+[24/07/04] 我们支持了[无污染打包训练](https://github.com/MeetKai/functionary/tree/main/functionary/train/packing)。请使用 `neat_packing: true` 参数。感谢 [@chuan298](https://github.com/chuan298) 的 PR。
 
 [24/06/16] 我们支持了 **[PiSSA](https://arxiv.org/abs/2404.02948)** 算法。详细用法请参照 [examples](examples/README_zh.md)。
 
@@ -159,35 +161,34 @@ https://github.com/hiyouga/LLaMA-Factory/assets/16256802/ec36a9dd-37f4-4f72-81bd
 
 ## 模型
 
-| 模型名                                                    | 模型大小                          | Template  |
-| --------------------------------------------------------- | -------------------------------- | --------- |
-| [Baichuan2](https://huggingface.co/baichuan-inc)          | 7B/13B                           | baichuan2 |
-| [BLOOM](https://huggingface.co/bigscience)                | 560M/1.1B/1.7B/3B/7.1B/176B      | -         |
-| [BLOOMZ](https://huggingface.co/bigscience)               | 560M/1.1B/1.7B/3B/7.1B/176B      | -         |
-| [ChatGLM3](https://huggingface.co/THUDM)                  | 6B                               | chatglm3  |
-| [Command-R](https://huggingface.co/CohereForAI)           | 35B/104B                         | cohere    |
-| [DeepSeek (Code/MoE)](https://huggingface.co/deepseek-ai) | 7B/16B/67B/236B                  | deepseek  |
-| [Falcon](https://huggingface.co/tiiuae)                   | 7B/11B/40B/180B                  | falcon    |
-| [Gemma/CodeGemma](https://huggingface.co/google)          | 2B/7B                            | gemma     |
-| [GLM4](https://huggingface.co/THUDM)                      | 9B                               | glm4      |
-| [InternLM2](https://huggingface.co/internlm)              | 7B/20B                           | intern2   |
-| [LLaMA](https://github.com/facebookresearch/llama)        | 7B/13B/33B/65B                   | -         |
-| [LLaMA-2](https://huggingface.co/meta-llama)              | 7B/13B/70B                       | llama2    |
-| [LLaMA-3](https://huggingface.co/meta-llama)              | 8B/70B                           | llama3    |
-| [LLaVA-1.5](https://huggingface.co/llava-hf)              | 7B/13B                           | vicuna    |
-| [Mistral/Mixtral](https://huggingface.co/mistralai)       | 7B/8x7B/8x22B                    | mistral   |
-| [OLMo](https://huggingface.co/allenai)                    | 1B/7B                            | -         |
-| [PaliGemma](https://huggingface.co/google)                | 3B                               | gemma     |
-| [Phi-1.5/2](https://huggingface.co/microsoft)             | 1.3B/2.7B                        | -         |
-| [Phi-3](https://huggingface.co/microsoft)                 | 4B/7B/14B                        | phi       |
-| [Qwen](https://huggingface.co/Qwen)                       | 1.8B/7B/14B/72B                  | qwen      |
-| [Qwen1.5 (Code/MoE)](https://huggingface.co/Qwen)         | 0.5B/1.8B/4B/7B/14B/32B/72B/110B | qwen      |
-| [Qwen2 (MoE)](https://huggingface.co/Qwen)                | 0.5B/1.5B/7B/57B/72B             | qwen      |
-| [StarCoder2](https://huggingface.co/bigcode)              | 3B/7B/15B                        | -         |
-| [XVERSE](https://huggingface.co/xverse)                   | 7B/13B/65B                       | xverse    |
-| [Yi (1/1.5)](https://huggingface.co/01-ai)                | 6B/9B/34B                        | yi        |
-| [Yi-VL](https://huggingface.co/01-ai)                     | 6B/34B                           | yi_vl     |
-| [Yuan](https://huggingface.co/IEITYuan)                   | 2B/51B/102B                      | yuan      |
+| 模型名                                                            | 模型大小                          | Template  |
+| ----------------------------------------------------------------- | -------------------------------- | --------- |
+| [Baichuan 2](https://huggingface.co/baichuan-inc)                 | 7B/13B                           | baichuan2 |
+| [BLOOM/BLOOMZ](https://huggingface.co/bigscience)                 | 560M/1.1B/1.7B/3B/7.1B/176B      | -         |
+| [ChatGLM3](https://huggingface.co/THUDM)                          | 6B                               | chatglm3  |
+| [Command R](https://huggingface.co/CohereForAI)                   | 35B/104B                         | cohere    |
+| [DeepSeek (Code/MoE)](https://huggingface.co/deepseek-ai)         | 7B/16B/67B/236B                  | deepseek  |
+| [Falcon](https://huggingface.co/tiiuae)                           | 7B/11B/40B/180B                  | falcon    |
+| [Gemma/Gemma 2/CodeGemma](https://huggingface.co/google)          | 2B/7B/9B/27B                     | gemma     |
+| [GLM-4](https://huggingface.co/THUDM)                             | 9B                               | glm4      |
+| [InternLM2/InternLM2.5](https://huggingface.co/internlm)          | 7B/20B                           | intern2   |
+| [Llama](https://github.com/facebookresearch/llama)                | 7B/13B/33B/65B                   | -         |
+| [Llama 2](https://huggingface.co/meta-llama)                      | 7B/13B/70B                       | llama2    |
+| [Llama 3/Llama 3.1](https://huggingface.co/meta-llama)            | 8B/70B                           | llama3    |
+| [LLaVA-1.5](https://huggingface.co/llava-hf)                      | 7B/13B                           | llava     |
+| [MiniCPM](https://huggingface.co/openbmb)                         | 1B/2B                            | cpm       |
+| [Mistral/Mixtral](https://huggingface.co/mistralai)               | 7B/8x7B/8x22B                    | mistral   |
+| [OLMo](https://huggingface.co/allenai)                            | 1B/7B                            | -         |
+| [PaliGemma](https://huggingface.co/google)                        | 3B                               | paligemma |
+| [Phi-1.5/Phi-2](https://huggingface.co/microsoft)                 | 1.3B/2.7B                        | -         |
+| [Phi-3](https://huggingface.co/microsoft)                         | 4B/7B/14B                        | phi       |
+| [Qwen/Qwen1.5/Qwen2 (Code/Math/MoE)](https://huggingface.co/Qwen) | 0.5B/1.5B/4B/7B/14B/32B/72B/110B | qwen      |
+| [Qwen2-VL](https://huggingface.co/Qwen)                           | 2B/7B                            | qwen2_vl  |
+| [StarCoder 2](https://huggingface.co/bigcode)                     | 3B/7B/15B                        | -         |
+| [XVERSE](https://huggingface.co/xverse)                           | 7B/13B/65B                       | xverse    |
+| [Yi/Yi-1.5](https://huggingface.co/01-ai)                         | 6B/9B/34B                        | yi        |
+| [Yi-VL](https://huggingface.co/01-ai)                             | 6B/34B                           | yi_vl     |
+| [Yuan 2](https://huggingface.co/IEITYuan)                         | 2B/51B/102B                      | yuan      |
 
 > [!NOTE]
 > 对于所有“基座”（Base）模型，`template` 参数可以是 `default`, `alpaca`, `vicuna` 等任意值。但“对话”（Instruct/Chat）模型请务必使用**对应的模板**。
