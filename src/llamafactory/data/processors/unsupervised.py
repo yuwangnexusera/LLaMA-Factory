@@ -53,7 +53,7 @@ def _encode_unsupervised_example(
     if template.efficient_eos:
         labels += [tokenizer.eos_token_id]
 
-    input_ids, _ = template.mm_plugin.process_token_ids(input_ids, None, images, videos, tokenizer, processor)
+    input_ids, _ = template.mm_plugin.process_token_ids(input_ids, None, tokenizer, processor)
     source_len, target_len = infer_seqlen(len(input_ids), len(labels), cutoff_len)
     input_ids = input_ids[:source_len]
     labels = labels[:target_len]
@@ -69,18 +69,17 @@ def preprocess_unsupervised_dataset(
 ) -> Dict[str, List[Any]]:
     # build inputs with format `<bos> X` and labels with format `Y <eos>`
     model_inputs = defaultdict(list)
-    for i in range(len(examples["_prompt"])):
-        if len(examples["_prompt"][i]) % 2 != 1:
-            logger.warning("Dropped invalid example: {}".format(examples["_prompt"][i] + examples["_response"][i]))
+    for i in range(len(examples["prompt"])):
+        if len(examples["prompt"][i]) % 2 != 1:
+            logger.warning("Dropped invalid example: {}".format(examples["prompt"][i] + examples["response"][i]))
             continue
 
+        prompt = template.mm_plugin.process_messages(examples["prompt"][i], examples["images"][i], processor)
         input_ids, labels = _encode_unsupervised_example(
-            prompt=examples["_prompt"][i],
-            response=examples["_response"][i],
-            system=examples["_system"][i],
-            tools=examples["_tools"][i],
-            images=examples["_images"][i] or [],
-            videos=examples["_videos"][i] or [],
+            prompt=prompt,
+            response=examples["response"][i],
+            system=examples["system"][i],
+            tools=examples["tools"][i],
             template=template,
             tokenizer=tokenizer,
             processor=processor,
@@ -89,8 +88,12 @@ def preprocess_unsupervised_dataset(
         model_inputs["input_ids"].append(input_ids)
         model_inputs["attention_mask"].append([1] * len(input_ids))
         model_inputs["labels"].append(labels)
-        model_inputs["images"].append(examples["_images"][i])
-        model_inputs["videos"].append(examples["_videos"][i])
+        template.mm_plugin.process_model_inputs(
+            model_inputs=model_inputs,
+            images=examples["images"][i],
+            feature_seqlens={"token_type_ids": len(input_ids)},
+            processor=processor,
+        )
 
     return model_inputs
 
