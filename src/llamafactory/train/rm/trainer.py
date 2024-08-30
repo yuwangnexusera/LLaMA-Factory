@@ -95,8 +95,8 @@ class PairwiseTrainer(Trainer):
             getattr(self.processor, "image_processor").save_pretrained(output_dir)
 
     def compute_loss(
-        self, model: "PreTrainedModel", inputs: Dict[str, torch.Tensor], return_outputs: bool = False
-    ) -> Union[torch.Tensor, Tuple[torch.Tensor, List[torch.Tensor]]]:
+        self, model: "PreTrainedModel", inputs: Dict[str, "torch.Tensor"], return_outputs: bool = False
+    ) -> Union["torch.Tensor", Tuple["torch.Tensor", List["torch.Tensor"]]]:
         r"""
         Computes pairwise loss. The first n examples are chosen and the last n examples are rejected.
 

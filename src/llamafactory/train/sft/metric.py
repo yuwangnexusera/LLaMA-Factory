@@ -42,6 +42,19 @@ if is_rouge_available():
     from rouge_chinese import Rouge
 
 
+def eval_logit_processor(logits: "torch.Tensor", labels: "torch.Tensor") -> "torch.Tensor":
+    if isinstance(logits, (list, tuple)):
+        if logits[0].dim() == 3:  # (batch_size, seq_len, vocab_size)
+            logits = logits[0]
+        else:  # moe models have aux loss
+            logits = logits[1]
+
+    if logits.dim() != 3:
+        raise ValueError("Cannot process the logits.")
+
+    return torch.argmax(logits, dim=-1).cpu()
+
+
 @dataclass
 class ComputeMetrics:
     r"""
