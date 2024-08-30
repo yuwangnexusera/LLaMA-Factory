@@ -85,10 +85,8 @@ class CustomSeq2SeqTrainer(Seq2SeqTrainer):
         self,
         model: "torch.nn.Module",
         inputs: Dict[str, Union["torch.Tensor", Any]],
-        inputs: Dict[str, Union["torch.Tensor", Any]],
         prediction_loss_only: bool,
         ignore_keys: Optional[List[str]] = None,
-    ) -> Tuple[Optional[float], Optional["torch.Tensor"], Optional["torch.Tensor"]]:
     ) -> Tuple[Optional[float], Optional["torch.Tensor"], Optional["torch.Tensor"]]:
         r"""
         Removes the prompt part in the generated tokens.
@@ -110,7 +108,7 @@ class CustomSeq2SeqTrainer(Seq2SeqTrainer):
         )
         if generated_tokens is not None and self.args.predict_with_generate:
             generated_tokens[:, :prompt_len] = self.tokenizer.pad_token_id
-            generated_tokens = generated_tokens.contiguous()
+            generated_tokens = generated_tokens.contiguous().cpu()  # d2h
 
         return loss, generated_tokens, labels
 
