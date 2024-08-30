@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING, Dict, List, Optional, Sequence, Tuple, Union
 from ..extras.logging import get_logger
 from .data_utils import Role, infer_max_len
 from .formatter import EmptyFormatter, FunctionFormatter, StringFormatter, ToolFormatter
-from .mm_plugin import BasePlugin, get_mm_plugin
+from .mm_plugin import get_mm_plugin
 
 
 if TYPE_CHECKING:
@@ -246,7 +246,7 @@ def _register_template(
     stop_words: Sequence[str] = [],
     efficient_eos: bool = False,
     replace_eos: bool = False,
-    mm_plugin: "BasePlugin" = BasePlugin(IMAGE_PLACEHOLDER),
+    mm_plugin: "BasePlugin" = get_mm_plugin(name="base", image_token=IMAGE_PLACEHOLDER),
 ) -> None:
     r"""
     Registers a chat template.
