@@ -139,15 +139,67 @@ Regarding the above dataset, the *dataset description* in `dataset_info.json` sh
 
 ### KTO Dataset
 
-An additional column `kto_tag` is required. Please refer to the [sharegpt](#sharegpt-format) format for details.
+- [Example dataset](kto_en_demo.json)
 
-### Multimodal Image Dataset
+KTO datasets require a extra `kto_tag` column containing the boolean human feedback.
 
-An additional column `images` is required. Please refer to the [sharegpt](#sharegpt-format) format for details.
+```json
+[
+  {
+    "instruction": "human instruction (required)",
+    "input": "human input (optional)",
+    "output": "model response (required)",
+    "kto_tag": "human feedback [true/false] (required)"
+  }
+]
+```
 
-### Multimodal Video Dataset
+Regarding the above dataset, the *dataset description* in `dataset_info.json` should be:
 
-An additional column `videos` is required. Please refer to the [sharegpt](#sharegpt-format) format for details.
+```json
+"dataset_name": {
+  "file_name": "data.json",
+  "columns": {
+    "prompt": "instruction",
+    "query": "input",
+    "response": "output",
+    "kto_tag": "kto_tag"
+  }
+}
+```
+
+### Multimodal Dataset
+
+- [Example dataset](mllm_demo.json)
+
+Multimodal datasets require a `images` column containing the paths to the input images.
+
+```json
+[
+  {
+    "instruction": "human instruction (required)",
+    "input": "human input (optional)",
+    "output": "model response (required)",
+    "images": [
+      "image path (required)"
+    ]
+  }
+]
+```
+
+Regarding the above dataset, the *dataset description* in `dataset_info.json` should be:
+
+```json
+"dataset_name": {
+  "file_name": "data.json",
+  "columns": {
+    "prompt": "instruction",
+    "query": "input",
+    "response": "output",
+    "images": "images"
+  }
+}
+```
 
 ## Sharegpt Format
 
