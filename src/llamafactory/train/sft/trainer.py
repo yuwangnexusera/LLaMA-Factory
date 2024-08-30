@@ -108,7 +108,7 @@ class CustomSeq2SeqTrainer(Seq2SeqTrainer):
         )
         if generated_tokens is not None and self.args.predict_with_generate:
             generated_tokens[:, :prompt_len] = self.tokenizer.pad_token_id
-            generated_tokens = generated_tokens.contiguous()
+            generated_tokens = generated_tokens.contiguous().cpu()  # d2h
 
         return loss, generated_tokens, labels
 
