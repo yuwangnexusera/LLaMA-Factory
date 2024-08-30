@@ -97,19 +97,7 @@ def load_tokenizer(model_args: "ModelArguments") -> "TokenizerModule":
     try:
         processor = AutoProcessor.from_pretrained(model_args.model_name_or_path, **init_kwargs)
         setattr(processor, "tokenizer", tokenizer)
-        setattr(processor, "image_seqlen", get_image_seqlen(config))
-        setattr(processor, "image_resolution", model_args.image_resolution)
-        setattr(processor, "video_fps", model_args.video_fps)
-        if getattr(config, "model_type", None) == "qwen2_vl":
-            setattr(processor, "video_factor", 2)
-        else:
-            setattr(processor, "video_factor", 1)
     except Exception:
-        processor = None
-
-    # Avoid load tokenizer, see:
-    # https://github.com/huggingface/transformers/blob/v4.40.0/src/transformers/models/auto/processing_auto.py#L324
-    if "Processor" not in processor.__class__.__name__:
         processor = None
 
     return {"tokenizer": tokenizer, "processor": processor}
