@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from dataclasses import asdict, dataclass, field, fields
+from dataclasses import asdict, dataclass, field
 from typing import Any, Dict, Literal, Optional, Union
 
 import torch
@@ -111,10 +111,6 @@ class ModelArguments:
         metadata={"help": "Whether or not to use unsloth's optimization for the LoRA training."},
     )
     enable_liger_kernel: bool = field(
-        default=False,
-        metadata={"help": "Whether or not to enable liger kernel for faster training."},
-    )
-    visual_inputs: bool = field(
         default=False,
         metadata={"help": "Whether or not to enable liger kernel for faster training."},
     )

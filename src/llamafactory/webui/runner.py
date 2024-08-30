@@ -117,7 +117,6 @@ class Runner:
             flash_attn="fa2" if get("top.booster") == "flashattn2" else "auto",
             use_unsloth=(get("top.booster") == "unsloth"),
             enable_liger_kernel=(get("top.booster") == "liger_kernel"),
-            visual_inputs=get("top.visual_inputs"),
             dataset_dir=get("train.dataset_dir"),
             dataset=",".join(get("train.dataset")),
             cutoff_len=get("train.cutoff_len"),
