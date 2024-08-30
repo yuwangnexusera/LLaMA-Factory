@@ -242,10 +242,14 @@ def get_train_args(args: Optional[Dict[str, Any]] = None) -> _TRAIN_CLS:
     if model_args.infer_backend == "vllm":
         raise ValueError("vLLM backend is only available for API, CLI and Web.")
 
-    if model_args.visual_inputs and data_args.packing:
-        raise ValueError("Cannot use packing in MLLM fine-tuning.")
+    if model_args.use_unsloth and is_deepspeed_zero3_enabled():
+        raise ValueError("Unsloth is incompatible with DeepSpeed ZeRO-3.")
 
-    _verify_model_args(model_args, finetuning_args)
+    if data_args.neat_packing and not data_args.packing:
+        logger.warning("`neat_packing` requires `packing` is True. Change `packing` to True.")
+        data_args.packing = True
+
+    _verify_model_args(model_args, data_args, finetuning_args)
     _check_extra_dependencies(model_args, finetuning_args, training_args)
 
     if (
@@ -365,10 +369,7 @@ def get_infer_args(args: Optional[Dict[str, Any]] = None) -> _INFER_CLS:
         if model_args.adapter_name_or_path is not None and len(model_args.adapter_name_or_path) != 1:
             raise ValueError("vLLM only accepts a single adapter. Merge them first.")
 
-    if finetuning_args.stage == "rm" and model_args.visual_inputs:
-        raise ValueError("Reward server does not support MLLM yet. Stay tuned.")
-
-    _verify_model_args(model_args, finetuning_args)
+    _verify_model_args(model_args, data_args, finetuning_args)
     _check_extra_dependencies(model_args, finetuning_args)
 
     if model_args.export_dir is not None and model_args.export_device == "cpu":

@@ -132,17 +132,6 @@ LOCALES = {
             "label": "加速方式",
         },
     },
-    "visual_inputs": {
-        "en": {
-            "label": "Visual inputs",
-        },
-        "ru": {
-            "label": "визуальные входы",
-        },
-        "zh": {
-            "label": "图像输入",
-        },
-    },
     "training_stage": {
         "en": {
             "label": "Stage",
