@@ -85,15 +85,17 @@ class CustomSeq2SeqTrainer(Seq2SeqTrainer):
         self,
         model: "torch.nn.Module",
         inputs: Dict[str, Union["torch.Tensor", Any]],
+        inputs: Dict[str, Union["torch.Tensor", Any]],
         prediction_loss_only: bool,
         ignore_keys: Optional[List[str]] = None,
+    ) -> Tuple[Optional[float], Optional["torch.Tensor"], Optional["torch.Tensor"]]:
     ) -> Tuple[Optional[float], Optional["torch.Tensor"], Optional["torch.Tensor"]]:
         r"""
         Removes the prompt part in the generated tokens.
 
         Subclass and override to inject custom behavior.
         """
-        labels = inputs["labels"] if "labels" in inputs else None
+        labels = inputs["labels"].detach().clone().cpu() if "labels" in inputs else None  # backup labels (d2h)
         if self.args.predict_with_generate:
             assert self.tokenizer.padding_side == "left", "This method only accepts left-padded tensor."
             labels = labels.detach().clone() if labels is not None else None  # backup labels
@@ -108,7 +110,7 @@ class CustomSeq2SeqTrainer(Seq2SeqTrainer):
         )
         if generated_tokens is not None and self.args.predict_with_generate:
             generated_tokens[:, :prompt_len] = self.tokenizer.pad_token_id
-            generated_tokens = generated_tokens.contiguous()
+            generated_tokens = generated_tokens.contiguous().cpu()  # d2h
 
         return loss, generated_tokens, labels
 
