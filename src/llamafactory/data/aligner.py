@@ -14,7 +14,9 @@
 
 import os
 from functools import partial
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Sequence, Union
+
+from datasets import Features
 
 from ..extras.logging import get_logger
 from .data_utils import Role
@@ -32,17 +34,10 @@ if TYPE_CHECKING:
 logger = get_logger(__name__)
 
 
-def _convert_images(
-    images: Sequence["ImageInput"],
-    dataset_attr: "DatasetAttr",
-    data_args: "DataArguments",
-) -> Optional[List["ImageInput"]]:
+def _convert_images(images: Sequence[Any], dataset_attr: "DatasetAttr", data_args: "DataArguments") -> List[Any]:
     r"""
     Optionally concatenates image path to dataset dir when loading from local disk.
     """
-    if len(images) == 0:
-        return None
-
     images = images[:]
     if dataset_attr.load_from in ["script", "file"]:
         for i in range(len(images)):
@@ -50,26 +45,6 @@ def _convert_images(
                 images[i] = os.path.join(data_args.dataset_dir, images[i])
 
     return images
-
-
-def _convert_videos(
-    videos: Sequence["VideoInput"],
-    dataset_attr: "DatasetAttr",
-    data_args: "DataArguments",
-) -> Optional[List["VideoInput"]]:
-    r"""
-    Optionally concatenates video path to dataset dir when loading from local disk.
-    """
-    if len(videos) == 0:
-        return None
-
-    videos = videos[:]
-    if dataset_attr.load_from in ["script", "file"]:
-        for i in range(len(videos)):
-            if isinstance(videos[i], str) and os.path.isfile(os.path.join(data_args.dataset_dir, videos[i])):
-                videos[i] = os.path.join(data_args.dataset_dir, videos[i])
-
-    return videos
 
 
 def convert_alpaca(
