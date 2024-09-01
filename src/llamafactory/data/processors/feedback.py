@@ -21,6 +21,7 @@ from .processor_utils import infer_seqlen
 
 
 if TYPE_CHECKING:
+    from PIL.Image import Image
     from transformers import PreTrainedTokenizer, ProcessorMixin
 
     from ...hparams import DataArguments
@@ -43,7 +44,7 @@ def _encode_feedback_example(
     tokenizer: "PreTrainedTokenizer",
     processor: Optional["ProcessorMixin"],
     cutoff_len: int,
-) -> Tuple[List[int], List[int], List[int], List[int], bool]:
+) -> Tuple[List[int], List[int], List[int], List[int], bool, Dict[str, Any]]:
     if response[0]["content"]:  # desired example
         kto_tag = True
         messages = prompt + [response[0]]
