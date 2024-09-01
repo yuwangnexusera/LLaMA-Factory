@@ -21,6 +21,7 @@ from .processor_utils import infer_seqlen
 
 
 if TYPE_CHECKING:
+    from PIL.Image import Image
     from transformers import PreTrainedTokenizer, ProcessorMixin
 
     from ...hparams import DataArguments
@@ -42,7 +43,7 @@ def _encode_unsupervised_example(
     tokenizer: "PreTrainedTokenizer",
     processor: Optional["ProcessorMixin"],
     cutoff_len: int,
-) -> Tuple[List[int], List[int]]:
+) -> Tuple[List[int], List[int], Dict[str, Any]]:
     if len(response) == 1:
         messages = prompt + response
     else:
@@ -57,7 +58,10 @@ def _encode_unsupervised_example(
     source_len, target_len = infer_seqlen(len(input_ids), len(labels), cutoff_len)
     input_ids = input_ids[:source_len]
     labels = labels[:target_len]
-    return input_ids, labels
+    extra_inputs = template.mm_plugin.get_mm_inputs(
+        images=images, feature_seqlens={"token_type_ids": len(input_ids)}, processor=processor
+    )
+    return input_ids, labels, extra_inputs
 
 
 def preprocess_unsupervised_dataset(

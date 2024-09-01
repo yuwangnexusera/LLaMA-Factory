@@ -21,6 +21,7 @@ from .processor_utils import greedy_knapsack, infer_seqlen
 
 
 if TYPE_CHECKING:
+    from PIL.Image import Image
     from transformers import PreTrainedTokenizer, ProcessorMixin
 
     from ...hparams import DataArguments
@@ -67,7 +68,10 @@ def _encode_supervised_example(
         input_ids += [tokenizer.eos_token_id]
         labels += [tokenizer.eos_token_id]
 
-    return input_ids, labels
+    extra_inputs = template.mm_plugin.get_mm_inputs(
+        images=images, feature_seqlens={"token_type_ids": len(input_ids)}, processor=processor
+    )
+    return input_ids, labels, extra_inputs
 
 
 def preprocess_supervised_dataset(
@@ -117,6 +121,9 @@ def preprocess_packed_supervised_dataset(
     # TODO: use `position_ids` to achieve packing
     # build inputs with format `<bos> X1 Y1 <eos> <bos> X2 Y2 <eos>`
     # and labels with format `<ignore> ... <ignore> Y1 <eos> <ignore> ... <ignore> Y2 <eos>`
+    if processor is not None:
+        raise NotImplementedError("`packing` have not been implemented for multimodal datasets.")
+
     valid_num = 0
     batch_input_ids, batch_labels, batch_images, batch_videos = [], [], [], []
     lengths = []
