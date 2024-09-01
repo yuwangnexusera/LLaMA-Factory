@@ -15,6 +15,7 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Dict, List, Optional, Sequence, Tuple, Union
 
+from transformers.utils.versions import require_version
 
 from ..extras.constants import IMAGE_PLACEHOLDER
 from ..extras.logging import get_logger
@@ -381,13 +382,17 @@ def _get_jinja_template(template: "Template", tokenizer: "PreTrainedTokenizer") 
     return jinja_template
 
 
-def get_template_and_fix_tokenizer(tokenizer: "PreTrainedTokenizer", data_args: "DataArguments") -> "Template":
-    if data_args.template in ["llava", "paligemma", "qwen2_vl"]:
+def get_template_and_fix_tokenizer(
+    tokenizer: "PreTrainedTokenizer",
+    name: Optional[str] = None,
+    tool_format: Optional[str] = None,
+) -> Template:
+    if name == "qwen2_vl":
         require_version(
             "transformers>=4.45.0.dev0", "To fix: pip install git+https://github.com/huggingface/transformers.git"
         )
 
-    if data_args.template is None:
+    if name is None:
         template = TEMPLATES["empty"]  # placeholder
     else:
         template = TEMPLATES.get(data_args.template, None)
@@ -400,8 +405,8 @@ def get_template_and_fix_tokenizer(tokenizer: "PreTrainedTokenizer", data_args: 
     if data_args.tool_format is not None:
         logger.info("Using tool format: {}.".format(data_args.tool_format))
         eos_slots = [] if template.efficient_eos else [{"eos_token"}]
-        template.format_function = FunctionFormatter(slots=eos_slots, tool_format=data_args.tool_format)
-        template.format_tools = ToolFormatter(tool_format=data_args.tool_format)
+        template.format_function = FunctionFormatter(slots=eos_slots, tool_format=tool_format)
+        template.format_tools = ToolFormatter(tool_format=tool_format)
 
     stop_words = template.stop_words
     if template.replace_eos:
