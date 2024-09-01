@@ -239,11 +239,26 @@ def is_gpu_or_npu_available() -> bool:
     return is_torch_npu_available() or is_torch_cuda_available()
 
 
-def has_tokenized_data(path: os.PathLike) -> bool:
+def numpify(inputs: Union["NDArray", "torch.Tensor"]) -> "NDArray":
     r"""
-    Checks if the path has a tokenized dataset.
+    Casts a torch tensor or a numpy array to a numpy array.
     """
-    return os.path.isdir(path) and len(os.listdir(path)) > 0
+    if isinstance(inputs, torch.Tensor):
+        inputs = inputs.cpu()
+        if inputs.dtype == torch.bfloat16:  # numpy does not support bfloat16 until 1.21.4
+            inputs = inputs.to(torch.float32)
+
+        inputs = inputs.numpy()
+
+    return inputs
+
+
+def skip_check_imports() -> None:
+    r"""
+    Avoids flash attention import error in custom model files.
+    """
+    if os.environ.get("FORCE_CHECK_IMPORTS", "0").lower() not in ["true", "1"]:
+        transformers.dynamic_module_utils.check_imports = get_relative_imports
 
 
 def torch_gc() -> None:
