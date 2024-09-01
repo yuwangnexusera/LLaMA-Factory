@@ -20,8 +20,6 @@ import re
 import uuid
 from typing import TYPE_CHECKING, AsyncGenerator, Dict, List, Optional, Tuple
 
-import numpy as np
-
 from ..data import Role as DataRole
 from ..extras.logging import get_logger
 from ..extras.packages import is_fastapi_available, is_pillow_available, is_requests_available
