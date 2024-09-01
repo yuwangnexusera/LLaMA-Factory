@@ -43,12 +43,8 @@ def create_chat_box(
                         system = gr.Textbox(show_label=False)
                         tools = gr.Textbox(show_label=False, lines=3)
 
-                    with gr.Column() as mm_box:
-                        with gr.Tab("Image"):
-                            image = gr.Image(sources=["upload"], type="pil")
-
-                        with gr.Tab("Video"):
-                            video = gr.Video(sources=["upload"])
+                    with gr.Column() as image_box:
+                        image = gr.Image(sources=["upload"], type="pil")
 
                 query = gr.Textbox(show_label=False, lines=8)
                 submit_btn = gr.Button(variant="primary")
