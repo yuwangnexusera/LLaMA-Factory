@@ -46,6 +46,9 @@ def eval_logit_processor(logits: "torch.Tensor", labels: "torch.Tensor") -> "tor
     r"""
     Computes the token with the largest likelihood to reduce memory footprint.
     """
+    r"""
+    Computes the token with the largest likelihood to reduce memory footprint.
+    """
     if isinstance(logits, (list, tuple)):
         if logits[0].dim() == 3:  # (batch_size, seq_len, vocab_size)
             logits = logits[0]
@@ -63,7 +66,6 @@ class ComputeAccuracy:
     r"""
     Computes accuracy and supports `batch_eval_metrics`.
     """
-
     def _dump(self) -> Optional[Dict[str, float]]:
         result = None
         if hasattr(self, "score_dict"):
