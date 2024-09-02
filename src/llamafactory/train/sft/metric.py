@@ -43,6 +43,9 @@ if is_rouge_available():
 
 
 def eval_logit_processor(logits: "torch.Tensor", labels: "torch.Tensor") -> "torch.Tensor":
+    r"""
+    Computes the token with the largest likelihood to reduce memory footprint.
+    """
     if isinstance(logits, (list, tuple)):
         if logits[0].dim() == 3:  # (batch_size, seq_len, vocab_size)
             logits = logits[0]
@@ -56,9 +59,38 @@ def eval_logit_processor(logits: "torch.Tensor", labels: "torch.Tensor") -> "tor
 
 
 @dataclass
-class ComputeMetrics:
+class ComputeAccuracy:
     r"""
-    Wraps the tokenizer into metric functions, used in Seq2SeqPeftTrainer.
+    Computes accuracy and supports `batch_eval_metrics`.
+    """
+    def _dump(self) -> Optional[Dict[str, float]]:
+        result = None
+        if hasattr(self, "score_dict"):
+            result = {k: float(np.mean(v)) for k, v in self.score_dict.items()}
+
+        self.score_dict = {"accuracy": []}
+        return result
+
+    def __post_init__(self):
+        self._dump()
+
+    def __call__(self, eval_preds: "EvalPrediction", compute_result: bool = True) -> Optional[Dict[str, float]]:
+        preds, labels = numpify(eval_preds.predictions), numpify(eval_preds.label_ids)
+        for i in range(len(preds)):
+            pred, label = preds[i, :-1], labels[i, 1:]
+            label_mask = label != IGNORE_INDEX
+            self.score_dict["accuracy"].append(np.mean(pred[label_mask] == label[label_mask]))
+
+        if compute_result:
+            return self._dump()
+
+
+@dataclass
+class ComputeSimilarity:
+    r"""
+    Computes text similarity scores and supports `batch_eval_metrics`.
+
+    Wraps the tokenizer into metric functions, used in CustomSeq2SeqTrainer.
     """
 
     tokenizer: "PreTrainedTokenizer"
