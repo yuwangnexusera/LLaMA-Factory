@@ -113,6 +113,10 @@ class DataArguments:
         default=None,
         metadata={"help": "Path to save or load the tokenized datasets."},
     )
+    dataset_map_batch_size: Optional[int] = field(
+        default=None,
+        metadata={"help": "Batch size for dataset mapping."},
+    )
 
     def __post_init__(self):
         if self.reserved_label_len >= self.cutoff_len:
