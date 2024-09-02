@@ -95,7 +95,7 @@ class CustomSeq2SeqTrainer(Seq2SeqTrainer):
 
         Subclass and override to inject custom behavior.
         """
-        labels = inputs["labels"].detach().clone().cpu() if "labels" in inputs else None  # backup labels (d2h)
+        labels = inputs["labels"] if "labels" in inputs else None
         if self.args.predict_with_generate:
             assert self.tokenizer.padding_side == "left", "This method only accepts left-padded tensor."
             labels = labels.detach().clone() if labels is not None else None  # backup labels
@@ -110,7 +110,7 @@ class CustomSeq2SeqTrainer(Seq2SeqTrainer):
         )
         if generated_tokens is not None and self.args.predict_with_generate:
             generated_tokens[:, :prompt_len] = self.tokenizer.pad_token_id
-            generated_tokens = generated_tokens.contiguous().cpu()  # d2h
+            generated_tokens = generated_tokens.contiguous()
 
         return loss, generated_tokens, labels
 
