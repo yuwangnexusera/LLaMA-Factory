@@ -63,7 +63,6 @@ class ComputeAccuracy:
     r"""
     Computes accuracy and supports `batch_eval_metrics`.
     """
-
     def _dump(self) -> Optional[Dict[str, float]]:
         result = None
         if hasattr(self, "score_dict"):
