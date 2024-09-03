@@ -21,7 +21,6 @@ from .processor_utils import infer_seqlen
 
 
 if TYPE_CHECKING:
-    from PIL.Image import Image
     from transformers import PreTrainedTokenizer, ProcessorMixin
 
     from ...hparams import DataArguments

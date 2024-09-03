@@ -110,38 +110,21 @@ class SFTDataCollatorWith4DAttentionMask(MultiModalDataCollatorForSeq2Seq):
     processor: Optional["ProcessorMixin"] = None
 
     def __call__(self, features: Sequence[Dict[str, Any]]) -> Dict[str, "torch.Tensor"]:
-        if "token_type_ids" in features[0].keys():
-            for feature in features:
-                feature["token_type_ids"] = feature["token_type_ids"][0]
+        batch_images, batch_imglens, batch_seqlens = [], [], []
+        for feature in features:
+            images = feature.pop("images") or []  # avoid NoneType
+            batch_images.extend(images)
+            batch_imglens.append(len(images))
+            batch_seqlens.append(len(feature["input_ids"]))
 
-        extra_features = {}
-        if "pixel_values" in features[0].keys():
-            pixel_values = []
-            for feature in features:
-                if feature["pixel_values"] is None:
-                    pixel_values.append(torch.zeros(0, dtype=torch.float))
-                else:
-                    pixel_values.append(torch.tensor(feature["pixel_values"], dtype=torch.float))
+        mm_inputs = self.template.mm_plugin.get_mm_inputs(batch_images, batch_imglens, batch_seqlens, self.processor)
+        if "token_type_ids" in mm_inputs:
+            token_type_ids = mm_inputs.pop("token_type_ids")
+            for i, feature in enumerate(features):
+                feature["token_type_ids"] = token_type_ids[i]
 
-            extra_features["pixel_values"] = torch.cat(pixel_values, dim=0)
-            if extra_features["pixel_values"].numel() == 0:
-                extra_features["pixel_values"] = None
-
-        if "image_grid_thw" in features[0].keys():
-            image_grid_thw = []
-            for feature in features:
-                if feature["image_grid_thw"] is None:
-                    image_grid_thw.append(torch.zeros(0, dtype=torch.long))
-                else:
-                    image_grid_thw.append(torch.tensor(feature["image_grid_thw"], dtype=torch.long))
-
-            extra_features["image_grid_thw"] = torch.cat(image_grid_thw, dim=0)
-            if extra_features["image_grid_thw"].numel() == 0:
-                extra_features["image_grid_thw"] = None
-
-        features = [{key: feature[key] for key in feature if key not in extra_features.keys()} for feature in features]
         features: Dict[str, "torch.Tensor"] = super().__call__(features)
-        features.update({key: value for key, value in extra_features.items() if value is not None})
+        features.update(mm_inputs)
         return features
 
 

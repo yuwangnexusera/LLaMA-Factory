@@ -21,7 +21,6 @@ from .processor_utils import greedy_knapsack, infer_seqlen
 
 
 if TYPE_CHECKING:
-    from PIL.Image import Image
     from transformers import PreTrainedTokenizer, ProcessorMixin
 
     from ...hparams import DataArguments
@@ -68,10 +67,7 @@ def _encode_supervised_example(
         input_ids += [tokenizer.eos_token_id]
         labels += [tokenizer.eos_token_id]
 
-    extra_inputs = template.mm_plugin.get_mm_inputs(
-        images=images, feature_seqlens={"token_type_ids": len(input_ids)}, processor=processor
-    )
-    return input_ids, labels, extra_inputs
+    return input_ids, labels
 
 
 def preprocess_supervised_dataset(
