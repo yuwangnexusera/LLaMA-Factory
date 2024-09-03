@@ -130,7 +130,7 @@ def preprocess_packed_supervised_dataset(
             logger.warning("Dropped invalid example: {}".format(examples["_prompt"][i] + examples["_response"][i]))
             continue
 
-        input_ids, labels = _encode_supervised_example(
+        input_ids, labels, _ = _encode_supervised_example(
             prompt=examples["prompt"][i],
             response=examples["response"][i],
             system=examples["system"][i],
