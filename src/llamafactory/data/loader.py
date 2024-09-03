@@ -15,7 +15,7 @@
 import inspect
 import os
 import sys
-from typing import TYPE_CHECKING, Literal, Optional, Union
+from typing import TYPE_CHECKING, Dict, Literal, Optional, Sequence, Tuple, Union
 
 import numpy as np
 from datasets import load_dataset, load_from_disk
@@ -140,6 +140,72 @@ def load_single_dataset(
     return align_dataset(dataset, dataset_attr, data_args, training_args)
 
 
+def _get_merged_dataset(
+    dataset_names: Optional[Sequence[str]],
+    model_args: "ModelArguments",
+    data_args: "DataArguments",
+    training_args: "Seq2SeqTrainingArguments",
+    stage: Literal["pt", "sft", "rm", "ppo", "kto"],
+) -> Optional[Union["Dataset", "IterableDataset"]]:
+    if dataset_names is None:
+        return None
+
+    datasets = []
+    for dataset_attr in get_dataset_list(dataset_names, data_args.dataset_dir):
+        if (stage == "rm" and dataset_attr.ranking is False) or (stage != "rm" and dataset_attr.ranking is True):
+            raise ValueError("The dataset is not applicable in the current training stage.")
+
+        datasets.append(_load_single_dataset(dataset_attr, model_args, data_args, training_args))
+
+    return merge_dataset(datasets, data_args, seed=training_args.seed)
+
+
+def _get_preprocessed_dataset(
+    dataset: Optional[Union["Dataset", "IterableDataset"]],
+    data_args: "DataArguments",
+    training_args: "Seq2SeqTrainingArguments",
+    stage: Literal["pt", "sft", "rm", "ppo", "kto"],
+    template: "Template",
+    tokenizer: "PreTrainedTokenizer",
+    processor: Optional["ProcessorMixin"] = None,
+    is_eval: bool = False,
+) -> Optional[Union["Dataset", "IterableDataset"]]:
+    if dataset is None:
+        return None
+
+    preprocess_func, print_function = get_preprocess_and_print_func(
+        data_args, stage, template, tokenizer, processor, do_generate=(training_args.predict_with_generate and is_eval)
+    )
+    column_names = list(next(iter(dataset)).keys())
+    kwargs = {}
+    if not data_args.streaming:
+        kwargs = dict(
+            num_proc=data_args.preprocessing_num_workers,
+            load_from_cache_file=(not data_args.overwrite_cache) or (training_args.local_process_index != 0),
+            desc="Running tokenizer on dataset",
+        )
+
+    dataset = dataset.map(
+        preprocess_func,
+        batched=True,
+        batch_size=data_args.preprocessing_batch_size,
+        remove_columns=column_names,
+        **kwargs,
+    )
+
+    if training_args.should_log:
+        try:
+            print("eval example:" if is_eval else "training example:")
+            print_function(next(iter(dataset)))
+        except StopIteration:
+            if stage == "pt":
+                raise RuntimeError("Cannot find sufficient samples, consider increasing dataset size.")
+            else:
+                raise RuntimeError("Cannot find valid samples, check `data/README.md` for the data format.")
+
+    return dataset
+
+
 def get_dataset(
     model_args: "ModelArguments",
     data_args: "DataArguments",
@@ -147,7 +213,7 @@ def get_dataset(
     stage: Literal["pt", "sft", "rm", "ppo", "kto"],
     tokenizer: "PreTrainedTokenizer",
     processor: Optional["ProcessorMixin"] = None,
-) -> Union["Dataset", "IterableDataset"]:
+) -> Tuple["DatasetModule", "Template"]:
     template = get_template_and_fix_tokenizer(tokenizer, data_args.template, data_args.tool_format)
     if data_args.train_on_prompt and template.efficient_eos:
         raise ValueError("Current template does not support `train_on_prompt`.")
@@ -207,4 +273,4 @@ def get_dataset(
                 else:
                     raise RuntimeError("Cannot find valid samples, check `data/README.md` for the data format.")
 
-        return dataset
+        return dataset_module, template
