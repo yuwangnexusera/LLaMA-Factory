@@ -55,7 +55,6 @@ def run_sft(
 
     data_collator = SFTDataCollatorWith4DAttentionMask(
         template=template,
-        template=template,
         pad_to_multiple_of=8 if training_args.do_train else None,  # for shift short attention
         label_pad_token_id=IGNORE_INDEX if data_args.ignore_pad_token_for_loss else tokenizer.pad_token_id,
         block_diag_attn=model_args.block_diag_attn,

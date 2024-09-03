@@ -15,7 +15,7 @@
 import inspect
 import os
 import sys
-from typing import TYPE_CHECKING, Dict, Literal, Optional, Sequence, Union
+from typing import TYPE_CHECKING, Dict, Literal, Optional, Sequence, Tuple, Union
 
 import numpy as np
 from datasets import load_dataset, load_from_disk
@@ -283,4 +283,4 @@ def get_dataset(
         if "validation" in dataset_dict:
             dataset_module["eval_dataset"] = dataset_dict["validation"]
 
-        return dataset_module
+        return dataset_module, template
