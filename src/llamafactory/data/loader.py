@@ -15,7 +15,7 @@
 import inspect
 import os
 import sys
-from typing import TYPE_CHECKING, Dict, Literal, Optional, Sequence, Tuple, Union
+from typing import TYPE_CHECKING, Dict, Literal, Optional, Sequence, Union
 
 import numpy as np
 from datasets import load_dataset, load_from_disk
@@ -27,7 +27,6 @@ from .aligner import align_dataset
 from .data_utils import merge_dataset
 from .parser import get_dataset_list
 from .preprocess import get_preprocess_and_print_func
-from .template import get_template_and_fix_tokenizer
 
 
 if TYPE_CHECKING:
@@ -184,9 +183,6 @@ def _get_preprocessed_dataset(
             load_from_cache_file=(not data_args.overwrite_cache) or (training_args.local_process_index != 0),
             desc="Running tokenizer on dataset",
         )
-        if data_args.dataset_map_batch_size:
-            # Set the batch size conditionally without considering the default variable of the batch size in the map function
-            kwargs.update(batch_size=data_args.dataset_map_batch_size)
 
     dataset = dataset.map(
         preprocess_func,
@@ -210,17 +206,14 @@ def _get_preprocessed_dataset(
 
 
 def get_dataset(
+    template: "Template",
     model_args: "ModelArguments",
     data_args: "DataArguments",
     training_args: "Seq2SeqTrainingArguments",
     stage: Literal["pt", "sft", "rm", "ppo", "kto"],
     tokenizer: "PreTrainedTokenizer",
     processor: Optional["ProcessorMixin"] = None,
-) -> Tuple["DatasetModule", "Template"]:
-    template = get_template_and_fix_tokenizer(tokenizer, data_args.template, data_args.tool_format)
-    if data_args.train_on_prompt and template.efficient_eos:
-        raise ValueError("Current template does not support `train_on_prompt`.")
-
+) -> "DatasetModule":
     # Load tokenized dataset
     if data_args.tokenized_path is not None:
         if has_tokenized_data(data_args.tokenized_path):
@@ -238,7 +231,7 @@ def get_dataset(
             if data_args.streaming:
                 dataset_module = {k: v.to_iterable_dataset() for k, v in dataset_module.items()}
 
-            return dataset_module, template
+            return dataset_module
 
         if data_args.streaming:
             raise ValueError("Turn off `streaming` when saving dataset to disk.")
@@ -276,13 +269,11 @@ def get_dataset(
 
             sys.exit(0)
 
-        if training_args.should_log:
-            try:
-                print_function(next(iter(dataset)))
-            except StopIteration:
-                if stage == "pt":
-                    raise RuntimeError("Cannot find sufficient samples, consider increasing dataset size.")
-                else:
-                    raise RuntimeError("Cannot find valid samples, check `data/README.md` for the data format.")
+        dataset_module = {}
+        if "train" in dataset_dict:
+            dataset_module["train_dataset"] = dataset_dict["train"]
 
-        return dataset_module, template
+        if "validation" in dataset_dict:
+            dataset_module["eval_dataset"] = dataset_dict["validation"]
+
+        return dataset_module
