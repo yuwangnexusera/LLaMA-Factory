@@ -14,13 +14,9 @@
 
 import os
 
-import torch
-from peft import LoraModel, PeftModel
-from transformers import AutoModelForCausalLM
+import pytest
 
-from llamafactory.extras.misc import get_current_device
-from llamafactory.hparams import get_infer_args, get_train_args
-from llamafactory.model import load_model, load_tokenizer
+from llamafactory.train.test_utils import compare_model, load_infer_model, load_reference_model, load_train_model
 
 
 TINY_LLAMA = os.environ.get("TINY_LLAMA", "llamafactory/tiny-random-Llama-3")
@@ -53,6 +49,8 @@ INFER_ARGS = {
     "infer_dtype": "float16",
 }
 
+CI_OS = os.environ.get("CI_OS", "")
+
 
 def compare_model(model_a: "torch.nn.Module", model_b: "torch.nn.Module"):
     state_dict_a = model_a.state_dict()
@@ -77,6 +75,7 @@ def test_pissa_init():
     compare_model(model, ref_model)
 
 
+@pytest.mark.skipif(CI_OS.startswith("windows"), reason="Skip for windows.")
 def test_pissa_inference():
     model_args, _, finetuning_args, _ = get_infer_args(INFER_ARGS)
     tokenizer_module = load_tokenizer(model_args)
