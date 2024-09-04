@@ -149,6 +149,39 @@ KTO 数据集需要提供额外的 `kto_tag` 列。详情请参阅 [sharegpt](#s
 
 多模态视频数据集需要提供额外的 `videos` 列。详情请参阅 [sharegpt](#sharegpt-格式)。
 
+### 多模态视频数据集
+
+- [样例数据集](mllm_demo_video.json)
+
+多模态视频数据集需要额外添加一个 `videos` 列，包含输入视频的路径。
+
+```json
+[
+  {
+    "instruction": "人类指令（必填）",
+    "input": "人类输入（选填）",
+    "output": "模型回答（必填）",
+    "videos": [
+      "视频路径（必填）"
+    ]
+  }
+]
+```
+
+对于上述格式的数据，`dataset_info.json` 中的*数据集描述*应为：
+
+```json
+"数据集名称": {
+  "file_name": "data.json",
+  "columns": {
+    "prompt": "instruction",
+    "query": "input",
+    "response": "output",
+    "videos": "videos"
+  }
+}
+```
+
 ## Sharegpt 格式
 
 ### 指令监督微调数据集
