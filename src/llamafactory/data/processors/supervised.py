@@ -117,9 +117,6 @@ def preprocess_packed_supervised_dataset(
     # TODO: use `position_ids` to achieve packing
     # build inputs with format `<bos> X1 Y1 <eos> <bos> X2 Y2 <eos>`
     # and labels with format `<ignore> ... <ignore> Y1 <eos> <ignore> ... <ignore> Y2 <eos>`
-    if processor is not None:
-        raise NotImplementedError("`packing` have not been implemented for multimodal datasets.")
-
     valid_num = 0
     batch_input_ids, batch_labels, batch_images, batch_videos = [], [], [], []
     lengths = []
