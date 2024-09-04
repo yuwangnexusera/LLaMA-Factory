@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from transformers import PreTrainedTokenizer, ProcessorMixin
 
     from ...hparams import DataArguments
-    from ..mm_plugin import ImageInput
+    from ..mm_plugin import ImageInput, VideoInput
     from ..template import Template
 
 
@@ -37,6 +37,7 @@ def _encode_supervised_example(
     system: Optional[str],
     tools: Optional[str],
     images: Sequence["ImageInput"],
+    videos: Sequence["VideoInput"],
     template: "Template",
     tokenizer: "PreTrainedTokenizer",
     processor: Optional["ProcessorMixin"],
@@ -44,8 +45,8 @@ def _encode_supervised_example(
     train_on_prompt: bool,
     mask_history: bool,
 ) -> Tuple[List[int], List[int]]:
-    messages = template.mm_plugin.process_messages(prompt + response, images, processor)
-    input_ids, labels = template.mm_plugin.process_token_ids([], [], images, tokenizer, processor)
+    messages = template.mm_plugin.process_messages(prompt + response, images, videos, processor)
+    input_ids, labels = template.mm_plugin.process_token_ids([], [], images, videos, tokenizer, processor)
     encoded_pairs = template.encode_multiturn(tokenizer, messages, system, tools)
     total_length = len(input_ids) + (1 if template.efficient_eos else 0)
     if mask_history:
@@ -90,6 +91,7 @@ def preprocess_supervised_dataset(
             system=examples["_system"][i],
             tools=examples["_tools"][i],
             images=examples["_images"][i] or [],
+            videos=examples["_videos"][i] or [],
             template=template,
             tokenizer=tokenizer,
             processor=processor,
@@ -99,6 +101,7 @@ def preprocess_supervised_dataset(
         model_inputs["attention_mask"].append([1] * len(input_ids))
         model_inputs["labels"].append(labels)
         model_inputs["images"].append(examples["_images"][i])
+        model_inputs["videos"].append(examples["_videos"][i])
 
     return model_inputs
 
@@ -113,9 +116,6 @@ def preprocess_packed_supervised_dataset(
     # TODO: use `position_ids` to achieve packing
     # build inputs with format `<bos> X1 Y1 <eos> <bos> X2 Y2 <eos>`
     # and labels with format `<ignore> ... <ignore> Y1 <eos> <ignore> ... <ignore> Y2 <eos>`
-    if processor is not None:
-        raise NotImplementedError("`packing` have not been implemented for multimodal datasets.")
-
     valid_num = 0
     batch_input_ids, batch_labels, batch_images, batch_videos = [], [], [], []
     lengths = []
@@ -131,6 +131,7 @@ def preprocess_packed_supervised_dataset(
             system=examples["_system"][i],
             tools=examples["_tools"][i],
             images=examples["_images"][i] or [],
+            videos=examples["_videos"][i] or [],
             template=template,
             tokenizer=tokenizer,
             processor=processor,
@@ -177,7 +178,8 @@ def preprocess_packed_supervised_dataset(
         model_inputs["input_ids"].append(packed_input_ids)
         model_inputs["attention_mask"].append([1] * data_args.cutoff_len)
         model_inputs["labels"].append(packed_labels)
-        model_inputs["images"].append(examples["_images"][i])
+        model_inputs["images"].append(packed_images or None)
+        model_inputs["videos"].append(packed_videos or None)
 
     return model_inputs
 
