@@ -127,6 +127,7 @@ class WebChatModel(ChatModel):
         system: str,
         tools: str,
         image: Optional[Any],
+        video: Optional[Any],
         max_new_tokens: int,
         top_p: float,
         temperature: float,
