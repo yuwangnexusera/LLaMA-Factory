@@ -139,100 +139,15 @@ Regarding the above dataset, the *dataset description* in `dataset_info.json` sh
 
 ### KTO Dataset
 
-- [Example dataset](kto_en_demo.json)
-
-KTO datasets require a extra `kto_tag` column containing the boolean human feedback.
-
-```json
-[
-  {
-    "instruction": "human instruction (required)",
-    "input": "human input (optional)",
-    "output": "model response (required)",
-    "kto_tag": "human feedback [true/false] (required)"
-  }
-]
-```
-
-Regarding the above dataset, the *dataset description* in `dataset_info.json` should be:
-
-```json
-"dataset_name": {
-  "file_name": "data.json",
-  "columns": {
-    "prompt": "instruction",
-    "query": "input",
-    "response": "output",
-    "kto_tag": "kto_tag"
-  }
-}
-```
+An additional column `kto_tag` is required. Please refer to the [sharegpt](#sharegpt-format) format for details.
 
 ### Multimodal Image Dataset
 
-- [Example dataset](mllm_demo.json)
-
-Multimodal image datasets require a `images` column containing the paths to the input images.
-
-```json
-[
-  {
-    "instruction": "human instruction (required)",
-    "input": "human input (optional)",
-    "output": "model response (required)",
-    "images": [
-      "image path (required)"
-    ]
-  }
-]
-```
-
-Regarding the above dataset, the *dataset description* in `dataset_info.json` should be:
-
-```json
-"dataset_name": {
-  "file_name": "data.json",
-  "columns": {
-    "prompt": "instruction",
-    "query": "input",
-    "response": "output",
-    "images": "images"
-  }
-}
-```
+An additional column `images` is required. Please refer to the [sharegpt](#sharegpt-format) format for details.
 
 ### Multimodal Video Dataset
 
-- [Example dataset](mllm_demo_video.json)
-
-Multimodal video datasets require a `videos` column containing the paths to the input videos.
-
-```json
-[
-  {
-    "instruction": "human instruction (required)",
-    "input": "human input (optional)",
-    "output": "model response (required)",
-    "videos": [
-      "video path (required)"
-    ]
-  }
-]
-```
-
-Regarding the above dataset, the *dataset description* in `dataset_info.json` should be:
-
-```json
-"dataset_name": {
-  "file_name": "data.json",
-  "columns": {
-    "prompt": "instruction",
-    "query": "input",
-    "response": "output",
-    "videos": "videos"
-  }
-}
-```
+An additional column `videos` is required. Please refer to the [sharegpt](#sharegpt-format) format for details.
 
 ## Sharegpt Format
 
