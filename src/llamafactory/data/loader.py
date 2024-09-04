@@ -224,9 +224,18 @@ def get_dataset(
             logger.warning("Loading dataset from disk will ignore other data arguments.")
             dataset = load_from_disk(data_args.tokenized_path)
             logger.info("Loaded tokenized dataset from {}.".format(data_args.tokenized_path))
+
+            dataset_module: Dict[str, "Dataset"] = {}
+            if "train" in dataset_dict:
+                dataset_module["train_dataset"] = dataset_dict["train"]
+
+            if "validation" in dataset_dict:
+                dataset_module["eval_dataset"] = dataset_dict["validation"]
+
             if data_args.streaming:
-                dataset = dataset.to_iterable_dataset()
-            return dataset
+                dataset_module = {k: v.to_iterable_dataset() for k, v in dataset_module.items()}
+
+            return dataset_module, template
 
         if data_args.streaming:
             raise ValueError("Turn off `streaming` when saving dataset to disk.")
