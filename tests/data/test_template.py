@@ -106,8 +106,50 @@ def test_jinja_template(use_fast: bool):
     get_template_and_fix_tokenizer(tokenizer, DataArguments(template="llama3"))
     assert tokenizer.chat_template != ref_tokenizer.chat_template
 
-    messages = [
-        {"role": "user", "content": "hi!"},
-        {"role": "assistant", "content": "hello there"},
-    ]
-    assert tokenizer.apply_chat_template(messages) == ref_tokenizer.apply_chat_template(messages)
+
+@pytest.mark.skipif(not HF_TOKEN, reason="Gated model.")
+def test_gemma_template():
+    prompt_str = (
+        "<bos><start_of_turn>user\nHow are you<end_of_turn>\n"
+        "<start_of_turn>model\nI am fine!<end_of_turn>\n"
+        "<start_of_turn>user\n你好<end_of_turn>\n"
+        "<start_of_turn>model\n"
+    )
+    answer_str = "很高兴认识你！"
+    _check_template("google/gemma-2-9b-it", "gemma", prompt_str, answer_str, extra_str="<end_of_turn>\n")
+
+
+@pytest.mark.skipif(not HF_TOKEN, reason="Gated model.")
+def test_llama3_template():
+    prompt_str = (
+        "<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\nHow are you<|eot_id|>"
+        "<|start_header_id|>assistant<|end_header_id|>\n\nI am fine!<|eot_id|>"
+        "<|start_header_id|>user<|end_header_id|>\n\n你好<|eot_id|>"
+        "<|start_header_id|>assistant<|end_header_id|>\n\n"
+    )
+    answer_str = "很高兴认识你！<|eot_id|>"
+    _check_template("meta-llama/Meta-Llama-3-8B-Instruct", "llama3", prompt_str, answer_str)
+
+
+def test_qwen_template():
+    prompt_str = (
+        "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n"
+        "<|im_start|>user\nHow are you<|im_end|>\n"
+        "<|im_start|>assistant\nI am fine!<|im_end|>\n"
+        "<|im_start|>user\n你好<|im_end|>\n"
+        "<|im_start|>assistant\n"
+    )
+    answer_str = "很高兴认识你！<|im_end|>"
+    _check_template("Qwen/Qwen2-7B-Instruct", "qwen", prompt_str, answer_str, extra_str="\n")
+
+
+@pytest.mark.xfail(reason="The fast tokenizer of Yi model is corrupted.")
+def test_yi_template():
+    prompt_str = (
+        "<|im_start|>user\nHow are you<|im_end|>\n"
+        "<|im_start|>assistant\nI am fine!<|im_end|>\n"
+        "<|im_start|>user\n你好<|im_end|>\n"
+        "<|im_start|>assistant\n"
+    )
+    answer_str = "很高兴认识你！<|im_end|>"
+    _check_template("01-ai/Yi-1.5-6B-Chat", "yi", prompt_str, answer_str)
