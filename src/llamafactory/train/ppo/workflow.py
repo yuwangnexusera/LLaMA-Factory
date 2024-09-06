@@ -20,6 +20,7 @@ from typing import TYPE_CHECKING, List, Optional
 from ...data import MultiModalDataCollatorForSeq2Seq, get_dataset, get_template_and_fix_tokenizer
 from ...extras.ploting import plot_loss
 from ...model import load_model, load_tokenizer
+from ..callbacks import fix_valuehead_checkpoint
 from ..trainer_utils import create_ref_model, create_reward_model
 from .trainer import CustomPPOTrainer
 
@@ -52,17 +53,17 @@ def run_ppo(
     reward_model = create_reward_model(model, model_args, finetuning_args)
 
     # Initialize our Trainer
-    ppo_trainer = CustomPPOTrainer(
+    ppo_trainer: "CustomPPOTrainer" = CustomPPOTrainer(
         model_args=model_args,
         training_args=training_args,
         finetuning_args=finetuning_args,
         generating_args=generating_args,
-        callbacks=callbacks + [FixValueHeadModelCallback()],
+        callbacks=callbacks,
         model=model,
         reward_model=reward_model,
         ref_model=ref_model,
-        dataset=dataset,
         data_collator=data_collator,
+        **dataset_module,
         **tokenizer_module,
     )
 
@@ -72,6 +73,7 @@ def run_ppo(
         ppo_trainer.save_model()
         if training_args.should_save:
             fix_valuehead_checkpoint(model, training_args.output_dir, training_args.save_safetensors)
+
         ppo_trainer.save_state()  # must be called after save_model to have a folder
         if ppo_trainer.is_world_process_zero() and finetuning_args.plot_loss:
             plot_loss(training_args.output_dir, keys=["loss", "reward"])

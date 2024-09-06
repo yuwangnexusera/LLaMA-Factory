@@ -47,10 +47,8 @@ def run_dpo(
 
     data_collator = PairwiseDataCollatorWithPadding(
         template=template,
-        template=template,
         pad_to_multiple_of=8,
         label_pad_token_id=IGNORE_INDEX if data_args.ignore_pad_token_for_loss else tokenizer.pad_token_id,
-        **tokenizer_module,
         **tokenizer_module,
     )
 
@@ -74,8 +72,8 @@ def run_dpo(
         finetuning_args=finetuning_args,
         data_collator=data_collator,
         callbacks=callbacks,
+        **dataset_module,
         **tokenizer_module,
-        **split_dataset(dataset, data_args, training_args),
     )
 
     # Training

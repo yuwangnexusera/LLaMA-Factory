@@ -18,7 +18,7 @@ from ...data import TEMPLATES
 from ...extras.constants import METHODS, SUPPORTED_MODELS
 from ...extras.packages import is_gradio_available
 from ..common import get_model_info, list_checkpoints, save_config
-from ..utils import can_quantize
+from ..utils import can_quantize, can_quantize_to
 
 
 if is_gradio_available():
@@ -33,7 +33,7 @@ def create_top() -> Dict[str, "Component"]:
     available_models = list(SUPPORTED_MODELS.keys()) + ["Custom"]
 
     with gr.Row():
-        lang = gr.Dropdown(choices=["en", "ru", "zh"], scale=1)
+        lang = gr.Dropdown(choices=["en", "ru", "zh", "ko"], scale=1)
         model_name = gr.Dropdown(choices=available_models, scale=3)
         model_path = gr.Textbox(scale=3)
 
@@ -58,6 +58,7 @@ def create_top() -> Dict[str, "Component"]:
         list_checkpoints, [model_name, finetuning_type], [checkpoint_path], queue=False
     )
     checkpoint_path.focus(list_checkpoints, [model_name, finetuning_type], [checkpoint_path], queue=False)
+    quantization_method.change(can_quantize_to, [quantization_method], [quantization_bit], queue=False)
 
     return dict(
         lang=lang,
@@ -67,6 +68,7 @@ def create_top() -> Dict[str, "Component"]:
         checkpoint_path=checkpoint_path,
         advanced_tab=advanced_tab,
         quantization_bit=quantization_bit,
+        quantization_method=quantization_method,
         template=template,
         rope_scaling=rope_scaling,
         booster=booster,

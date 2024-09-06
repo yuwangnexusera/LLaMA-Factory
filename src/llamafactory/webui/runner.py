@@ -22,7 +22,7 @@ from transformers.trainer import TRAINING_ARGS_NAME
 from ..extras.constants import LLAMABOARD_CONFIG, PEFT_METHODS, TRAINING_STAGES
 from ..extras.misc import is_gpu_or_npu_available, torch_gc
 from ..extras.packages import is_gradio_available
-from .common import DEFAULT_CACHE_DIR, DEFAULT_CONFIG_DIR, get_save_dir, load_config
+from .common import DEFAULT_CACHE_DIR, DEFAULT_CONFIG_DIR, QUANTIZATION_BITS, get_save_dir, load_config
 from .locales import ALERTS, LOCALES
 from .utils import abort_process, gen_cmd, get_eval_results, get_trainer_info, load_args, save_args, save_cmd
 
@@ -111,7 +111,6 @@ class Runner:
             cache_dir=user_config.get("cache_dir", None),
             preprocessing_num_workers=16,
             finetuning_type=finetuning_type,
-            quantization_bit=int(get("top.quantization_bit")) if get("top.quantization_bit") in ["8", "4"] else None,
             template=get("top.template"),
             rope_scaling=get("top.rope_scaling") if get("top.rope_scaling") in ["linear", "dynamic"] else None,
             flash_attn="fa2" if get("top.booster") == "flashattn2" else "auto",
@@ -132,9 +131,11 @@ class Runner:
             warmup_steps=get("train.warmup_steps"),
             neftune_noise_alpha=get("train.neftune_alpha") or None,
             optim=get("train.optim"),
+            packing=get("train.packing") or get("train.neat_packing"),
+            neat_packing=get("train.neat_packing"),
+            train_on_prompt=get("train.train_on_prompt"),
+            mask_history=get("train.mask_history"),
             resize_vocab=get("train.resize_vocab"),
-            packing=get("train.packing"),
-            upcast_layernorm=get("train.upcast_layernorm"),
             use_llama_pro=get("train.use_llama_pro"),
             shift_attn=get("train.shift_attn"),
             report_to="all" if get("train.report_to") else "none",
@@ -158,6 +159,11 @@ class Runner:
             else:  # str
                 args["model_name_or_path"] = get_save_dir(model_name, finetuning_type, get("top.checkpoint_path"))
 
+        # quantization
+        if get("top.quantization_bit") in QUANTIZATION_BITS:
+            args["quantization_bit"] = int(get("top.quantization_bit"))
+            args["quantization_method"] = get("top.quantization_method")
+
         # freeze config
         if args["finetuning_type"] == "freeze":
             args["freeze_trainable_layers"] = get("train.freeze_trainable_layers")
@@ -179,7 +185,7 @@ class Runner:
             args["additional_target"] = get("train.additional_target") or None
 
             if args["use_llama_pro"]:
-                args["num_layer_trainable"] = get("train.num_layer_trainable")
+                args["freeze_trainable_layers"] = get("train.freeze_trainable_layers")
 
         # rlhf config
         if args["stage"] == "ppo":
@@ -240,13 +246,13 @@ class Runner:
             cache_dir=user_config.get("cache_dir", None),
             preprocessing_num_workers=16,
             finetuning_type=finetuning_type,
-            quantization_bit=int(get("top.quantization_bit")) if get("top.quantization_bit") in ["8", "4"] else None,
+            quantization_method=get("top.quantization_method"),
             template=get("top.template"),
             rope_scaling=get("top.rope_scaling") if get("top.rope_scaling") in ["linear", "dynamic"] else None,
             flash_attn="fa2" if get("top.booster") == "flashattn2" else "auto",
             use_unsloth=(get("top.booster") == "unsloth"),
             dataset_dir=get("eval.dataset_dir"),
-            dataset=",".join(get("eval.dataset")),
+            eval_dataset=",".join(get("eval.dataset")),
             cutoff_len=get("eval.cutoff_len"),
             max_samples=int(get("eval.max_samples")),
             per_device_eval_batch_size=get("eval.batch_size"),
@@ -262,6 +268,7 @@ class Runner:
         else:
             args["do_eval"] = True
 
+        # checkpoints
         if get("top.checkpoint_path"):
             if finetuning_type in PEFT_METHODS:  # list
                 args["adapter_name_or_path"] = ",".join(
@@ -269,6 +276,11 @@ class Runner:
                 )
             else:  # str
                 args["model_name_or_path"] = get_save_dir(model_name, finetuning_type, get("top.checkpoint_path"))
+
+        # quantization
+        if get("top.quantization_bit") in QUANTIZATION_BITS:
+            args["quantization_bit"] = int(get("top.quantization_bit"))
+            args["quantization_method"] = get("top.quantization_method")
 
         return args
 
@@ -297,6 +309,7 @@ class Runner:
 
             env = deepcopy(os.environ)
             env["LLAMABOARD_ENABLED"] = "1"
+            env["LLAMABOARD_WORKDIR"] = args["output_dir"]
             if args.get("deepspeed", None) is not None:
                 env["FORCE_TORCHRUN"] = "1"
 

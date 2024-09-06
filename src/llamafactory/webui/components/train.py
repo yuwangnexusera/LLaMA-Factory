@@ -54,7 +54,7 @@ def create_train_tab(engine: "Engine") -> Dict[str, "Component"]:
         num_train_epochs = gr.Textbox(value="3.0")
         max_grad_norm = gr.Textbox(value="1.0")
         max_samples = gr.Textbox(value="100000")
-        compute_type = gr.Dropdown(choices=["fp16", "bf16", "fp32", "pure_bf16"], value="fp16")
+        compute_type = gr.Dropdown(choices=["bf16", "fp16", "fp32", "pure_bf16"], value="bf16")
 
     input_elems.update({learning_rate, num_train_epochs, max_grad_norm, max_samples, compute_type})
     elem_dict.update(
@@ -95,11 +95,15 @@ def create_train_tab(engine: "Engine") -> Dict[str, "Component"]:
 
         with gr.Row():
             with gr.Column():
-                resize_vocab = gr.Checkbox()
                 packing = gr.Checkbox()
+                neat_packing = gr.Checkbox()
 
             with gr.Column():
-                upcast_layernorm = gr.Checkbox()
+                train_on_prompt = gr.Checkbox()
+                mask_history = gr.Checkbox()
+
+            with gr.Column():
+                resize_vocab = gr.Checkbox()
                 use_llama_pro = gr.Checkbox()
 
             with gr.Column():
@@ -113,9 +117,11 @@ def create_train_tab(engine: "Engine") -> Dict[str, "Component"]:
             warmup_steps,
             neftune_alpha,
             optim,
-            resize_vocab,
             packing,
-            upcast_layernorm,
+            neat_packing,
+            train_on_prompt,
+            mask_history,
+            resize_vocab,
             use_llama_pro,
             shift_attn,
             report_to,
@@ -129,9 +135,11 @@ def create_train_tab(engine: "Engine") -> Dict[str, "Component"]:
             warmup_steps=warmup_steps,
             neftune_alpha=neftune_alpha,
             optim=optim,
-            resize_vocab=resize_vocab,
             packing=packing,
-            upcast_layernorm=upcast_layernorm,
+            neat_packing=neat_packing,
+            train_on_prompt=train_on_prompt,
+            mask_history=mask_history,
+            resize_vocab=resize_vocab,
             use_llama_pro=use_llama_pro,
             shift_attn=shift_attn,
             report_to=report_to,

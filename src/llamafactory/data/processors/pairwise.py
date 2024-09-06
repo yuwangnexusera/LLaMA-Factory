@@ -60,7 +60,7 @@ def _encode_pairwise_example(
     rejected_ids = rejected_ids[:target_len]
 
     chosen_input_ids = prompt_ids + chosen_ids
-    chosen_labels = [IGNORE_INDEX] * len(prompt_ids) + chosen_ids
+    chosen_labels = [IGNORE_INDEX] * source_len + chosen_ids
     rejected_input_ids = prompt_ids + rejected_ids
     rejected_labels = [IGNORE_INDEX] * source_len + rejected_ids
     return chosen_input_ids, chosen_labels, rejected_input_ids, rejected_labels
@@ -80,7 +80,6 @@ def preprocess_pairwise_dataset(
             logger.warning("Dropped invalid example: {}".format(examples["_prompt"][i] + examples["_response"][i]))
             continue
 
-        prompt = template.mm_plugin.process_messages(examples["prompt"][i], examples["images"][i], processor)
         chosen_input_ids, chosen_labels, rejected_input_ids, rejected_labels = _encode_pairwise_example(
             prompt=examples["_prompt"][i],
             response=examples["_response"][i],
@@ -91,7 +90,7 @@ def preprocess_pairwise_dataset(
             template=template,
             tokenizer=tokenizer,
             processor=processor,
-            data_args=data_args,
+            cutoff_len=data_args.cutoff_len,
         )
         model_inputs["chosen_input_ids"].append(chosen_input_ids)
         model_inputs["chosen_attention_mask"].append([1] * len(chosen_input_ids))

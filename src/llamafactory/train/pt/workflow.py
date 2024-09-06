@@ -54,8 +54,8 @@ def run_pt(
         finetuning_args=finetuning_args,
         data_collator=data_collator,
         callbacks=callbacks,
+        **dataset_module,
         **tokenizer_module,
-        **split_dataset(dataset, data_args, training_args),
     )
 
     # Training

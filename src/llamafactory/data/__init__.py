@@ -27,6 +27,7 @@ __all__ = [
     "KTODataCollatorWithPadding",
     "MultiModalDataCollatorForSeq2Seq",
     "PairwiseDataCollatorWithPadding",
+    "SFTDataCollatorWith4DAttentionMask",
     "Role",
     "split_dataset",
     "get_dataset",

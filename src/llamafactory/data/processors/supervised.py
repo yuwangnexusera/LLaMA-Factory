@@ -53,15 +53,32 @@ def _encode_supervised_example(
         encoded_pairs = encoded_pairs[::-1]  # high priority for last turns
 
     for turn_idx, (source_ids, target_ids) in enumerate(encoded_pairs):
-        if data_args.train_on_prompt:
-            source_mask = source_ids
-        elif turn_idx != 0 and template.efficient_eos:
-            source_mask = [tokenizer.eos_token_id] + [IGNORE_INDEX] * (len(source_ids) - 1)
-        else:
-            source_mask = [IGNORE_INDEX] * len(source_ids)
+        if total_length >= cutoff_len:
+            break
 
-        input_ids += source_ids + target_ids
-        labels += source_mask + target_ids
+        source_len, target_len = infer_seqlen(len(source_ids), len(target_ids), cutoff_len - total_length)
+        source_ids = source_ids[:source_len]
+        target_ids = target_ids[:target_len]
+        total_length += source_len + target_len
+
+        if train_on_prompt:
+            source_label = source_ids
+        elif template.efficient_eos:
+            source_label = [tokenizer.eos_token_id] + [IGNORE_INDEX] * (source_len - 1)
+        else:
+            source_label = [IGNORE_INDEX] * source_len
+
+        if mask_history and turn_idx != 0:  # train on the last turn only
+            target_label = [IGNORE_INDEX] * target_len
+        else:
+            target_label = target_ids
+
+        if mask_history:  # reversed sequences
+            input_ids = source_ids + target_ids + input_ids
+            labels = source_label + target_label + labels
+        else:
+            input_ids += source_ids + target_ids
+            labels += source_label + target_label
 
     if template.efficient_eos:
         input_ids += [tokenizer.eos_token_id]
@@ -85,7 +102,6 @@ def preprocess_supervised_dataset(
             logger.warning("Dropped invalid example: {}".format(examples["_prompt"][i] + examples["_response"][i]))
             continue
 
-        prompt = template.mm_plugin.process_messages(examples["prompt"][i], examples["images"][i], processor)
         input_ids, labels = _encode_supervised_example(
             prompt=examples["_prompt"][i],
             response=examples["_response"][i],
@@ -96,7 +112,9 @@ def preprocess_supervised_dataset(
             template=template,
             tokenizer=tokenizer,
             processor=processor,
-            data_args=data_args,
+            cutoff_len=data_args.cutoff_len,
+            train_on_prompt=data_args.train_on_prompt,
+            mask_history=data_args.mask_history,
         )
         model_inputs["input_ids"].append(input_ids)
         model_inputs["attention_mask"].append([1] * len(input_ids))
@@ -172,12 +190,16 @@ def preprocess_packed_supervised_dataset(
             pad_length = data_args.cutoff_len - len(packed_input_ids)
             packed_input_ids += [tokenizer.pad_token_id] * pad_length
             packed_labels += [IGNORE_INDEX] * pad_length
+            if data_args.neat_packing:
+                packed_attention_masks += [0] * pad_length
+            else:
+                packed_attention_masks += [1] * pad_length  # more efficient flash_attn
 
         if len(packed_input_ids) != data_args.cutoff_len:
             raise ValueError("The length of packed example should be identical to the cutoff length.")
 
         model_inputs["input_ids"].append(packed_input_ids)
-        model_inputs["attention_mask"].append([1] * data_args.cutoff_len)
+        model_inputs["attention_mask"].append(packed_attention_masks)
         model_inputs["labels"].append(packed_labels)
         model_inputs["images"].append(packed_images or None)
         model_inputs["videos"].append(packed_videos or None)

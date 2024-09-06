@@ -18,7 +18,7 @@ from ...extras.constants import PEFT_METHODS
 from ...extras.misc import torch_gc
 from ...extras.packages import is_gradio_available
 from ...train.tuner import export_model
-from ..common import get_save_dir
+from ..common import GPTQ_BITS, get_save_dir
 from ..locales import ALERTS
 
 
@@ -30,9 +30,6 @@ if TYPE_CHECKING:
     from gradio.components import Component
 
     from ..engine import Engine
-
-
-GPTQ_BITS = ["8", "4", "3", "2"]
 
 
 def can_quantize(checkpoint_path: Union[str, List[str]]) -> "gr.Dropdown":
@@ -50,7 +47,7 @@ def save_model(
     checkpoint_path: Union[str, List[str]],
     template: str,
     export_size: int,
-    export_quantization_bit: int,
+    export_quantization_bit: str,
     export_quantization_dataset: str,
     export_device: str,
     export_legacy_format: bool,
@@ -68,7 +65,7 @@ def save_model(
         error = ALERTS["err_no_dataset"][lang]
     elif export_quantization_bit not in GPTQ_BITS and not checkpoint_path:
         error = ALERTS["err_no_adapter"][lang]
-    elif export_quantization_bit in GPTQ_BITS and isinstance(checkpoint_path, list):
+    elif export_quantization_bit in GPTQ_BITS and checkpoint_path and isinstance(checkpoint_path, list):
         error = ALERTS["err_gptq_lora"][lang]
 
     if error:
@@ -105,7 +102,7 @@ def save_model(
 
 def create_export_tab(engine: "Engine") -> Dict[str, "Component"]:
     with gr.Row():
-        export_size = gr.Slider(minimum=1, maximum=100, value=1, step=1)
+        export_size = gr.Slider(minimum=1, maximum=100, value=5, step=1)
         export_quantization_bit = gr.Dropdown(choices=["none"] + GPTQ_BITS, value="none")
         export_quantization_dataset = gr.Textbox(value="data/c4_demo.json")
         export_device = gr.Radio(choices=["cpu", "auto"], value="cpu")

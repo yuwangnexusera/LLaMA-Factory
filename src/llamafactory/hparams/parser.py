@@ -79,12 +79,13 @@ def _set_transformers_logging(log_level: Optional[int] = logging.INFO) -> None:
     transformers.utils.logging.enable_explicit_format()
 
 
-def _verify_model_args(model_args: "ModelArguments", finetuning_args: "FinetuningArguments") -> None:
+def _verify_model_args(
+    model_args: "ModelArguments",
+    data_args: "DataArguments",
+    finetuning_args: "FinetuningArguments",
+) -> None:
     if model_args.adapter_name_or_path is not None and finetuning_args.finetuning_type != "lora":
         raise ValueError("Adapter is only valid for the LoRA method.")
-
-    if model_args.use_unsloth and is_deepspeed_zero3_enabled():
-        raise ValueError("Unsloth is incompatible with DeepSpeed ZeRO-3.")
 
     if model_args.quantization_bit is not None:
         if finetuning_args.finetuning_type != "lora":
@@ -101,6 +102,10 @@ def _verify_model_args(model_args: "ModelArguments", finetuning_args: "Finetunin
 
         if model_args.adapter_name_or_path is not None and len(model_args.adapter_name_or_path) != 1:
             raise ValueError("Quantized model only accepts a single adapter. Merge them first.")
+
+    if data_args.template == "yi" and model_args.use_fast_tokenizer:
+        logger.warning("We should use slow tokenizer for the Yi models. Change `use_fast_tokenizer` to False.")
+        model_args.use_fast_tokenizer = False
 
 
 def _check_extra_dependencies(
@@ -125,6 +130,9 @@ def _check_extra_dependencies(
 
     if finetuning_args.use_badam:
         require_version("badam>=1.2.1", "To fix: pip install badam>=1.2.1")
+
+    if finetuning_args.use_adam_mini:
+        require_version("adam-mini", "To fix: pip install adam-mini")
 
     if finetuning_args.plot_loss:
         require_version("matplotlib", "To fix: pip install matplotlib")
@@ -161,8 +169,15 @@ def get_train_args(args: Optional[Dict[str, Any]] = None) -> _TRAIN_CLS:
     if finetuning_args.stage != "pt" and data_args.template is None:
         raise ValueError("Please specify which `template` to use.")
 
-    if finetuning_args.stage != "sft" and training_args.predict_with_generate:
-        raise ValueError("`predict_with_generate` cannot be set as True except SFT.")
+    if finetuning_args.stage != "sft":
+        if training_args.predict_with_generate:
+            raise ValueError("`predict_with_generate` cannot be set as True except SFT.")
+
+        if data_args.neat_packing:
+            raise ValueError("`neat_packing` cannot be set as True except SFT.")
+
+        if data_args.train_on_prompt or data_args.mask_history:
+            raise ValueError("`train_on_prompt` or `mask_history` cannot be set as True except SFT.")
 
     if finetuning_args.stage == "sft" and training_args.do_predict and not training_args.predict_with_generate:
         raise ValueError("Please enable `predict_with_generate` to save model predictions.")
@@ -170,24 +185,24 @@ def get_train_args(args: Optional[Dict[str, Any]] = None) -> _TRAIN_CLS:
     if finetuning_args.stage in ["rm", "ppo"] and training_args.load_best_model_at_end:
         raise ValueError("RM and PPO stages do not support `load_best_model_at_end`.")
 
-    if finetuning_args.stage == "ppo" and not training_args.do_train:
-        raise ValueError("PPO training does not support evaluation, use the SFT stage to evaluate models.")
+    if finetuning_args.stage == "ppo":
+        if not training_args.do_train:
+            raise ValueError("PPO training does not support evaluation, use the SFT stage to evaluate models.")
 
-    if finetuning_args.stage == "ppo" and model_args.shift_attn:
-        raise ValueError("PPO training is incompatible with S^2-Attn.")
+        if model_args.shift_attn:
+            raise ValueError("PPO training is incompatible with S^2-Attn.")
 
-    if finetuning_args.stage == "ppo" and finetuning_args.reward_model_type == "lora" and model_args.use_unsloth:
-        raise ValueError("Unsloth does not support lora reward model.")
+        if finetuning_args.reward_model_type == "lora" and model_args.use_unsloth:
+            raise ValueError("Unsloth does not support lora reward model.")
 
-    if (
-        finetuning_args.stage == "ppo"
-        and training_args.report_to
-        and training_args.report_to[0] not in ["wandb", "tensorboard"]
-    ):
-        raise ValueError("PPO only accepts wandb or tensorboard logger.")
+        if training_args.report_to and training_args.report_to[0] not in ["wandb", "tensorboard"]:
+            raise ValueError("PPO only accepts wandb or tensorboard logger.")
 
     if training_args.parallel_mode == ParallelMode.NOT_DISTRIBUTED:
         raise ValueError("Please launch distributed training with `llamafactory-cli` or `torchrun`.")
+
+    if training_args.deepspeed and training_args.parallel_mode != ParallelMode.DISTRIBUTED:
+        raise ValueError("Please use `FORCE_TORCHRUN=1` to launch DeepSpeed training.")
 
     if training_args.max_steps == -1 and data_args.streaming:
         raise ValueError("Please specify `max_steps` in streaming mode.")
@@ -210,24 +225,18 @@ def get_train_args(args: Optional[Dict[str, Any]] = None) -> _TRAIN_CLS:
         if finetuning_args.compute_accuracy:
             raise ValueError("Cannot use `predict_with_generate` and `compute_accuracy` together.")
 
-        if finetuning_args.compute_accuracy:
-            raise ValueError("Cannot use `predict_with_generate` and `compute_accuracy` together.")
-
-        if finetuning_args.compute_accuracy:
-            raise ValueError("Cannot use `predict_with_generate` and `compute_accuracy` together.")
-
     if training_args.do_train and model_args.quantization_device_map == "auto":
         raise ValueError("Cannot use device map for quantized models in training.")
+
+    if finetuning_args.pissa_init and is_deepspeed_zero3_enabled():
+        raise ValueError("Please use scripts/pissa_init.py to initialize PiSSA in DeepSpeed ZeRO-3.")
 
     if finetuning_args.pure_bf16:
         if not (is_torch_bf16_gpu_available() or (is_torch_npu_available() and torch.npu.is_bf16_supported())):
             raise ValueError("This device does not support `pure_bf16`.")
 
-        if training_args.deepspeed:
-            raise ValueError("`pure_bf16` is incompatible with DeepSpeed.")
-
-        if training_args.fp16 or training_args.bf16:
-            raise ValueError("Turn off mixed precision training when using `pure_bf16`.")
+        if is_deepspeed_zero3_enabled():
+            raise ValueError("`pure_bf16` is incompatible with DeepSpeed ZeRO-3.")
 
     if (
         finetuning_args.use_galore
@@ -336,6 +345,7 @@ def get_train_args(args: Optional[Dict[str, Any]] = None) -> _TRAIN_CLS:
 
     model_args.device_map = {"": get_current_device()}
     model_args.model_max_length = data_args.cutoff_len
+    model_args.block_diag_attn = data_args.neat_packing
     data_args.packing = data_args.packing if data_args.packing is not None else finetuning_args.stage == "pt"
 
     # Log on each process the small summary
@@ -398,7 +408,7 @@ def get_eval_args(args: Optional[Dict[str, Any]] = None) -> _EVAL_CLS:
     if model_args.infer_backend == "vllm":
         raise ValueError("vLLM backend is only available for API, CLI and Web.")
 
-    _verify_model_args(model_args, finetuning_args)
+    _verify_model_args(model_args, data_args, finetuning_args)
     _check_extra_dependencies(model_args, finetuning_args)
 
     model_args.device_map = "auto"

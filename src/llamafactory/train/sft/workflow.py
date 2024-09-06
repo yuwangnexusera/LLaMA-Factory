@@ -20,10 +20,10 @@ from typing import TYPE_CHECKING, List, Optional
 from ...data import SFTDataCollatorWith4DAttentionMask, get_dataset, get_template_and_fix_tokenizer
 from ...extras.constants import IGNORE_INDEX
 from ...extras.misc import get_logits_processor
-from ...extras.ploting import plot_loss, plot_loss_error_curve
+from ...extras.ploting import plot_loss
 from ...model import load_model, load_tokenizer
 from ..trainer_utils import create_modelcard_and_push
-from .metric import ComputeMetrics
+from .metric import ComputeAccuracy, ComputeSimilarity, eval_logit_processor
 from .trainer import CustomSeq2SeqTrainer
 
 
@@ -47,9 +47,6 @@ def run_sft(
     dataset_module = get_dataset(template, model_args, data_args, training_args, stage="sft", **tokenizer_module)
     model = load_model(tokenizer, model_args, finetuning_args, training_args.do_train)
 
-    if training_args.predict_with_generate:
-        tokenizer.padding_side = "left"  # use left-padding in generation
-
     if getattr(model, "is_quantized", False) and not training_args.do_train:
         setattr(model, "_hf_peft_config_loaded", True)  # hack here: make model compatible with prediction
 
@@ -68,6 +65,14 @@ def run_sft(
     training_args.generation_num_beams = data_args.eval_num_beams or training_args.generation_num_beams
     training_args.remove_unused_columns = False  # important for multimodal dataset
 
+    # Metric utils
+    metric_module = {}
+    if training_args.predict_with_generate:
+        metric_module["compute_metrics"] = ComputeSimilarity(tokenizer=tokenizer)
+    elif finetuning_args.compute_accuracy:
+        metric_module["compute_metrics"] = ComputeAccuracy()
+        metric_module["preprocess_logits_for_metrics"] = eval_logit_processor
+
     # Initialize our Trainer
     trainer = CustomSeq2SeqTrainer(
         model=model,
@@ -75,9 +80,9 @@ def run_sft(
         finetuning_args=finetuning_args,
         data_collator=data_collator,
         callbacks=callbacks,
-        compute_metrics=ComputeMetrics(tokenizer) if training_args.predict_with_generate else None,
+        **dataset_module,
         **tokenizer_module,
-        **split_dataset(dataset, data_args, training_args),
+        **metric_module,
     )
 
     # Keyword arguments for `model.generate`
@@ -92,28 +97,29 @@ def run_sft(
         trainer.save_model()
         trainer.log_metrics("train", train_result.metrics)
         trainer.save_metrics("train", train_result.metrics)
-        # Evaluation
-        if training_args.do_eval:
-            metrics = trainer.evaluate(metric_key_prefix="eval", **gen_kwargs)
-            if (
-                training_args.predict_with_generate
-            ):  # eval_loss will be wrong if predict_with_generate is enabled
-                metrics.pop("eval_loss", None)
-            trainer.log_metrics("eval", metrics)
-            trainer.save_metrics("eval", metrics)
         trainer.save_state()
         if trainer.is_world_process_zero() and finetuning_args.plot_loss:
-            plot_loss(training_args.output_dir, keys=["loss", "eval_loss"])
-            plot_loss_error_curve(training_args.output_dir, ["error_curve"])
+            plot_loss(training_args.output_dir, keys=["loss", "eval_loss", "eval_accuracy"])
+
+    if training_args.predict_with_generate:
+        tokenizer.padding_side = "left"  # use left-padding in generation
+
+    # Evaluation
+    if training_args.do_eval:
+        metrics = trainer.evaluate(metric_key_prefix="eval", **gen_kwargs)
+        if training_args.predict_with_generate:  # eval_loss will be wrong if predict_with_generate is enabled
+            metrics.pop("eval_loss", None)
+        trainer.log_metrics("eval", metrics)
+        trainer.save_metrics("eval", metrics)
 
     # Predict
     if training_args.do_predict:
-        predict_results = trainer.predict(dataset, metric_key_prefix="predict", **gen_kwargs)
+        predict_results = trainer.predict(dataset_module["eval_dataset"], metric_key_prefix="predict", **gen_kwargs)
         if training_args.predict_with_generate:  # predict_loss will be wrong if predict_with_generate is enabled
             predict_results.metrics.pop("predict_loss", None)
         trainer.log_metrics("predict", predict_results.metrics)
         trainer.save_metrics("predict", predict_results.metrics)
-        trainer.save_predictions(dataset, predict_results)
+        trainer.save_predictions(dataset_module["eval_dataset"], predict_results)
 
     # Create model card
     create_modelcard_and_push(trainer, model_args, data_args, training_args, finetuning_args)

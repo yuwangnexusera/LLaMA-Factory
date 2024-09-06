@@ -17,17 +17,19 @@
 # limitations under the License.
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Dict, Sequence, Tuple, Union
+from typing import TYPE_CHECKING, Dict, Optional
 
 import numpy as np
+import torch
 from transformers.utils import is_jieba_available, is_nltk_available
 
 from ...extras.constants import IGNORE_INDEX
+from ...extras.misc import numpify
 from ...extras.packages import is_rouge_available
 
 
 if TYPE_CHECKING:
-    from transformers import PreTrainedTokenizer
+    from transformers import EvalPrediction, PreTrainedTokenizer
 
 
 if is_jieba_available():
@@ -43,9 +45,6 @@ if is_rouge_available():
 
 
 def eval_logit_processor(logits: "torch.Tensor", labels: "torch.Tensor") -> "torch.Tensor":
-    r"""
-    Computes the token with the largest likelihood to reduce memory footprint.
-    """
     r"""
     Computes the token with the largest likelihood to reduce memory footprint.
     """
@@ -99,12 +98,19 @@ class ComputeSimilarity:
 
     tokenizer: "PreTrainedTokenizer"
 
-    def __call__(self, eval_preds: Sequence[Union[np.ndarray, Tuple[np.ndarray]]]) -> Dict[str, float]:
-        r"""
-        Uses the model predictions to compute metrics.
-        """
-        preds, labels = eval_preds
-        score_dict = {"rouge-1": [], "rouge-2": [], "rouge-l": [], "bleu-4": []}
+    def _dump(self) -> Optional[Dict[str, float]]:
+        result = None
+        if hasattr(self, "score_dict"):
+            result = {k: float(np.mean(v)) for k, v in self.score_dict.items()}
+
+        self.score_dict = {"rouge-1": [], "rouge-2": [], "rouge-l": [], "bleu-4": []}
+        return result
+
+    def __post_init__(self):
+        self._dump()
+
+    def __call__(self, eval_preds: "EvalPrediction", compute_result: bool = True) -> Optional[Dict[str, float]]:
+        preds, labels = numpify(eval_preds.predictions), numpify(eval_preds.label_ids)
 
         preds = np.where(preds != IGNORE_INDEX, preds, self.tokenizer.pad_token_id)
         labels = np.where(labels != IGNORE_INDEX, labels, self.tokenizer.pad_token_id)
@@ -124,9 +130,10 @@ class ComputeSimilarity:
                 result = scores[0]
 
             for k, v in result.items():
-                score_dict[k].append(round(v["f"] * 100, 4))
+                self.score_dict[k].append(round(v["f"] * 100, 4))
 
             bleu_score = sentence_bleu([list(label)], list(pred), smoothing_function=SmoothingFunction().method3)
-            score_dict["bleu-4"].append(round(bleu_score * 100, 4))
+            self.score_dict["bleu-4"].append(round(bleu_score * 100, 4))
 
-        return {k: float(np.mean(v)) for k, v in score_dict.items()}
+        if compute_result:
+            return self._dump()
