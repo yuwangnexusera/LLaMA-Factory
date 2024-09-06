@@ -18,8 +18,6 @@ from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, Field
 from typing_extensions import Literal
-
-
 @unique
 class Role(str, Enum):
     USER = "user"
@@ -37,15 +35,55 @@ class Finish(str, Enum):
 
 
 class ModelCard(BaseModel):
-    id: str
-    object: Literal["model"] = "model"
-    created: int = Field(default_factory=lambda: int(time.time()))
-    owned_by: Literal["owner"] = "owner"
+    model_alias: str = "Qwen1.5-14B-int8"
+    template: str = "qwen"
+    model_name_or_path: str
+    unsloth: bool = False
+    description: Optional[str]
 
 
 class ModelList(BaseModel):
-    object: Literal["list"] = "list"
     data: List[ModelCard] = []
+
+
+class LoadModelRequest(BaseModel):
+    model_alias: str = "Qwen1.5-14B-int8"
+    # do_sample: bool = True
+    # adapter_name_or_path: str = "output_model_dir"
+    # template: str = "qwen"
+    num_beams:int=3
+    use_unsloth: bool = False
+    temperature: float = 0.3
+    top_p: float = 0.7
+    max_new_tokens: int = 1024
+    repetition_penalty: float = 1.0
+    length_penalty: float = 1.1
+    top_k :int = 80
+
+class LoadModelRequestBody(BaseModel):
+    model_name_or_path: str
+    template: str
+    num_beams:int 
+    temperature: float 
+    top_p: float
+    max_new_tokens: int 
+    repetition_penalty: float 
+    length_penalty: float 
+    top_k:int
+
+
+class LoadModelResponse(BaseModel):
+    status: Literal["success", "failed"]
+    message: str
+
+
+class SingleReportRequest(BaseModel):
+    unit_name: str = "治疗用药方案"
+    report: str
+
+
+class SingleReportResponse(BaseModel):
+    unit_json: str
 
 
 class Function(BaseModel):
@@ -83,7 +121,7 @@ class MultimodalInputItem(BaseModel):
 class ChatMessage(BaseModel):
     role: Role
     content: Optional[Union[str, List[MultimodalInputItem]]] = None
-    tool_calls: Optional[List[FunctionCall]] = None
+    # tool_calls: Optional[List[FunctionCall]] = None
 
 
 class ChatCompletionMessage(BaseModel):
@@ -100,7 +138,7 @@ class ChatCompletionRequest(BaseModel):
     temperature: Optional[float] = None
     top_p: Optional[float] = None
     n: int = 1
-    max_tokens: Optional[int] = None
+    max_tokens: Optional[int] = 1024
     stop: Optional[Union[str, List[str]]] = None
     stream: bool = False
 
@@ -132,13 +170,30 @@ class ChatCompletionResponse(BaseModel):
     usage: ChatCompletionResponseUsage
 
 
+class BenchmarkResponse(BaseModel):
+    evaluation_criteria: Union[dict, str]
+    model_correct_answer:dict= {}
+    error_details : Union[dict, str]
+
+
+class BenchmarkRequest(BaseModel):
+    benchmark: str = "Structured medical records"
+    test_unit: List[str] = ["治疗用药方案"]
+    # test_prompt:str = "可不填,用默认微调的prompt"
+    samples: int = 1
+    temperature: float = 0.01
+    top_p: float = 0.8
+    max_new_tokens: int = 1024
+    repetition_penalty: float = 1.2
+    length_penalty: float = 1.1
+
+
 class ChatCompletionStreamResponse(BaseModel):
     id: str
     object: Literal["chat.completion.chunk"] = "chat.completion.chunk"
     created: int = Field(default_factory=lambda: int(time.time()))
     model: str
     choices: List[ChatCompletionStreamResponseChoice]
-
 
 class ScoreEvaluationRequest(BaseModel):
     model: str
