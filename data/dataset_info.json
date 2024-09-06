@@ -669,7 +669,7 @@
   "report_category":{
     "file_name": "category_zh.json"
   },
-  "TCM": {
-    "file_name": "match_zy/train_gt_1.json"
+  "condis_gene":{
+    "file_name": "med_struct_09/sft_com_gene_200.json"
   }
 }
