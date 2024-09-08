@@ -20,6 +20,7 @@ from typing import TYPE_CHECKING, Any, AsyncGenerator, Callable, Dict, List, Opt
 
 import torch
 from transformers import GenerationConfig, TextIteratorStreamer
+from typing_extensions import override
 
 from ..data import get_template_and_fix_tokenizer
 from ..extras.constants import IMAGE_PLACEHOLDER, VIDEO_PLACEHOLDER
@@ -102,7 +103,6 @@ class HuggingfaceEngine(BaseEngine):
         prompt_ids, _ = template.mm_plugin.process_token_ids(
             prompt_ids, None, mm_input_dict["images"], mm_input_dict["videos"], tokenizer, processor
         )
-
         prompt_length = len(prompt_ids)
         inputs = torch.tensor([prompt_ids], device=model.device)
         attention_mask = torch.ones_like(inputs, dtype=torch.bool)
@@ -271,6 +271,7 @@ class HuggingfaceEngine(BaseEngine):
 
         return scores
 
+    @override
     async def chat(
         self,
         messages: Sequence[Dict[str, str]],
@@ -301,6 +302,7 @@ class HuggingfaceEngine(BaseEngine):
             with concurrent.futures.ThreadPoolExecutor() as pool:
                 return await loop.run_in_executor(pool, self._chat, *input_args)
 
+    @override
     async def stream_chat(
         self,
         messages: Sequence[Dict[str, str]],
@@ -336,6 +338,7 @@ class HuggingfaceEngine(BaseEngine):
                     except StopAsyncIteration:
                         break
 
+    @override
     async def get_scores(
         self,
         batch_input: List[str],

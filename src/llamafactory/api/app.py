@@ -12,8 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import asyncio
 import os
 from contextlib import asynccontextmanager
+from functools import partial
 from typing import Optional
 
 from typing_extensions import Annotated
@@ -58,14 +60,24 @@ if is_uvicorn_available():
     import uvicorn
 
 
+async def sweeper() -> None:
+    while True:
+        torch_gc()
+        await asyncio.sleep(300)
+
+
 @asynccontextmanager
-async def lifespan(app: "FastAPI"):  # collects GPU memory
+async def lifespan(app: "FastAPI", chat_model: "ChatModel"):  # collects GPU memory
+    if chat_model.engine_type == "huggingface":
+        asyncio.create_task(sweeper())
+
     yield
     torch_gc()
 
 
-def create_app() -> "FastAPI":
-    app = FastAPI(lifespan=lifespan)
+def create_app(chat_model: "ChatModel") -> "FastAPI":
+    root_path = os.environ.get("FASTAPI_ROOT_PATH", "")
+    app = FastAPI(lifespan=partial(lifespan, chat_model=chat_model), root_path=root_path)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
@@ -73,7 +85,7 @@ def create_app() -> "FastAPI":
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    api_key = os.environ.get("API_KEY")
+    api_key = os.environ.get("API_KEY", None)
     security = HTTPBearer(auto_error=False)
 
     async def verify_api_key(auth: Annotated[Optional[HTTPAuthorizationCredentials], Depends(security)]):
