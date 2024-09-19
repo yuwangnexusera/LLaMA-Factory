@@ -78,7 +78,6 @@ class LoadModelResponse(BaseModel):
 
 
 class SingleReportRequest(BaseModel):
-    unit_name: str = "治疗用药方案"
     report: str
 
 

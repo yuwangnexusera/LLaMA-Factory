@@ -5,9 +5,8 @@ model_name_or_path: /mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/i
 stage: sft
 do_train: true
 finetuning_type: lora
-lora_target: all
 
-mixture_of_depths: convert
+# mixture_of_depths: convert
 # lora_plus
 # loraplus_lr_ratio: 16.0  #0.76->0.83
 
@@ -22,18 +21,18 @@ mixture_of_depths: convert
 # datasets = """pathology_sft,basic_information_sft,cancer_treatment_sft,comorbid_disease_sft,
 # date_unit_sft,diagnosis_sft,disease_sft,genetic_testing_sft,imaging_sft,immunization_sft,symptom_sft,treatment_drug_plan_sft"""
 
-dataset: condis_gene
+dataset: ss_08, report_category
 template: intern2
-cutoff_len: 2048
-max_samples: 500
+cutoff_len: 1600
+max_samples: 3000
 overwrite_cache: true
 preprocessing_num_workers: 16
 
 ### output
 output_dir: /mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/susu_internlm2_5_v1/
 # resume_from_checkpoint: /mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/test_drug_internlm2_5-7b-chat/
-logging_steps: 64
-save_steps: 128
+logging_steps: 256
+save_steps: 512
 plot_loss: true
 overwrite_output_dir: true
 
@@ -41,23 +40,23 @@ overwrite_output_dir: true
 per_device_train_batch_size: 2
 gradient_accumulation_steps: 1
 learning_rate: 1.0e-4
-num_train_epochs: 5.0
+num_train_epochs: 4.0
 lr_scheduler_type: cosine
 warmup_ratio: 0.1
 bf16: true
 ddp_timeout: 180000000
-weight_decay: 0.01
+weight_decay: 0.05
 
 ### eval
+eval_steps: 256
 do_eval: True
 val_size: 0.1
 per_device_eval_batch_size: 2
 eval_strategy: steps
-eval_steps: 64
 
 ### lora
 lora_dropout: 0.05
 lora_rank: 64
-lora_target: all
+lora_target: wqkv
 
 use_unsloth: False

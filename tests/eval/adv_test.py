@@ -4,7 +4,7 @@ from llamafactory.chat import ChatModel
 from llamafactory.extras.misc import torch_gc
 from llamafactory.f1.recall_precise_rate import F1score
 import json
-from parse_ds.sft_prompt import sft_unit_prompt
+from data_augmentation.sft_prompt import sft_unit_prompt
 from langchain.docstore.document import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import tiktoken

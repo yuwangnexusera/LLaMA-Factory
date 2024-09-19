@@ -667,9 +667,9 @@
     "file_name": "Treatment Drug Plan/all_zh.json"
   },
   "report_category":{
-    "file_name": "category_zh.json"
+    "file_name": "med_struct_09/category.json"
   },
-  "condis_gene":{
+  "ss_08":{
     "file_name": "med_struct_09/sft_com_gene_200.json"
   }
 }

@@ -8,7 +8,7 @@ from .protocol import Role, BenchmarkRequest, BenchmarkResponse
 import json
 from ..f1 import F1score
 
-from parse_ds.sft_prompt import sft_unit_prompt
+from data_augmentation.sft_prompt import sft_unit_prompt
 logger = get_logger(__name__)
 ROLE_MAPPING = {
     Role.USER: DataRole.USER.value,

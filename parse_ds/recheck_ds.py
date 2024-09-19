@@ -7,7 +7,7 @@ import logging
 import pandas as pd
 import json
 from utils import ds_label_wrapper
-from sft_prompt import sft_unit_prompt
+from data_augmentation.sft_prompt import sft_unit_prompt
 import random
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

@@ -6,7 +6,8 @@ from .common import dictify, jsonify
 from .protocol import Role, ModelList, SingleReportResponse
 import pandas
 from ..chat import ChatModel
-from parse_ds.sft_prompt import sft_unit_prompt
+
+from data_augmentation.sft_prompt import *
 
 import json
 
@@ -29,14 +30,10 @@ def _model_list() -> List[dict]:
     return model_list
 
 
-def single_report_extract(unit_name, report, model: "ChatModel"):
+def single_report_extract(prompt, model: "ChatModel"):
     """单篇报告提取"""
-    prompt = sft_unit_prompt.get(unit_name)
-    if not prompt:
-        return SingleReportResponse(unit_json={"msg": "单元名不存在"})
     messages = []
-    query = f"{prompt}\n{report}"
-    messages.append({"role": "user", "content": query})
+    messages.append({"role": "user", "content": prompt})
     response = ""
     logger.info(f"messages:{messages}")
     response = model.chat(messages)

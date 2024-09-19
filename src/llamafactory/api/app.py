@@ -19,7 +19,7 @@ from functools import partial
 from typing import Optional
 
 from typing_extensions import Annotated
-from .benchmark import ie_unit_benchmark
+# from .benchmark import ie_unit_benchmark
 from ..chat import ChatModel
 from ..extras.misc import torch_gc
 from ..extras.packages import is_fastapi_available, is_starlette_available, is_uvicorn_available
@@ -110,7 +110,7 @@ def create_app(chat_model: "ChatModel") -> "FastAPI":
     )
     async def single_report(request: SingleReportRequest):
         # TODO 单篇报告提取 sft_unit_prompt
-        return single_report_extract(request.unit_name, str(request.report), app.state.chat_model)
+        return single_report_extract(str(request.report), chat_model)
 
     @app.get("/stream")
     async def stream(request: Request):
@@ -142,34 +142,47 @@ def create_app(chat_model: "ChatModel") -> "FastAPI":
     async def load_model(load_args: LoadModelRequest):
         torch_gc()
         try:
-            model_config = config_func.mapping_model_name_path(load_args.model_alias)
-            model_args = LoadModelRequestBody(
-                model_name_or_path=model_config.get("model_name_or_path"),
-                template=model_config.get("template"),
-                temperature=load_args.temperature,
-                top_p=load_args.top_p,
-                max_new_tokens=load_args.max_new_tokens,
-                repetition_penalty=load_args.repetition_penalty,
-                length_penalty=load_args.length_penalty,
-                num_beams=load_args.num_beams,
-                top_k = load_args.top_k
+            # model_config = config_func.mapping_model_name_path(load_args.model_alias)
+            # model_args = LoadModelRequestBody(
+            #     model_name_or_path=model_config.get("model_name_or_path"),
+            #     template=model_config.get("template"),
+            #     temperature=load_args.temperature,
+            #     top_p=load_args.top_p,
+            #     max_new_tokens=load_args.max_new_tokens,
+            #     repetition_penalty=load_args.repetition_penalty,
+            #     length_penalty=load_args.length_penalty,
+            #     num_beams=load_args.num_beams,
+            #     top_k = load_args.top_k
+            # )
+            args = dict(
+                do_sample=True,
+                model_name_or_path="/mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/internlm2_5-7b-chat",
+                adapter_name_or_path="/mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/susu_internlm2_5_v1/",  # 加载之前保存的 LoRA 适配器
+                template="intern2",  # 和训练保持一致
+                finetuning_type="lora",  # 和训练保持一致
+                # quantization_bit=4,
+                temperature=0.3,
+                top_p=0.7,
+                max_new_tokens=1024,
+                repetition_penalty=1.0,
+                length_penalty=1.1,
             )
-            app.state.chat_model = ChatModel(dictify(model_args))
+            app.state.chat_model = ChatModel(args)
             return LoadModelResponse(status="success", message=f"{load_args.model_alias} Model loaded")
         except Exception as err:
             return LoadModelResponse(status="failed", message=str(err))
 
     # benchmark接口 TODO 错误原因，模型答案，标准答案
-    @app.post(
-        "/v1/model/benchmark",
-        description="benchmark，模型答案，标准答案",
-        response_model=BenchmarkResponse,
-        status_code=status.HTTP_200_OK,
-        dependencies=[Depends(verify_api_key)],
-    )
-    async def benchmark_test(request: BenchmarkRequest):
+    # @app.post(
+    #     "/v1/model/benchmark",
+    #     description="benchmark，模型答案，标准答案",
+    #     response_model=BenchmarkResponse,
+    #     status_code=status.HTTP_200_OK,
+    #     dependencies=[Depends(verify_api_key)],
+    # )
+    # async def benchmark_test(request: BenchmarkRequest):
 
-        return ie_unit_benchmark(request, app.state.chat_model)
+    #     return ie_unit_benchmark(request, app.state.chat_model)
 
     @app.post(
         "/v1/model/chat",
@@ -208,7 +221,22 @@ def create_app(chat_model: "ChatModel") -> "FastAPI":
 
 
 def run_api() -> None:
-    app = create_app()
+    args = dict(
+                do_sample=True,
+                model_name_or_path="/mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/internlm2_5-7b-chat",
+                adapter_name_or_path="/mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/susu_internlm2_5_v1/",  # 加载之前保存的 LoRA 适配器
+                template="intern2",  # 和训练保持一致
+                finetuning_type="lora",  # 和训练保持一致
+                # quantization_bit=4,
+                temperature=0.3,
+                top_p=0.7,
+                max_new_tokens=1024,
+                repetition_penalty=1.0,
+                length_penalty=1.1,
+            )
+    chat_model = ChatModel(args)
+    chat_model = ""
+    app = create_app(chat_model)
     api_host = os.environ.get("API_HOST", "0.0.0.0")
     api_port = int(os.environ.get("API_PORT", "8000"))
     print("Visit http://localhost:{}/docs for API document.".format(api_port))
