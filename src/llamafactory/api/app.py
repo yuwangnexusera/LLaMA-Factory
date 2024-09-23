@@ -19,6 +19,7 @@ from functools import partial
 from typing import Optional
 
 from typing_extensions import Annotated
+
 # from .benchmark import ie_unit_benchmark
 from ..chat import ChatModel
 from ..extras.misc import torch_gc
@@ -222,20 +223,19 @@ def create_app(chat_model: "ChatModel") -> "FastAPI":
 
 def run_api() -> None:
     args = dict(
-                do_sample=True,
-                model_name_or_path="/mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/internlm2_5-7b-chat",
-                adapter_name_or_path="/mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/susu_internlm2_5_v1/",  # 加载之前保存的 LoRA 适配器
-                template="intern2",  # 和训练保持一致
-                finetuning_type="lora",  # 和训练保持一致
-                # quantization_bit=4,
-                temperature=0.3,
-                top_p=0.7,
-                max_new_tokens=1024,
-                repetition_penalty=1.0,
-                length_penalty=1.1,
-            )
+        do_sample=True,
+        model_name_or_path="/mnt/windows/Users/Admin/LLM/models/qwen/Qwen2___5-7B-Instruct",
+        adapter_name_or_path="/mnt/windows/Users/Admin/LLM/models/qwen/SS_Qwen2_5-7B",  # 加载之前保存的 LoRA 适配器
+        template="qwen",  # 和训练保持一致
+        finetuning_type="lora",  # 和训练保持一致
+        # quantization_bit=4,
+        temperature=0.01,
+        max_new_tokens=1024,
+        # repetition_penalty=1.0,
+        # length_penalty=1.1,
+        num_beams=1,
+    )
     chat_model = ChatModel(args)
-    chat_model = ""
     app = create_app(chat_model)
     api_host = os.environ.get("API_HOST", "0.0.0.0")
     api_port = int(os.environ.get("API_PORT", "8000"))

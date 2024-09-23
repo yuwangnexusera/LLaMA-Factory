@@ -45,4 +45,4 @@ def single_report_extract(prompt, model: "ChatModel"):
     #         "response": response,
     #         "error": str(e),
     #     }
-    return SingleReportResponse(unit_json=response)
+    return SingleReportResponse(llm_ret=response)

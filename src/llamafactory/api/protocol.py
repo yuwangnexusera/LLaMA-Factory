@@ -82,7 +82,7 @@ class SingleReportRequest(BaseModel):
 
 
 class SingleReportResponse(BaseModel):
-    unit_json: str
+    llm_ret: str
 
 
 class Function(BaseModel):
