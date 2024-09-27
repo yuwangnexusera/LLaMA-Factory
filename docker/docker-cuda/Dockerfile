@@ -6,6 +6,10 @@ FROM nvcr.io/nvidia/pytorch:24.02-py3
 ARG INSTALL_BNB=false
 ARG INSTALL_VLLM=false
 ARG INSTALL_DEEPSPEED=false
+ARG INSTALL_FLASHATTN=false
+ARG INSTALL_LIGER_KERNEL=false
+ARG INSTALL_HQQ=false
+ARG INSTALL_EETQ=false
 ARG PIP_INDEX=https://pypi.org/simple
 
 # Set the working directory
@@ -32,8 +36,23 @@ RUN EXTRA_PACKAGES="metrics"; \
     if [ "$INSTALL_DEEPSPEED" = "true" ]; then \
         EXTRA_PACKAGES="${EXTRA_PACKAGES},deepspeed"; \
     fi; \
-    pip install -e .[$EXTRA_PACKAGES] && \
-    pip uninstall -y transformer-engine flash-attn
+    if [ "$INSTALL_LIGER_KERNEL" == "true" ]; then \
+        EXTRA_PACKAGES="${EXTRA_PACKAGES},liger-kernel"; \
+    fi; \
+    if [ "$INSTALL_HQQ" == "true" ]; then \
+        EXTRA_PACKAGES="${EXTRA_PACKAGES},hqq"; \
+    fi; \
+    if [ "$INSTALL_EETQ" == "true" ]; then \
+        EXTRA_PACKAGES="${EXTRA_PACKAGES},eetq"; \
+    fi; \
+    pip install -e ".[$EXTRA_PACKAGES]"
+
+# Rebuild flash attention
+RUN pip uninstall -y transformer-engine flash-attn && \
+    if [ "$INSTALL_FLASHATTN" == "true" ]; then \
+        pip uninstall -y ninja && pip install ninja && \
+        pip install --no-cache-dir flash-attn --no-build-isolation; \
+    fi
 
 # Set up volumes
 VOLUME [ "/root/.cache/huggingface", "/root/.cache/modelscope", "/app/data", "/app/output" ]
