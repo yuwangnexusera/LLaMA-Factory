@@ -26,3 +26,4 @@ faker
 numpy<2.0.0
 xformers
 bitsandbytes
+av
