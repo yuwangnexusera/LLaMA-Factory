@@ -29,6 +29,9 @@ Choose your path:
 - **PAI-DSW**: [Llama3 Example](https://gallery.pai-ml.com/#/preview/deepLearning/nlp/llama_factory) | [Qwen2-VL Example](https://gallery.pai-ml.com/#/preview/deepLearning/nlp/llama_factory_qwen2vl)
 - **Local machine**: Please refer to [usage](#getting-started)
 
+> [!NOTE]
+> Except for the above links, all other websites are unauthorized third-party websites. Please carefully use them.
+
 ## Table of Contents
 
 - [Features](#features)

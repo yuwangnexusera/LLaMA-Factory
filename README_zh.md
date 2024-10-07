@@ -29,6 +29,9 @@ https://github.com/hiyouga/LLaMA-Factory/assets/16256802/ec36a9dd-37f4-4f72-81bd
 - **PAI-DSW**：[Llama3 案例](https://gallery.pai-ml.com/#/preview/deepLearning/nlp/llama_factory) | [Qwen2-VL 案例](https://gallery.pai-ml.com/#/preview/deepLearning/nlp/llama_factory_qwen2vl)
 - **本地机器**：请见[如何使用](#如何使用)
 
+> [!NOTE]
+> 除上述链接以外的其他网站均为未经许可的第三方网站，请小心甄别。
+
 ## 目录
 
 - [项目特色](#项目特色)
