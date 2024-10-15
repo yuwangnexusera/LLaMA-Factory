@@ -19,7 +19,7 @@ from transformers import AutoConfig, AutoModelForCausalLM, AutoModelForVision2Se
 from trl import AutoModelForCausalLMWithValueHead
 
 from ..extras.logging import get_logger
-from ..extras.misc import count_parameters, skip_check_imports, try_download_model_from_ms
+from ..extras.misc import count_parameters, skip_check_imports, try_download_model_from_other_hub
 from .adapter import init_adapter
 from .model_utils.liger_kernel import apply_liger_kernel
 from .model_utils.misc import register_autoclass
@@ -50,7 +50,7 @@ def _get_init_kwargs(model_args: "ModelArguments") -> Dict[str, Any]:
     Note: including inplace operation of model_args.
     """
     skip_check_imports()
-    model_args.model_name_or_path = try_download_model_from_ms(model_args)
+    model_args.model_name_or_path = try_download_model_from_other_hub(model_args)
     return {
         "trust_remote_code": True,
         "cache_dir": model_args.cache_dir,
@@ -82,6 +82,8 @@ def load_tokenizer(model_args: "ModelArguments") -> "TokenizerModule":
             padding_side="right",
             **init_kwargs,
         )
+    except Exception as e:
+        raise OSError("Failed to load tokenizer.") from e
 
     if model_args.new_special_tokens is not None:
         num_added_tokens = tokenizer.add_special_tokens(
@@ -97,12 +99,13 @@ def load_tokenizer(model_args: "ModelArguments") -> "TokenizerModule":
     try:
         processor = AutoProcessor.from_pretrained(model_args.model_name_or_path, **init_kwargs)
         patch_processor(processor, config, tokenizer, model_args)
-    except Exception:
+    except Exception as e:
+        logger.warning("Processor was not found: {}.".format(e))
         processor = None
 
     # Avoid load tokenizer, see:
     # https://github.com/huggingface/transformers/blob/v4.40.0/src/transformers/models/auto/processing_auto.py#L324
-    if "Processor" not in processor.__class__.__name__:
+    if processor is not None and "Processor" not in processor.__class__.__name__:
         processor = None
 
     return {"tokenizer": tokenizer, "processor": processor}
