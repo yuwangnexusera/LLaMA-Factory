@@ -35,9 +35,11 @@ def single_report_extract(prompt, model: "ChatModel"):
     messages = []
     messages.append({"role": "user", "content": prompt})
     response = ""
+    print("local model")
     logger.info(f"messages:{messages}")
     response = model.chat(messages)
     response = response[0].response_text
+    logger.info(f"response:{response}")
     # try:
     #     unit_json = json.loads(response)
     # except Exception as e:

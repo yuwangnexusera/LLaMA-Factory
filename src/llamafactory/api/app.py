@@ -224,12 +224,15 @@ def create_app(chat_model: "ChatModel") -> "FastAPI":
 def run_api() -> None:
     args = dict(
         do_sample=True,
+        # model_name_or_path="/mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/internlm2_5-7b-chat",
         model_name_or_path="/mnt/windows/Users/Admin/LLM/models/qwen/Qwen2___5-7B-Instruct",
+        # adapter_name_or_path="/mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/susu_internlm2_5_vt_1011",  # 加载之前保存的 LoRA 适配器
         adapter_name_or_path="/mnt/windows/Users/Admin/LLM/models/qwen/SS_Qwen2_5-7B",  # 加载之前保存的 LoRA 适配器
+        # template="intern2",  # 和训练保持一致
         template="qwen",  # 和训练保持一致
         finetuning_type="lora",  # 和训练保持一致
         # quantization_bit=4,
-        temperature=0.01,
+        temperature=0.3,
         max_new_tokens=1024,
         # repetition_penalty=1.0,
         # length_penalty=1.1,
@@ -238,6 +241,6 @@ def run_api() -> None:
     chat_model = ChatModel(args)
     app = create_app(chat_model)
     api_host = os.environ.get("API_HOST", "0.0.0.0")
-    api_port = int(os.environ.get("API_PORT", "8000"))
+    api_port = int(os.environ.get("API_PORT", "8008"))
     print("Visit http://localhost:{}/docs for API document.".format(api_port))
     uvicorn.run(app, host=api_host, port=api_port)
