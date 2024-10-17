@@ -169,4 +169,7 @@ wandb/
 cache/
 
 
-utils/M400806-7257e31dba3d.json
+utils/M400806-7257e31dba3d.json/data/sharegpt_zh_27k.json
+/data/refgpt_zh_50k_p1.json
+/data/refgpt_zh_50k_p2.json
+/data/oaast_rm.json
