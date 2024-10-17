@@ -225,9 +225,9 @@ def run_api() -> None:
     args = dict(
         do_sample=True,
         # model_name_or_path="/mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/internlm2_5-7b-chat",
-        model_name_or_path="/mnt/windows/Users/Admin/LLM/models/qwen/Qwen2___5-7B-Instruct",
+        model_name_or_path="/mnt/windows/Users/Admin/LLM/models/qwen/Qwen2___5-7B-Instruct", # 原始模型权重
         # adapter_name_or_path="/mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/susu_internlm2_5_vt_1011",  # 加载之前保存的 LoRA 适配器
-        adapter_name_or_path="/mnt/windows/Users/Admin/LLM/models/qwen/SS_Qwen2_5-7B",  # 加载之前保存的 LoRA 适配器
+        adapter_name_or_path="/mnt/windows/Users/Admin/LLM/models/qwen/SS_Qwen2_5-7B",  # 微调之后的 LoRA 适配器文件（需要替换的）
         # template="intern2",  # 和训练保持一致
         template="qwen",  # 和训练保持一致
         finetuning_type="lora",  # 和训练保持一致
