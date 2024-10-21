@@ -673,5 +673,8 @@
   },
   "ss_08":{
     "file_name": "med_struct_09/sft_all.json"
+  },
+  "gan_generator":{
+    "file_name": "gan/train_data.json"
   }
 }
