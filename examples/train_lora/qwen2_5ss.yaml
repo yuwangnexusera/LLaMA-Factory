@@ -9,12 +9,12 @@ finetuning_type: lora
 dataset: ss_08, report_category
 template: qwen
 cutoff_len: 1200
-max_samples: 5000
+max_samples: 1000000
 overwrite_cache: true
 preprocessing_num_workers: 16
 
 ### output
-output_dir: /mnt/windows/Users/Admin/LLM/models/qwen/SS_Qwen2_5-7B
+output_dir: /mnt/windows/Users/Admin/LLM/models/qwen/SS_Qwen2_5_7B_1020
 ### output
 # resume_from_checkpoint: /mnt/windows/Users/Admin/LLM/models/qwen/nexusera_lora_extract
 logging_steps: 512
