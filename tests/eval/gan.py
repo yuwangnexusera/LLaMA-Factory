@@ -17,20 +17,33 @@ args = dict(
     template="qwen",  # 和训练保持一致
     finetuning_type="lora",  # 和训练保持一致
     # quantization_bit=4,
-    temperature=0.3,
+    temperature=0.95,
     top_p=0.7,
-    max_new_tokens=1024,
-    repetition_penalty=1.0,
-    length_penalty=1.1,
+    max_new_tokens=1300,
+    repetition_penalty=1.2,
 )
 if __name__ == "__main__":
-    # torch_gc()
-    # chat_model = ChatModel(args)
+    torch_gc()
+    chat_model = ChatModel(args)
 
     ori_data = pd.read_json("/root/LLM/LLaMA-Factory/data/gan/test_data.json").to_dict(orient="records")
+    results = []
+
     for item in ori_data:
-        
-        # 第二步prompt
-        messages_2 = []
-        # 生成新的ocr_sft 加入item 训练gan
-        
+
+        # 正确包装成 messages 列表
+        instruction = f"你的任务是根据给定的医学实体，生成类型为:{item['report_type']}的报告, 报告中必须包含医学实体中的所有值. 医学实体：{json.dumps(item['units'],ensure_ascii=False)}"
+
+        # 将字符串 instruction 包装为消息列表，传递给 chat_model
+        messages_2 = [{"role": "user", "content": instruction}]
+        response = ""
+        # 生成模型输出
+        for new_text in chat_model.stream_chat(messages_2):
+            print(new_text, end="")
+            response += new_text
+        print()
+        # 将生成的 OCR 结果存入新字段 sft_ocr
+        item["sft_ocr"] = response
+
+        results.append(item)
+    pd.DataFrame(results).to_json("/root/LLM/LLaMA-Factory/data/gan/test_data_sft.json", orient="records", force_ascii=False)
