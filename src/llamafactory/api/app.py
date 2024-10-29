@@ -60,7 +60,6 @@ if is_starlette_available():
 if is_uvicorn_available():
     import uvicorn
 
-
 async def sweeper() -> None:
     while True:
         torch_gc()
@@ -112,112 +111,6 @@ def create_app(chat_model: "ChatModel") -> "FastAPI":
     async def single_report(request: SingleReportRequest):
         # TODO 单篇报告提取 sft_unit_prompt
         return single_report_extract(str(request.report), chat_model)
-
-    @app.get("/stream")
-    async def stream(request: Request):
-        import random
-
-        def new_count():
-            return random.randint(1, 5)
-
-        async def event_generator():
-            index = 0
-            while True:
-                index += 1
-                if await request.is_disconnected():
-                    break
-                # 测试取随机数据，每次取一个随机数
-                if count := new_count():
-                    yield {"data": count}
-
-                await asyncio.sleep(1)
-
-        return EventSourceResponse(event_generator())
-
-    @app.post(
-        "/v1/model/load",
-        response_model=LoadModelResponse,
-        status_code=status.HTTP_200_OK,
-        dependencies=[Depends(verify_api_key)],
-    )
-    async def load_model(load_args: LoadModelRequest):
-        torch_gc()
-        try:
-            # model_config = config_func.mapping_model_name_path(load_args.model_alias)
-            # model_args = LoadModelRequestBody(
-            #     model_name_or_path=model_config.get("model_name_or_path"),
-            #     template=model_config.get("template"),
-            #     temperature=load_args.temperature,
-            #     top_p=load_args.top_p,
-            #     max_new_tokens=load_args.max_new_tokens,
-            #     repetition_penalty=load_args.repetition_penalty,
-            #     length_penalty=load_args.length_penalty,
-            #     num_beams=load_args.num_beams,
-            #     top_k = load_args.top_k
-            # )
-            args = dict(
-                do_sample=True,
-                model_name_or_path="/mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/internlm2_5-7b-chat",
-                adapter_name_or_path="/mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/susu_internlm2_5_v1/",  # 加载之前保存的 LoRA 适配器
-                template="intern2",  # 和训练保持一致
-                finetuning_type="lora",  # 和训练保持一致
-                # quantization_bit=4,
-                temperature=0.3,
-                top_p=0.7,
-                max_new_tokens=1024,
-                repetition_penalty=1.0,
-                length_penalty=1.1,
-            )
-            app.state.chat_model = ChatModel(args)
-            return LoadModelResponse(status="success", message=f"{load_args.model_alias} Model loaded")
-        except Exception as err:
-            return LoadModelResponse(status="failed", message=str(err))
-
-    # benchmark接口 TODO 错误原因，模型答案，标准答案
-    # @app.post(
-    #     "/v1/model/benchmark",
-    #     description="benchmark，模型答案，标准答案",
-    #     response_model=BenchmarkResponse,
-    #     status_code=status.HTTP_200_OK,
-    #     dependencies=[Depends(verify_api_key)],
-    # )
-    # async def benchmark_test(request: BenchmarkRequest):
-
-    #     return ie_unit_benchmark(request, app.state.chat_model)
-
-    @app.post(
-        "/v1/model/chat",
-        response_model=ChatCompletionResponse,
-        status_code=status.HTTP_200_OK,
-        dependencies=[Depends(verify_api_key)],
-    )
-    async def create_chat_completion(request: ChatCompletionRequest):
-        try:
-            if not app.state.chat_model.engine.can_generate:
-                raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Not allowed")
-
-            if request.stream:
-                generate = create_stream_chat_completion_response(request, app.state.chat_model)
-                return EventSourceResponse(generate, media_type="text/event-stream")
-            else:
-                return await create_chat_completion_response(request, app.state.chat_model)
-        except Exception as err:
-            return ChatCompletionResponse(
-                id=err + "模型可能未加载.....",
-            )
-
-    # @app.post(
-    #     "/v1/score/evaluation",
-    #     response_model=ScoreEvaluationResponse,
-    #     status_code=status.HTTP_200_OK,
-    #     dependencies=[Depends(verify_api_key)],
-    # )
-    # async def create_score_evaluation(request: ScoreEvaluationRequest):
-    #     if app.state.chat_model.engine.can_generate:
-    #         raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail="Not allowed")
-
-    #     return await create_score_evaluation_response(request, app.state.chat_model)
-
     return app
 
 
@@ -225,9 +118,9 @@ def run_api() -> None:
     args = dict(
         do_sample=True,
         # model_name_or_path="/mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/internlm2_5-7b-chat",
-        model_name_or_path="/mnt/windows/Users/Admin/LLM/models/qwen/Qwen2___5-7B-Instruct",  # 原始模型权重
+        model_name_or_path="/app/data/LLM/models/qwen/Qwen2___5-7B-Instruct", # 原始模型权重
         # adapter_name_or_path="/mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/susu_internlm2_5_vt_1011",  # 加载之前保存的 LoRA 适配器
-        adapter_name_or_path="/mnt/windows/Users/Admin/LLM/models/qwen/SS_Qwen2_5_7B_1020",  # 微调之后的 LoRA 适配器文件（需要替换的）
+        adapter_name_or_path="/app/data/LLM/models/qwen/SS_Qwen2_5_7B_1020",  # 微调之后的 LoRA 适配器文件（需要替换的）
         # template="intern2",  # 和训练保持一致
         template="qwen",  # 和训练保持一致
         finetuning_type="lora",  # 和训练保持一致
@@ -243,4 +136,4 @@ def run_api() -> None:
     api_host = os.environ.get("API_HOST", "0.0.0.0")
     api_port = int(os.environ.get("API_PORT", "8008"))
     print("Visit http://localhost:{}/docs for API document.".format(api_port))
-    uvicorn.run(app, host=api_host, port=api_port)
+    uvicorn.run(app, host=api_host, port=api_port,timeout_keep_alive=300,timeout_graceful_shutdown=120)

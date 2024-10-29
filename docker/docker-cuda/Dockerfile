@@ -48,7 +48,7 @@ RUN EXTRA_PACKAGES="metrics"; \
     pip install -e ".[$EXTRA_PACKAGES]"
 
 # Rebuild flash attention
-RUN pip uninstall -y transformer-engine flash-attn && \
+RUN pip uninstall -y transformer-engine flash-attn torchvision && \
     if [ "$INSTALL_FLASHATTN" == "true" ]; then \
         pip uninstall -y ninja && pip install ninja && \
         pip install --no-cache-dir flash-attn --no-build-isolation; \
@@ -62,5 +62,5 @@ ENV GRADIO_SERVER_PORT 7860
 EXPOSE 7860
 
 # Expose port 8000 for the API service
-ENV API_PORT 8000
-EXPOSE 8000
+ENV API_PORT 8008
+EXPOSE 8008
