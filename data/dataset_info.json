@@ -188,19 +188,9 @@
   "deepctrl": {
     "ms_hub_url": "deepctrl/deepctrl-sft-data"
   },
-  "adgen_train": {
+  "adgen": {
     "hf_hub_url": "HasturOfficial/adgen",
     "ms_hub_url": "AI-ModelScope/adgen",
-    "split": "train",
-    "columns": {
-      "prompt": "content",
-      "response": "summary"
-    }
-  },
-  "adgen_eval": {
-    "hf_hub_url": "HasturOfficial/adgen",
-    "ms_hub_url": "AI-ModelScope/adgen",
-    "split": "validation",
     "columns": {
       "prompt": "content",
       "response": "summary"
@@ -281,13 +271,6 @@
   "magpie_pro_300k": {
     "hf_hub_url": "Magpie-Align/Magpie-Pro-300K-Filtered",
     "formatting": "sharegpt"
-  },
-  "magpie_ultra": {
-    "hf_hub_url": "argilla/magpie-ultra-v0.1",
-    "columns": {
-      "prompt": "instruction",
-      "response": "response"
-    }
   },
   "web_instruct": {
     "hf_hub_url": "TIGER-Lab/WebInstructSub",
@@ -624,5 +607,74 @@
       "prompt": "content"
     },
     "folder": "python"
+  },
+  "sfan_BC5CDR": {
+    "file_name":"Sfan/sfan_BC5CDR_train.json"
+  },
+  "pathology_rlhf_sft": {
+    "file_name": "Pathology/sft_zh.json"
+  },
+  "pathology_dpo": {
+    "file_name": "Pathology/dpo_zh.json"
+  },
+  "pathology_sft": {
+    "file_name": "Pathology/all_zh.json"
+  },
+  "basic_information_sft": {
+    "file_name": "Basic Information/all_zh.json"
+  },
+  "cancer_treatment_sft": {
+    "file_name": "Cancer treatment/all_zh.json"
+  },
+  "comorbid_disease_sft": {
+    "file_name": "Comorbid Disease/all_zh.json"
+  },
+  "date_unit_sft": {
+    "file_name": "date_unit/all_zh.json"
+  },
+  "diagnosis_sft": {
+    "file_name": "Diagnosis/all_zh.json"
+  },
+  "disease_sft": {
+    "file_name": "Disease/all_zh.json"
+  },
+  "genetic_testing_sft": {
+    "file_name": "Genetic Testing/all_zh.json"
+  },
+  "gene_fullDose": {
+    "file_name": "Genetic Testing/full_dose_ds.json"
+  },
+  "immune_fullDose": {
+    "file_name": "Immune Testing/full_dose_ds.json"
+  },
+  "disease_fullDose": {
+    "file_name": "Disease/full_dose_ds.json"
+  },
+  "pathology_fullDose": {
+    "file_name": "Pathology/full_dose_ds.json"
+  },
+  "comorbid_disease_fullDose": {
+    "file_name": "Comorbid Disease/full_dose_ds.json"
+  },
+  "imaging_sft": {
+    "file_name": "Imaging/all_zh.json"
+  },
+  "immunization_sft": {
+    "file_name": "Immune Testing/all_zh.json"
+  },
+  "symptom_sft": {
+    "file_name": "Symptom/all_zh.json"
+  },
+  "treatment_drug_plan_sft": {
+    "file_name": "Treatment Drug Plan/all_zh.json"
+  },
+  "report_category":{
+    "file_name": "med_struct_09/category.json"
+  },
+  "ss_08":{
+    "file_name": "med_struct_09/sft_all.json"
+  },
+  "gan_generator":{
+    "file_name": "gan/train_data.json"
   }
 }

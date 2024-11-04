@@ -12,20 +12,23 @@ services:
         INSTALL_HQQ: false
         INSTALL_EETQ: false
         PIP_INDEX: https://pypi.org/simple
-    container_name: llamafactory
+    #container_name: llamafactory
     volumes:
       - ../../hf_cache:/root/.cache/huggingface
       - ../../ms_cache:/root/.cache/modelscope
       - ../../om_cache:/root/.cache/openmind
       - ../../data:/app/data
       - ../../output:/app/output
+      - /mnt/windows/Users/Admin/LLM/models/qwen/SS_Qwen2_5_7B_1020:/app/data/LLM/models/qwen/SS_Qwen2_5_7B_1020
+      - /mnt/windows/Users/Admin/LLM/models/qwen/SS_Qwen2_5-7B:/app/data/LLM/models/qwen/SS_Qwen2_5-7B
+      - /mnt/windows/Users/Admin/LLM/models/qwen/Qwen2___5-7B-Instruct:/app/data/LLM/models/qwen/Qwen2___5-7B-Instruct
     ports:
-      - "7860:7860"
-      - "8000:8000"
+      #- "7860:7860"
+      - "8008:8008"
     ipc: host
     tty: true
     stdin_open: true
-    command: bash
+    command: llamafactory-cli api
     deploy:
       resources:
         reservations:
@@ -34,3 +37,8 @@ services:
             count: "all"
             capabilities: [gpu]
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "10"
+        max-size: "10m"

@@ -1,0 +1,50 @@
+# 问答模型
+model_name_or_path: /mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/internlm2_5-7b-chat/
+
+### method
+stage: sft
+do_train: true
+finetuning_type: lora
+# mixture_of_depths: convert
+
+dataset: date_unit_sft,gene_fullDose,immune_fullDose,treatment_drug_plan_sft,disease_fullDose,pathology_fullDose,comorbid_disease_fullDose,report_category
+template: intern2
+cutoff_len: 1200
+max_samples: 500
+overwrite_cache: true
+preprocessing_num_workers: 16
+
+### output
+output_dir: /mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/test/full_dose_500
+### output
+# resume_from_checkpoint: /mnt/windows/Users/Admin/LLM/models/qwen/nexusera_lora_extract
+logging_steps: 200
+save_steps: 600
+plot_loss: true
+overwrite_output_dir: true
+
+### train
+per_device_train_batch_size: 2
+gradient_accumulation_steps: 1
+learning_rate: 1.0e-4
+num_train_epochs: 4.0
+lr_scheduler_type: cosine_with_restarts
+# lr_scheduler_kwargs: cosine_with_min_lr
+warmup_ratio: 0.1
+bf16: true
+ddp_timeout: 180000000
+weight_decay: 0.01
+
+### eval
+do_eval: True
+val_size: 0.1
+per_device_eval_batch_size: 2
+eval_strategy: steps
+eval_steps: 200
+
+### lora
+lora_dropout: 0.05
+lora_rank: 64
+lora_alpha: 128
+lora_target: all
+# use_unsloth: True

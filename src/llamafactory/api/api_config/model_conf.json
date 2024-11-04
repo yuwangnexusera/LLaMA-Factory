@@ -1,0 +1,94 @@
+[
+    {
+        "model_alias": "qwen_full_dose",
+        "template": "qwen",
+        "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/qwen/reach_standard/Qwen2-7B-Full-Dose",
+        "unsloth": "False",
+        "description":"qwen2-7B微调原样提取"
+    },
+    {
+        "model_alias": "internlm_nexusera",
+        "template": "intern2",
+        "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/reach_standard/Nexusera_Extract_V1",
+        "unsloth": "False",
+        "description": "internlm-7B原样提取微调单元+报告分类"
+    },
+    {
+        "model_alias": "internlm_nexusera",
+        "template": "intern2",
+        "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/Shanghai_AI_Laboratory/reach_standard/Nexusera_Extract_V1",
+        "unsloth": "False",
+        "description":"internlm-7B微调版本V1"
+    },
+    {
+        "model_alias": "qwen_nexusera",
+        "template": "qwen",
+        "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/qwen/reach_standard/Nexusera-Qwen2-7B",
+        "unsloth": "False",
+        "description":"qwen2-7B微调版本V1"
+    },
+
+    {
+        "model_alias": "qwen2-7B-chat",
+        "template": "qwen",
+        "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/qwen/Qwen2-7B-Instruct",
+        "unsloth":"False",
+        "description": "中文版本7B Qwen2，没有微调"
+    },
+    {
+        "model_alias": "glm-4-9b-chat",
+        "template": "glm4",
+        "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/ZhipuAI/glm-4-9b-chat",
+        "unsloth": "False",
+        "description": "中文版本9B GLM4，没有微调"
+    },
+    {
+        "model_alias": "01-9B-Chat",
+        "template": "yi",
+        "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/01ai/Yi-1___5-9B-Chat/",
+        "unsloth": "False",
+        "description": "中文版本9B Yi1，没有微调"
+    },
+    {
+        "model_alias": "llama3-8B-chinese-chat",
+        "template": "llama3",
+        "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/shenzhi-wang/Llama3-8B-Chinese-Chat",
+        "unsloth": "True",
+        "description": "中文版本8B LLama3，没有微调"
+    },
+    {
+        "model_alias": "Gemma-2-9B-chinese-chat",
+        "template": "gemma",
+        "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/shenzhi-wang/Gemma-2-9B-Chinese-Chat",
+        "unsloth": "True",
+        "description": "中文版本9B Gemma2，没有微调"
+    },
+    {
+        "model_alias": "Mistral-7B-Chinese",
+        "template": "mistral",
+        "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/shenzhi-wang/Mistral-7B-v0.3-Chinese-Chat",
+        "unsloth": "True",
+        "description": "中文版本Mistral-7B，没有微调"
+    },
+    {
+        "model_alias": "Qwen1.5-14B-int8",
+        "template": "qwen",
+        "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/qwen/Qwen1___5-14B-Chat-GPTQ-Int8",
+        "unsloth": "False",
+        "description": ""
+    },
+    {
+        "model_alias": "mixtral8x7_3bit",
+        "template": "mistral",
+        "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/n810x/Mixtral-8x7B-Instruct-v0.1-3bit-exl2",
+        "unsloth": "True",
+        "description": ""
+    },
+    {
+        "model_alias": "Mistral-Nemo-Instruct-2407",
+        "template": "mistral",
+        "model_name_or_path": "/mnt/windows/Users/Admin/LLM/models/AI-ModelScope/Mistral-Nemo-Instruct-2407",
+        "unsloth": "False",
+        "description": "mistral 12B微调版本V1"
+    }
+]

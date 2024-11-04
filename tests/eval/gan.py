@@ -1,0 +1,49 @@
+# 模型加载
+from datetime import datetime
+from llamafactory.chat import ChatModel
+from llamafactory.extras.misc import torch_gc
+from llamafactory.f1.recall_precise_rate import F1score
+import json
+from data_augmentation import sft_prompt
+import pandas as pd
+# 20B=200亿token 0.01亿字（红楼梦）
+
+print("*****************运行评估测试************************")
+# internlm模型更好
+args = dict(
+    do_sample=True,
+    model_name_or_path="/mnt/windows/Users/Admin/LLM/models/qwen/Qwen2___5-7B-Instruct",
+    adapter_name_or_path="/mnt/windows/Users/Admin/LLM/models/qwen/gan/Qwen2_5-7B-gan",  # 加载之前保存的 LoRA 适配器
+    template="qwen",  # 和训练保持一致
+    finetuning_type="lora",  # 和训练保持一致
+    # quantization_bit=4,
+    temperature=0.95,
+    top_p=0.7,
+    max_new_tokens=1300,
+    repetition_penalty=1.2,
+)
+if __name__ == "__main__":
+    torch_gc()
+    chat_model = ChatModel(args)
+
+    ori_data = pd.read_json("/root/LLM/LLaMA-Factory/data/gan/test_data.json").to_dict(orient="records")
+    results = []
+
+    for item in ori_data:
+
+        # 正确包装成 messages 列表
+        instruction = f"你的任务是根据给定的医学实体，生成类型为:{item['report_type']}的报告, 报告中必须包含医学实体中的所有值. 医学实体：{json.dumps(item['units'],ensure_ascii=False)}"
+
+        # 将字符串 instruction 包装为消息列表，传递给 chat_model
+        messages_2 = [{"role": "user", "content": instruction}]
+        response = ""
+        # 生成模型输出
+        for new_text in chat_model.stream_chat(messages_2):
+            print(new_text, end="")
+            response += new_text
+        print()
+        # 将生成的 OCR 结果存入新字段 sft_ocr
+        item["sft_ocr"] = response
+
+        results.append(item)
+    pd.DataFrame(results).to_json("/root/LLM/LLaMA-Factory/data/gan/test_data_sft.json", orient="records", force_ascii=False)

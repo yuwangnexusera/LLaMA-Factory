@@ -1,5 +1,6 @@
 ### model
 model_name_or_path: llava-hf/llava-1.5-7b-hf
+visual_inputs: true
 
 ### method
 stage: sft
@@ -9,7 +10,7 @@ lora_target: all
 
 ### dataset
 dataset: mllm_demo
-template: llava
+template: vicuna
 cutoff_len: 1024
 max_samples: 1000
 overwrite_cache: true
@@ -29,7 +30,7 @@ learning_rate: 1.0e-4
 num_train_epochs: 3.0
 lr_scheduler_type: cosine
 warmup_ratio: 0.1
-bf16: true
+fp16: true
 ddp_timeout: 180000000
 
 ### eval

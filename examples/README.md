@@ -89,8 +89,8 @@ llamafactory-cli train examples/train_lora/llama3_lora_predict.yaml
 #### Supervised Fine-Tuning on Multiple Nodes
 
 ```bash
-FORCE_TORCHRUN=1 NNODES=2 NODE_RANK=0 MASTER_ADDR=192.168.0.1 MASTER_PORT=29500 llamafactory-cli train examples/train_lora/llama3_lora_sft.yaml
-FORCE_TORCHRUN=1 NNODES=2 NODE_RANK=1 MASTER_ADDR=192.168.0.1 MASTER_PORT=29500 llamafactory-cli train examples/train_lora/llama3_lora_sft.yaml
+FORCE_TORCHRUN=1 NNODES=2 RANK=0 MASTER_ADDR=192.168.0.1 MASTER_PORT=29500 llamafactory-cli train examples/train_lora/llama3_lora_sft.yaml
+FORCE_TORCHRUN=1 NNODES=2 RANK=1 MASTER_ADDR=192.168.0.1 MASTER_PORT=29500 llamafactory-cli train examples/train_lora/llama3_lora_sft.yaml
 ```
 
 #### Supervised Fine-Tuning with DeepSpeed ZeRO-3 (Weight Sharding)
@@ -101,10 +101,10 @@ FORCE_TORCHRUN=1 llamafactory-cli train examples/train_lora/llama3_lora_sft_ds3.
 
 ### QLoRA Fine-Tuning
 
-#### Supervised Fine-Tuning with 4/8-bit Bitsandbytes/HQQ/EETQ Quantization (Recommended)
+#### Supervised Fine-Tuning with 4/8-bit Bitsandbytes Quantization (Recommended)
 
 ```bash
-llamafactory-cli train examples/train_qlora/llama3_lora_sft_otfq.yaml
+llamafactory-cli train examples/train_qlora/llama3_lora_sft_bitsandbytes.yaml
 ```
 
 #### Supervised Fine-Tuning with 4/8-bit GPTQ Quantization
@@ -200,12 +200,6 @@ llamafactory-cli train examples/extras/galore/llama3_full_sft.yaml
 
 ```bash
 llamafactory-cli train examples/extras/badam/llama3_full_sft.yaml
-```
-
-#### Full-Parameter Fine-Tuning using Adam-mini
-
-```bash
-llamafactory-cli train examples/extras/adam_mini/qwen2_full_sft.yaml
 ```
 
 #### LoRA+ Fine-Tuning
