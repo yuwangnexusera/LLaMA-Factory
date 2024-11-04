@@ -21,7 +21,13 @@ from llamafactory.data.template import _get_jinja_template
 from llamafactory.hparams import DataArguments
 
 
-TINY_LLAMA = os.environ.get("TINY_LLAMA", "llamafactory/tiny-random-Llama-3")
+if TYPE_CHECKING:
+    from transformers import PreTrainedTokenizer
+
+
+HF_TOKEN = os.getenv("HF_TOKEN")
+
+TINY_LLAMA = os.getenv("TINY_LLAMA", "llamafactory/tiny-random-Llama-3")
 
 
 

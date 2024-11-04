@@ -16,18 +16,13 @@ import os
 from typing import Dict
 
 import pytest
-import torch
-from transformers import AutoModelForCausalLM
-from trl import AutoModelForCausalLMWithValueHead
 
-from llamafactory.extras.misc import get_current_device
-from llamafactory.hparams import get_infer_args
-from llamafactory.model import load_model, load_tokenizer
+from llamafactory.train.test_utils import compare_model, load_infer_model, load_reference_model, patch_valuehead_model
 
 
-TINY_LLAMA = os.environ.get("TINY_LLAMA", "llamafactory/tiny-random-Llama-3")
+TINY_LLAMA = os.getenv("TINY_LLAMA", "llamafactory/tiny-random-Llama-3")
 
-TINY_LLAMA_VALUEHEAD = os.environ.get("TINY_LLAMA_VALUEHEAD", "llamafactory/tiny-random-Llama-3-valuehead")
+TINY_LLAMA_VALUEHEAD = os.getenv("TINY_LLAMA_VALUEHEAD", "llamafactory/tiny-random-Llama-3-valuehead")
 
 INFER_ARGS = {
     "model_name_or_path": TINY_LLAMA,

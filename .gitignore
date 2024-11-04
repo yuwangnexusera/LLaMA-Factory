@@ -160,6 +160,9 @@ cython_debug/
 .idea/
 
 # custom .gitignore
+ms_cache/
+hf_cache/
+om_cache/
 cache/
 config/
 saves/

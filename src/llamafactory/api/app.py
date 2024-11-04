@@ -76,7 +76,7 @@ async def lifespan(app: "FastAPI", chat_model: "ChatModel"):  # collects GPU mem
 
 
 def create_app(chat_model: "ChatModel") -> "FastAPI":
-    root_path = os.environ.get("FASTAPI_ROOT_PATH", "")
+    root_path = os.getenv("FASTAPI_ROOT_PATH", "")
     app = FastAPI(lifespan=partial(lifespan, chat_model=chat_model), root_path=root_path)
     app.add_middleware(
         CORSMiddleware,
@@ -85,7 +85,7 @@ def create_app(chat_model: "ChatModel") -> "FastAPI":
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    api_key = os.environ.get("API_KEY", None)
+    api_key = os.getenv("API_KEY")
     security = HTTPBearer(auto_error=False)
 
     async def verify_api_key(auth: Annotated[Optional[HTTPAuthorizationCredentials], Depends(security)]):

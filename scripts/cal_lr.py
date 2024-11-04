@@ -1,4 +1,3 @@
-# coding=utf-8
 # Copyright 2024 imoneoi and the LlamaFactory team.
 #
 # This code is inspired by the imoneoi's OpenChat library.
@@ -71,7 +70,7 @@ def calculate_lr(
     elif stage == "sft":
         data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, label_pad_token_id=IGNORE_INDEX)
     else:
-        raise NotImplementedError
+        raise NotImplementedError("Stage does not supported: {}.".format(stage))
 
     dataloader = DataLoader(trainset, batch_size, shuffle=False, collate_fn=data_collator, pin_memory=True)
     valid_tokens, total_tokens = 0, 0
