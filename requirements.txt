@@ -18,5 +18,12 @@ matplotlib>=3.7.0
 fire
 packaging
 pyyaml
+modelscope
+pypinyin
+google-cloud-translate
+peewee
+faker
 numpy<2.0.0
+xformers
+bitsandbytes
 av

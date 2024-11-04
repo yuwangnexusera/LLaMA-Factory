@@ -15,7 +15,7 @@
 import json
 import os
 from collections import OrderedDict
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 import fire
 import torch
@@ -85,10 +85,7 @@ def save_config(input_dir: str, output_dir: str):
 
 
 def llamafy_baichuan2(
-    input_dir: str,
-    output_dir: str,
-    shard_size: str = "2GB",
-    save_safetensors: bool = True,
+    input_dir: str, output_dir: str, shard_size: Optional[str] = "2GB", save_safetensors: Optional[bool] = False
 ):
     r"""
     Converts the Baichuan2-7B model in the same format as LLaMA2-7B.

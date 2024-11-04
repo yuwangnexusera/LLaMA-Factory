@@ -43,7 +43,6 @@ def length_cdf(
             cutoff_len=1_000_000,
             output_dir="dummy_dir",
             overwrite_cache=True,
-            do_train=True,
         )
     )
     tokenizer_module = load_tokenizer(model_args)

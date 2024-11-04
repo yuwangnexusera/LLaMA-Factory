@@ -82,7 +82,6 @@ def calculate_ppl(
             train_on_prompt=train_on_prompt,
             output_dir="dummy_dir",
             overwrite_cache=True,
-            do_train=True,
         )
     )
     tokenizer_module = load_tokenizer(model_args)
@@ -99,7 +98,11 @@ def calculate_ppl(
             tokenizer=tokenizer, label_pad_token_id=IGNORE_INDEX, train_on_prompt=train_on_prompt
         )
     else:
+<<<<<<< HEAD
+        raise NotImplementedError
+=======
         raise NotImplementedError(f"Stage does not supported: {stage}.")
+>>>>>>> upstream/main
 
     dataloader = DataLoader(trainset, batch_size, shuffle=False, collate_fn=data_collator, pin_memory=True)
     criterion = torch.nn.CrossEntropyLoss(reduction="none")

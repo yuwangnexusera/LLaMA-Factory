@@ -21,15 +21,13 @@
 
 **微调大模型可以像这样轻松…**
 
-https://github.com/user-attachments/assets/e6ce34b0-52d5-4f3e-a830-592106c4c272
+https://github.com/hiyouga/LLaMA-Factory/assets/16256802/ec36a9dd-37f4-4f72-81bd-d76c6d0a6594
 
 选择你的打开方式：
 
 - **Colab**：https://colab.research.google.com/drive/1d5KQtbemerlSDSxZIfAaWXhKr30QypiK?usp=sharing
 - **PAI-DSW**：[Llama3 案例](https://gallery.pai-ml.com/#/preview/deepLearning/nlp/llama_factory) | [Qwen2-VL 案例](https://gallery.pai-ml.com/#/preview/deepLearning/nlp/llama_factory_qwen2vl)
 - **本地机器**：请见[如何使用](#如何使用)
-- **入门教程**：https://zhuanlan.zhihu.com/p/695287607
-- **框架文档**：https://llamafactory.readthedocs.io/zh-cn/latest/
 
 近期活动：
 
@@ -112,7 +110,7 @@ https://github.com/user-attachments/assets/e6ce34b0-52d5-4f3e-a830-592106c4c272
 
 [24/04/21] 我们基于 [AstraMindAI 的仓库](https://github.com/astramind-ai/Mixture-of-depths)支持了 **[混合深度训练](https://arxiv.org/abs/2404.02258)**。详细用法请参照 [examples](examples/README_zh.md)。
 
-[24/04/16] 我们支持了 **[BAdam](https://arxiv.org/abs/2404.02827)** 优化器。详细用法请参照 [examples](examples/README_zh.md)。
+[24/04/16] 我们支持了 **[BAdam](https://arxiv.org/abs/2404.02827)**。详细用法请参照 [examples](examples/README_zh.md)。
 
 [24/04/16] 我们支持了 **[unsloth](https://github.com/unslothai/unsloth)** 的长序列训练（24GB 可训练 Llama-2-7B-56k）。该方法相比 FlashAttention-2 提供了 **117%** 的训练速度和 **50%** 的显存节约。更多数据请见[此页面](https://github.com/hiyouga/LLaMA-Factory/wiki/Performance-comparison)。
 
@@ -124,7 +122,7 @@ https://github.com/user-attachments/assets/e6ce34b0-52d5-4f3e-a830-592106c4c272
 
 [24/03/13] 我们支持了 **[LoRA+](https://arxiv.org/abs/2402.12354)**。详细用法请参照 [examples](examples/README_zh.md)。
 
-[24/03/07] 我们支持了 **[GaLore](https://arxiv.org/abs/2403.03507)** 优化器。详细用法请参照 [examples](examples/README_zh.md)。
+[24/03/07] 我们支持了梯度低秩投影（**[GaLore](https://arxiv.org/abs/2403.03507)**）算法。详细用法请参照 [examples](examples/README_zh.md)。
 
 [24/03/07] 我们集成了 **[vLLM](https://github.com/vllm-project/vllm)** 以实现极速并发推理。请使用 `infer_backend: vllm` 来获得 **270%** 的推理速度。
 
@@ -227,9 +225,6 @@ https://github.com/user-attachments/assets/e6ce34b0-52d5-4f3e-a830-592106c4c272
 | ORPO 训练              | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 | SimPO 训练             | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 
-> [!TIP]
-> 有关 PPO 的实现细节，请参考[此博客](https://newfacade.github.io/notes-on-reinforcement-learning/17-ppo-trl.html)。
-
 ## 数据集
 
 <details><summary>预训练数据集</summary>
@@ -289,7 +284,6 @@ https://github.com/user-attachments/assets/e6ce34b0-52d5-4f3e-a830-592106c4c272
 - [Neo-sft (zh)](https://huggingface.co/datasets/m-a-p/neo_sft_phase2)
 - [WebInstructSub (en)](https://huggingface.co/datasets/TIGER-Lab/WebInstructSub)
 - [Magpie-Pro-300K-Filtered (en)](https://huggingface.co/datasets/Magpie-Align/Magpie-Pro-300K-Filtered)
-- [Magpie-ultra-v0.1 (en)](https://huggingface.co/datasets/argilla/magpie-ultra-v0.1)
 - [LLaVA mixed (en&zh)](https://huggingface.co/datasets/BUAADreamer/llava-en-zh-300k)
 - [Pokemon-gpt4o-captions (en&zh)](https://huggingface.co/datasets/jugg1024/pokemon-gpt4o-captions)
 - [Open Assistant (de)](https://huggingface.co/datasets/mayflowergmbh/oasst_de)
@@ -330,20 +324,20 @@ huggingface-cli login
 | 必需项       | 至少     | 推荐      |
 | ------------ | ------- | --------- |
 | python       | 3.8     | 3.11      |
-| torch        | 1.13.1  | 2.4.0     |
-| transformers | 4.41.2  | 4.43.4    |
-| datasets     | 2.16.0  | 2.20.0    |
-| accelerate   | 0.30.1  | 0.32.0    |
-| peft         | 0.11.1  | 0.12.0    |
-| trl          | 0.8.6   | 0.9.6     |
+| torch        | 1.13.1  | 2.3.0     |
+| transformers | 4.41.2  | 4.41.2    |
+| datasets     | 2.16.0  | 2.19.2    |
+| accelerate   | 0.30.1  | 0.30.1    |
+| peft         | 0.11.1  | 0.11.1    |
+| trl          | 0.8.6   | 0.9.4     |
 
 | 可选项       | 至少     | 推荐      |
 | ------------ | ------- | --------- |
 | CUDA         | 11.6    | 12.2      |
 | deepspeed    | 0.10.0  | 0.14.0    |
 | bitsandbytes | 0.39.0  | 0.43.1    |
-| vllm         | 0.4.3   | 0.5.0     |
-| flash-attn   | 2.3.0   | 2.6.3     |
+| vllm         | 0.4.3   | 0.4.3     |
+| flash-attn   | 2.3.0   | 2.5.9     |
 
 ### 硬件依赖
 
@@ -359,6 +353,13 @@ huggingface-cli login
 | QLoRA             |   4  |   6GB |  12GB |  24GB |   48GB |   72GB |  30GB |   96GB |
 | QLoRA             |   2  |   4GB |   8GB |  16GB |   24GB |   48GB |  18GB |   48GB |
 
+### 推理
+| 方法               | 精度 |   7B  |  14B  |  
+| ----------------- | ---- | ----- | ----- | 
+| LoRA/GaLore/BAdam |  16  |   |   |  
+| QLoRA             |   8  |   |  17GB |  
+| QLoRA             |   4  |    |   |  
+| QLoRA             |   2  |    |    |
 ## 如何使用
 
 ### 安装 LLaMA Factory
@@ -391,7 +392,7 @@ pip install https://github.com/jllllll/bitsandbytes-windows-webui/releases/downl
 
 <details><summary>昇腾 NPU 用户指南</summary>
 
-在昇腾 NPU 设备上安装 LLaMA Factory 时，需要指定额外依赖项，使用 `pip install -e ".[torch-npu,metrics]"` 命令安装。此外，还需要安装 **[Ascend CANN Toolkit 与 Kernels](https://www.hiascend.com/developer/download/community/result?module=cann)**，安装方法请参考[安装教程](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/80RC2alpha002/quickstart/quickstart/quickstart_18_0004.html)或使用以下命令：
+在昇腾 NPU 设备上安装 LLaMA Factory 时，需要指定额外依赖项，使用 `pip install -e ".[torch-npu,metrics]"` 命令安装。此外，还需要安装 **[Ascend CANN Toolkit and Kernels](https://www.hiascend.com/developer/download/community/result?module=cann)**，安装方法请参考[安装教程](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/80RC2alpha002/quickstart/quickstart/quickstart_18_0004.html)或使用以下命令：
 
 ```bash
 # 请替换 URL 为 CANN 版本和设备型号对应的 URL
@@ -417,8 +418,6 @@ source /usr/local/Ascend/ascend-toolkit/set_env.sh
 请使用 `ASCEND_RT_VISIBLE_DEVICES` 而非 `CUDA_VISIBLE_DEVICES` 来指定运算设备。
 
 如果遇到无法正常推理的情况，请尝试设置 `do_sample: false`。
-
-下载预构建 Docker 镜像：[32GB](http://mirrors.cn-central-221.ovaijisuan.com/detail/130.html) | [64GB](http://mirrors.cn-central-221.ovaijisuan.com/detail/131.html)
 
 </details>
 
@@ -451,29 +450,21 @@ llamafactory-cli webui
 ```
 
 ### 构建 Docker
-
+ 
 CUDA 用户：
 
 ```bash
 cd docker/docker-cuda/
-docker compose up -d
-docker compose exec llamafactory bash
+docker-compose up -d
+docker-compose exec llamafactory bash
 ```
 
 昇腾 NPU 用户：
 
 ```bash
 cd docker/docker-npu/
-docker compose up -d
-docker compose exec llamafactory bash
-```
-
-AMD ROCm 用户：
-
-```bash
-cd docker/docker-rocm/
-docker compose up -d
-docker compose exec llamafactory bash
+docker-compose up -d
+docker-compose exec llamafactory bash
 ```
 
 <details><summary>不使用 Docker Compose 构建</summary>
@@ -485,7 +476,6 @@ docker build -f ./docker/docker-cuda/Dockerfile \
     --build-arg INSTALL_BNB=false \
     --build-arg INSTALL_VLLM=false \
     --build-arg INSTALL_DEEPSPEED=false \
-    --build-arg INSTALL_FLASHATTN=false \
     --build-arg PIP_INDEX=https://pypi.org/simple \
     -t llamafactory:latest .
 

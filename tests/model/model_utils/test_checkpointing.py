@@ -17,7 +17,8 @@ import os
 import torch
 
 from llamafactory.extras.misc import get_current_device
-from llamafactory.train.test_utils import load_train_model
+from llamafactory.hparams import get_train_args
+from llamafactory.model import load_model, load_tokenizer
 
 
 TINY_LLAMA = os.getenv("TINY_LLAMA", "llamafactory/tiny-random-Llama-3")
@@ -40,13 +41,17 @@ TRAIN_ARGS = {
 
 
 def test_checkpointing_enable():
-    model = load_train_model(disable_gradient_checkpointing=False, **TRAIN_ARGS)
+    model_args, _, _, finetuning_args, _ = get_train_args({"disable_gradient_checkpointing": False, **TRAIN_ARGS})
+    tokenizer_module = load_tokenizer(model_args)
+    model = load_model(tokenizer_module["tokenizer"], model_args, finetuning_args, is_trainable=True)
     for module in filter(lambda m: hasattr(m, "gradient_checkpointing"), model.modules()):
         assert getattr(module, "gradient_checkpointing") is True
 
 
 def test_checkpointing_disable():
-    model = load_train_model(disable_gradient_checkpointing=True, **TRAIN_ARGS)
+    model_args, _, _, finetuning_args, _ = get_train_args({"disable_gradient_checkpointing": True, **TRAIN_ARGS})
+    tokenizer_module = load_tokenizer(model_args)
+    model = load_model(tokenizer_module["tokenizer"], model_args, finetuning_args, is_trainable=True)
     for module in filter(lambda m: hasattr(m, "gradient_checkpointing"), model.modules()):
         assert getattr(module, "gradient_checkpointing") is False
 
@@ -58,14 +63,18 @@ def test_unsloth_gradient_checkpointing():
 
 
 def test_upcast_layernorm():
-    model = load_train_model(upcast_layernorm=True, **TRAIN_ARGS)
+    model_args, _, _, finetuning_args, _ = get_train_args({"upcast_layernorm": True, **TRAIN_ARGS})
+    tokenizer_module = load_tokenizer(model_args)
+    model = load_model(tokenizer_module["tokenizer"], model_args, finetuning_args, is_trainable=True)
     for name, param in model.named_parameters():
         if param.ndim == 1 and "norm" in name:
             assert param.dtype == torch.float32
 
 
 def test_upcast_lmhead_output():
-    model = load_train_model(upcast_lmhead_output=True, **TRAIN_ARGS)
+    model_args, _, _, finetuning_args, _ = get_train_args({"upcast_lmhead_output": True, **TRAIN_ARGS})
+    tokenizer_module = load_tokenizer(model_args)
+    model = load_model(tokenizer_module["tokenizer"], model_args, finetuning_args, is_trainable=True)
     inputs = torch.randn((1, 16), dtype=torch.float16, device=get_current_device())
     outputs: "torch.Tensor" = model.get_output_embeddings()(inputs)
     assert outputs.dtype == torch.float32

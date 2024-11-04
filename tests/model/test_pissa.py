@@ -61,7 +61,13 @@ def test_pissa_train():
 
 @pytest.mark.xfail(OS_NAME.startswith("windows"), reason="Known connection error on Windows.")
 def test_pissa_inference():
-    model = load_infer_model(**INFER_ARGS)
-    ref_model = load_reference_model(TINY_LLAMA_PISSA, TINY_LLAMA_PISSA, use_pissa=True, is_trainable=False)
+    model_args, _, finetuning_args, _ = get_infer_args(INFER_ARGS)
+    tokenizer_module = load_tokenizer(model_args)
+    model = load_model(tokenizer_module["tokenizer"], model_args, finetuning_args, is_trainable=False)
+
+    base_model = AutoModelForCausalLM.from_pretrained(
+        TINY_LLAMA_PISSA, torch_dtype=torch.float16, device_map=get_current_device()
+    )
+    ref_model: "LoraModel" = PeftModel.from_pretrained(base_model, TINY_LLAMA_PISSA, subfolder="pissa_init")
     ref_model = ref_model.merge_and_unload()
     compare_model(model, ref_model)

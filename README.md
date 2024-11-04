@@ -21,14 +21,13 @@
 
 **Fine-tuning a large language model can be easy as...**
 
-https://github.com/user-attachments/assets/7c96b465-9df7-45f4-8053-bf03e58386d3
+https://github.com/hiyouga/LLaMA-Factory/assets/16256802/9840a653-7e9c-41c8-ae89-7ace5698baf6
 
 Choose your path:
 
 - **Colab**: https://colab.research.google.com/drive/1eRTPn37ltBbYsISy9Aw2NuI2Aq5CQrD9?usp=sharing
 - **PAI-DSW**: [Llama3 Example](https://gallery.pai-ml.com/#/preview/deepLearning/nlp/llama_factory) | [Qwen2-VL Example](https://gallery.pai-ml.com/#/preview/deepLearning/nlp/llama_factory_qwen2vl)
 - **Local machine**: Please refer to [usage](#getting-started)
-- **Documentation (WIP)**: https://llamafactory.readthedocs.io/zh-cn/latest/
 
 Recent activities:
 
@@ -111,7 +110,7 @@ Compared to ChatGLM's [P-Tuning](https://github.com/THUDM/ChatGLM2-6B/tree/main/
 
 [24/04/21] We supported **[Mixture-of-Depths](https://arxiv.org/abs/2404.02258)** according to [AstraMindAI's implementation](https://github.com/astramind-ai/Mixture-of-depths). See [examples](examples/README.md) for usage.
 
-[24/04/16] We supported **[BAdam](https://arxiv.org/abs/2404.02827)** optimizer. See [examples](examples/README.md) for usage.
+[24/04/16] We supported **[BAdam](https://arxiv.org/abs/2404.02827)**. See [examples](examples/README.md) for usage.
 
 [24/04/16] We supported **[unsloth](https://github.com/unslothai/unsloth)**'s long-sequence training (Llama-2-7B-56k within 24GB). It achieves **117%** speed and **50%** memory compared with FlashAttention-2, more benchmarks can be found in [this page](https://github.com/hiyouga/LLaMA-Factory/wiki/Performance-comparison).
 
@@ -123,7 +122,7 @@ Compared to ChatGLM's [P-Tuning](https://github.com/THUDM/ChatGLM2-6B/tree/main/
 
 [24/03/13] We supported **[LoRA+](https://arxiv.org/abs/2402.12354)**. See [examples](examples/README.md) for usage.
 
-[24/03/07] We supported **[GaLore](https://arxiv.org/abs/2403.03507)** optimizer. See [examples](examples/README.md) for usage.
+[24/03/07] We supported gradient low-rank projection (**[GaLore](https://arxiv.org/abs/2403.03507)**) algorithm. See [examples](examples/README.md) for usage.
 
 [24/03/07] We integrated **[vLLM](https://github.com/vllm-project/vllm)** for faster and concurrent inference. Try `infer_backend: vllm` to enjoy **270%** inference speed.
 
@@ -227,9 +226,6 @@ You also can add a custom chat template to [template.py](src/llamafactory/data/t
 | ORPO Training          | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 | SimPO Training         | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 
-> [!TIP]
-> The implementation details of PPO can be found in [this blog](https://newfacade.github.io/notes-on-reinforcement-learning/17-ppo-trl.html).
-
 ## Provided Datasets
 
 <details><summary>Pre-training datasets</summary>
@@ -289,7 +285,6 @@ You also can add a custom chat template to [template.py](src/llamafactory/data/t
 - [Neo-sft (zh)](https://huggingface.co/datasets/m-a-p/neo_sft_phase2)
 - [WebInstructSub (en)](https://huggingface.co/datasets/TIGER-Lab/WebInstructSub)
 - [Magpie-Pro-300K-Filtered (en)](https://huggingface.co/datasets/Magpie-Align/Magpie-Pro-300K-Filtered)
-- [Magpie-ultra-v0.1 (en)](https://huggingface.co/datasets/argilla/magpie-ultra-v0.1)
 - [LLaVA mixed (en&zh)](https://huggingface.co/datasets/BUAADreamer/llava-en-zh-300k)
 - [Pokemon-gpt4o-captions (en&zh)](https://huggingface.co/datasets/jugg1024/pokemon-gpt4o-captions)
 - [Open Assistant (de)](https://huggingface.co/datasets/mayflowergmbh/oasst_de)
@@ -330,20 +325,20 @@ huggingface-cli login
 | Mandatory    | Minimum | Recommend |
 | ------------ | ------- | --------- |
 | python       | 3.8     | 3.11      |
-| torch        | 1.13.1  | 2.4.0     |
-| transformers | 4.41.2  | 4.43.4    |
-| datasets     | 2.16.0  | 2.20.0    |
-| accelerate   | 0.30.1  | 0.32.0    |
-| peft         | 0.11.1  | 0.12.0    |
-| trl          | 0.8.6   | 0.9.6     |
+| torch        | 1.13.1  | 2.3.0     |
+| transformers | 4.41.2  | 4.41.2    |
+| datasets     | 2.16.0  | 2.19.2    |
+| accelerate   | 0.30.1  | 0.30.1    |
+| peft         | 0.11.1  | 0.11.1    |
+| trl          | 0.8.6   | 0.9.4     |
 
 | Optional     | Minimum | Recommend |
 | ------------ | ------- | --------- |
 | CUDA         | 11.6    | 12.2      |
 | deepspeed    | 0.10.0  | 0.14.0    |
 | bitsandbytes | 0.39.0  | 0.43.1    |
-| vllm         | 0.4.3   | 0.5.0     |
-| flash-attn   | 2.3.0   | 2.6.3     |
+| vllm         | 0.4.3   | 0.4.3     |
+| flash-attn   | 2.3.0   | 2.5.9     |
 
 ### Hardware Requirement
 
@@ -418,8 +413,6 @@ Remember to use `ASCEND_RT_VISIBLE_DEVICES` instead of `CUDA_VISIBLE_DEVICES` to
 
 If you cannot infer model on NPU devices, try setting `do_sample: false` in the configurations.
 
-Download the pre-built Docker images: [32GB](http://mirrors.cn-central-221.ovaijisuan.com/detail/130.html) | [64GB](http://mirrors.cn-central-221.ovaijisuan.com/detail/131.html)
-
 </details>
 
 ### Data Preparation
@@ -456,24 +449,16 @@ For CUDA users:
 
 ```bash
 cd docker/docker-cuda/
-docker compose up -d
-docker compose exec llamafactory bash
+docker-compose up -d
+docker-compose exec llamafactory bash
 ```
 
 For Ascend NPU users:
 
 ```bash
 cd docker/docker-npu/
-docker compose up -d
-docker compose exec llamafactory bash
-```
-
-For AMD ROCm users:
-
-```bash
-cd docker/docker-rocm/
-docker compose up -d
-docker compose exec llamafactory bash
+docker-compose up -d
+docker-compose exec llamafactory bash
 ```
 
 <details><summary>Build without Docker Compose</summary>
@@ -485,7 +470,6 @@ docker build -f ./docker/docker-cuda/Dockerfile \
     --build-arg INSTALL_BNB=false \
     --build-arg INSTALL_VLLM=false \
     --build-arg INSTALL_DEEPSPEED=false \
-    --build-arg INSTALL_FLASHATTN=false \
     --build-arg PIP_INDEX=https://pypi.org/simple \
     -t llamafactory:latest .
 

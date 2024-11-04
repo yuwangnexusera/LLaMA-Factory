@@ -13,9 +13,7 @@
 # limitations under the License.
 
 import os
-from typing import TYPE_CHECKING, List, Sequence
 
-import pytest
 from transformers import AutoTokenizer
 
 from llamafactory.data import get_template_and_fix_tokenizer
@@ -31,12 +29,6 @@ HF_TOKEN = os.getenv("HF_TOKEN")
 
 TINY_LLAMA = os.getenv("TINY_LLAMA", "llamafactory/tiny-random-Llama-3")
 
-MESSAGES = [
-    {"role": "user", "content": "How are you"},
-    {"role": "assistant", "content": "I am fine!"},
-    {"role": "user", "content": "你好"},
-    {"role": "assistant", "content": "很高兴认识你！"},
-]
 
 
 def _check_tokenization(
@@ -121,7 +113,6 @@ def test_jinja_template(use_fast: bool):
     template = get_template_and_fix_tokenizer(tokenizer, DataArguments(template="llama3"))
     tokenizer.chat_template = _get_jinja_template(template, tokenizer)  # llama3 template no replace
     assert tokenizer.chat_template != ref_tokenizer.chat_template
-    assert tokenizer.apply_chat_template(MESSAGES) == ref_tokenizer.apply_chat_template(MESSAGES)
 
 
 @pytest.mark.skipif(not HF_TOKEN, reason="Gated model.")

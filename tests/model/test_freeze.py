@@ -16,7 +16,8 @@ import os
 
 import torch
 
-from llamafactory.train.test_utils import load_infer_model, load_train_model
+from llamafactory.hparams import get_infer_args, get_train_args
+from llamafactory.model import load_model, load_tokenizer
 
 
 TINY_LLAMA = os.getenv("TINY_LLAMA", "llamafactory/tiny-random-Llama-3")
@@ -45,7 +46,10 @@ INFER_ARGS = {
 
 
 def test_freeze_train_all_modules():
-    model = load_train_model(freeze_trainable_layers=1, **TRAIN_ARGS)
+    model_args, _, _, finetuning_args, _ = get_train_args({"freeze_trainable_layers": 1, **TRAIN_ARGS})
+    tokenizer_module = load_tokenizer(model_args)
+    model = load_model(tokenizer_module["tokenizer"], model_args, finetuning_args, is_trainable=True)
+
     for name, param in model.named_parameters():
         if name.startswith("model.layers.1."):
             assert param.requires_grad is True
@@ -56,7 +60,12 @@ def test_freeze_train_all_modules():
 
 
 def test_freeze_train_extra_modules():
-    model = load_train_model(freeze_trainable_layers=1, freeze_extra_modules="embed_tokens,lm_head", **TRAIN_ARGS)
+    model_args, _, _, finetuning_args, _ = get_train_args(
+        {"freeze_trainable_layers": 1, "freeze_extra_modules": "embed_tokens,lm_head", **TRAIN_ARGS}
+    )
+    tokenizer_module = load_tokenizer(model_args)
+    model = load_model(tokenizer_module["tokenizer"], model_args, finetuning_args, is_trainable=True)
+
     for name, param in model.named_parameters():
         if name.startswith("model.layers.1.") or any(module in name for module in ["embed_tokens", "lm_head"]):
             assert param.requires_grad is True
@@ -67,7 +76,10 @@ def test_freeze_train_extra_modules():
 
 
 def test_freeze_inference():
-    model = load_infer_model(**INFER_ARGS)
+    model_args, _, finetuning_args, _ = get_infer_args(INFER_ARGS)
+    tokenizer_module = load_tokenizer(model_args)
+    model = load_model(tokenizer_module["tokenizer"], model_args, finetuning_args, is_trainable=False)
+
     for param in model.parameters():
         assert param.requires_grad is False
         assert param.dtype == torch.float16
