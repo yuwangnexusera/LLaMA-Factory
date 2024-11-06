@@ -678,6 +678,13 @@
     "file_name": "gan/train_data.json"
   },
   "reward": {
-    "file_name": "gan/test_data_rm.json"
+    "file_name": "gan/test_data_rm.json",
+    "ranking": true,
+    "formatting": "sharegpt",
+    "columns": {
+      "messages": "conversations",
+      "chosen": "chosen",
+      "rejected": "rejected"
+    }
   }
 }
