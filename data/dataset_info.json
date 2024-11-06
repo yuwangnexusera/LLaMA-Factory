@@ -676,5 +676,8 @@
   },
   "gan_generator":{
     "file_name": "gan/train_data.json"
+  },
+  "reward": {
+    "file_name": "gan/test_data_rm.json"
   }
 }
