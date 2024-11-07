@@ -1,13 +1,13 @@
 ### Note: DO NOT use quantized model or quantization_bit when merging lora adapters
 
 ### model
-model_name_or_path: /mnt/windows/Users/Admin/LLM/models/qwen/Qwen2-7B-Instruct
-adapter_name_or_path: /mnt/windows/Users/Admin/LLM/models/qwen/TCM/tcm_qwen2_800
+model_name_or_path: /mnt/windows/Users/Admin/LLM/models/qwen/Qwen2___5-7B-Instruct
+adapter_name_or_path: /mnt/windows/Users/Admin/LLM/models/qwen/qwen-rlhf/Qwen2_5-7B-sft
 template: qwen
 finetuning_type: lora
 
 ### export
-export_dir: /mnt/windows/Users/Admin/LLM/models/qwen/TCM/tcm_qwen2_v1
+export_dir: /mnt/windows/Users/Admin/LLM/models/qwen/qwen-rlhf/sft
 export_size: 2
 export_device: cpu
 export_legacy_format: false
