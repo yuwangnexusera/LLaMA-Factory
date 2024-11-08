@@ -13,14 +13,14 @@ pref_loss: sigmoid  # [sigmoid (dpo), orpo, simpo]
 dataset: reward
 template: qwen
 cutoff_len: 1024
-max_samples: 1000
+max_samples: 5000
 overwrite_cache: true
 preprocessing_num_workers: 16
 
 ### output
 output_dir: /mnt/windows/Users/Admin/LLM/models/qwen/qwen-rlhf/dpo
-logging_steps: 100
-save_steps: 200
+logging_steps: 200
+save_steps: 600
 plot_loss: true
 overwrite_output_dir: true
 
