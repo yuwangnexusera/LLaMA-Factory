@@ -2,12 +2,12 @@
 
 ### model
 model_name_or_path: /mnt/windows/Users/Admin/LLM/models/qwen/Qwen2___5-7B-Instruct
-adapter_name_or_path: /mnt/windows/Users/Admin/LLM/models/qwen/qwen-rlhf/Qwen2_5-7B-sft
+adapter_name_or_path: /mnt/windows/Users/Admin/LLM/models/qwen/SS_Qwen2_5_7B_1020
 template: qwen
 finetuning_type: lora
 
 ### export
-export_dir: /mnt/windows/Users/Admin/LLM/models/qwen/qwen-rlhf/sft
+export_dir: /mnt/windows/Users/Admin/LLM/models/qwen/Nexusera_SS_1020
 export_size: 2
 export_device: cpu
 export_legacy_format: false
