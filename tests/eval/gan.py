@@ -26,13 +26,10 @@ args = dict(
 if __name__ == "__main__":
     torch_gc()
     chat_model = ChatModel(args)
-
-    ori_data = pd.read_json("/root/LLM/LLaMA-Factory/data/gan/test_data_2_rl.json").to_dict(
-        orient="records"
-    )
-    results = pd.read_json("/root/LLM/LLaMA-Factory/data/gan/test_data_sft.json").to_dict(
-        orient="records"
-    )
+    results = []
+    path = "/root/LLM/LLaMA-Factory/data/gan/test_data_sft.json"
+    output_file_path = "/root/LLM/LLaMA-Factory/data/gan/dpo.json"
+    ori_data = pd.read_json(path).to_dict(orient="records")
     i = 0
     for item in ori_data:
         i += 1
@@ -49,9 +46,9 @@ if __name__ == "__main__":
             response += new_text
         print()
         # 将生成的 OCR 结果存入新字段 sft_ocr
-        item["sft_ocr"] = response
+        item["dpo_ocr"] = response
 
         results.append(item)
-    pd.DataFrame(results).to_json(
-        "/root/LLM/LLaMA-Factory/data/gan/test_data_sft.json", orient="records", force_ascii=False
-    )
+        # 实时保存每次迭代后的结果到 JSON 文件
+        with open(output_file_path, "w", encoding="utf-8") as file:
+            json.dump(results, file, ensure_ascii=False, indent=4)

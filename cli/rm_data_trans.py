@@ -1,8 +1,10 @@
 import pandas as pd
 import json
+import random
 
 if __name__ == "__main__":
     df = pd.read_json("data/gan/test_data_sft.json").to_dict(orient="records")
+    random.shuffle(df)
     res = []
     for item in df:
         res.append(
@@ -10,7 +12,9 @@ if __name__ == "__main__":
                 "conversations": [
                     {
                         "from": "human",
-                        "value": f"你的任务是根据给定的医学实体，生成类型为:{item['report_type']}的报告,报告中必须包含医学实体中所有非空、非NA的值.医学实体：{json.dumps(item['units'],ensure_ascii=False)}",
+                        "value": f"""你的任务是根据医学实体：{json.dumps(item['units'],ensure_ascii=False)}，生成一份‘肺癌’‘{item['report_type']}’.\
+                            医学实体到材料的规则如下：1、医学实体中的键是医学实体类型，值是该实体类型对应的具体值，日期值表示在该日期下做了检查或用药；
+                        2、生成的材料中必须包含医学实体中所有非空、非NA的键值"""
                     }
                 ],
                 "chosen": {"from": "gpt", "value": item["ocr"]},
