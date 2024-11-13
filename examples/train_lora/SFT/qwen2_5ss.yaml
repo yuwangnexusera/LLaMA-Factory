@@ -14,7 +14,7 @@ overwrite_cache: true
 preprocessing_num_workers: 16
 
 ### output
-output_dir: /mnt/windows/Users/Admin/LLM/models/qwen/SS_Qwen2_5_7B_1020
+output_dir: /mnt/windows/Users/Admin/LLM/models/qwen/SS_Qwen2_5_7B_1113
 ### output
 # resume_from_checkpoint: /mnt/windows/Users/Admin/LLM/models/qwen/nexusera_lora_extract
 logging_steps: 512
