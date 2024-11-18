@@ -675,10 +675,10 @@
     "file_name": "med_struct_09/sft_all.json"
   },
   "gan_generator":{
-    "file_name": "gan/train_data.json"
+    "file_name": "dpo/train_data_sft.json"
   },
-  "reward": {
-    "file_name": "dpo/test_data_rm.json",
+  "dpo1": {
+    "file_name": "dpo/train_dpo_data.json",
     "ranking": true,
     "formatting": "sharegpt",
     "columns": {

@@ -5,12 +5,12 @@ model_name_or_path: ../wwyuuuu/Qwen2___5-SFT
 stage: dpo
 do_train: true
 finetuning_type: lora
-lora_target: q_proj,v_proj, v_proj
-pref_beta: 0.5
+lora_target: all
+pref_beta: 0.3
 pref_loss: sigmoid  # [sigmoid (dpo), orpo, simpo]
 
 ### dataset
-dataset: reward
+dataset: dpo1
 template: qwen
 cutoff_len: 1024
 max_samples: 5000
