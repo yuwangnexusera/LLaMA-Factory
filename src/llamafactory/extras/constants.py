@@ -857,6 +857,22 @@ register_model_group(
 
 register_model_group(
     models={
+        "Llama-3.2-11B-Vision-Instruct": {
+            DownloadSource.DEFAULT: "meta-llama/Llama-3.2-11B-Vision-Instruct",
+            DownloadSource.MODELSCOPE: "LLM-Research/Llama-3.2-11B-Vision-Instruct",
+        },
+        "Llama-3.2-90B-Vision-Instruct": {
+            DownloadSource.DEFAULT: "meta-llama/Llama-3.2-90B-Vision-Instruct",
+            DownloadSource.MODELSCOPE: "LLM-Research/Llama-3.2-90B-Vision-Instruct",
+        },
+    },
+    template="mllama",
+    vision=True,
+)
+
+
+register_model_group(
+    models={
         "LLaVA-1.5-7B-Chat": {
             DownloadSource.DEFAULT: "llava-hf/llava-1.5-7b-hf",
             DownloadSource.MODELSCOPE: "swift/llava-1.5-7b-hf",
@@ -979,6 +995,17 @@ register_model_group(
     },
     template="llava_next_video_yi",
     vision=True,
+)
+
+
+register_model_group(
+    models={
+        "Marco-o1-Chat": {
+            DownloadSource.DEFAULT: "AIDC-AI/Marco-o1",
+            DownloadSource.MODELSCOPE: "AIDC-AI/Marco-o1",
+        },
+    },
+    template="marco",
 )
 
 
@@ -1893,6 +1920,16 @@ register_model_group(
             DownloadSource.MODELSCOPE: "skywork/Skywork-13B-base",
         }
     }
+)
+
+
+register_model_group(
+    models={
+        "Skywork-o1-Open-Llama-3.1-8B": {
+            DownloadSource.DEFAULT: "Skywork/Skywork-o1-Open-Llama-3.1-8B",
+        }
+    },
+    template="skywork_o1",
 )
 
 

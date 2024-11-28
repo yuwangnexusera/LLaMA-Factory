@@ -29,6 +29,7 @@ services:
       - "8008:8008"
     ipc: host
     tty: true
+    shm_size: '16gb'
     stdin_open: true
     command: llamafactory-cli api
     deploy:
